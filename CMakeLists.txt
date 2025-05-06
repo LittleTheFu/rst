@@ -10,7 +10,7 @@ add_subdirectory(third/sdl)
 find_package(OpenGL REQUIRED)
 
 # 添加可执行文件
-add_executable(OpenGL_GLAD_SDL2 main.cpp third/glad/src/glad.c)
+add_executable(OpenGL_GLAD_SDL2 main.cpp third/glad/src/glad.c window.cpp)
 
 # 给可执行文件加 include 目录
 target_include_directories(OpenGL_GLAD_SDL2 PRIVATE
