@@ -1,103 +1,128 @@
-#include "Camera.h"
+#include "camera.h"
+#include <Eigen/Dense>
+#include <corecrt_math_defines.h>
 
-Camera::Camera()
+// 构造函数
+Camera::Camera(const Eigen::Vector3f &position, const Eigen::Vector3f &worldUp, float yaw, float pitch)
+    : Position(position), WorldUp(worldUp), Yaw(yaw), Pitch(pitch)
 {
-    this->fov = 45.0f;
-    this->aspect = 8.0f / 6.0f;
-    this->nearClip = 0.1f;
-    this->farClip = 100.0f;
+    updateCameraVectors();
 }
 
-Camera::Camera(const Eigen::Vector3f &pos, const Eigen::Vector3f &target, const Eigen::Vector3f &up,
-               float fov, float aspect, float nearClip, float farClip)
-    : position(pos),
-      viewDirection((target - pos).normalized()),
-      upDirection(up.normalized()),
-      target(target),
-      fov(fov),
-      aspect(aspect),
-      nearClip(nearClip),
-      farClip(farClip) {}
-
-Eigen::Matrix4f Camera::getViewMatrix() const
+// 获取观察矩阵 (世界空间到观察空间的变换)
+Eigen::Matrix4f Camera::GetViewMatrix() const
 {
-    // 创建坐标系
-    Eigen::Vector3f zAxis = -viewDirection;                        // 相机朝向的反方向
-    Eigen::Vector3f xAxis = upDirection.cross(zAxis).normalized(); // 右方向
-    Eigen::Vector3f yAxis = zAxis.cross(xAxis);                    // 上方向
+    Eigen::Matrix4f viewMatrix = Eigen::Matrix4f::Identity();
 
-    // 构造视图矩阵
-    Eigen::Matrix4f view = Eigen::Matrix4f::Identity();
-    view(0, 0) = xAxis.x();
-    view(1, 0) = xAxis.y();
-    view(2, 0) = xAxis.z(); // Right
+    // 计算相机的朝向的反向旋转
+    Eigen::Vector3f direction = -Front; // 相机看向 -Z 轴
+    Eigen::Quaternionf rotation = Eigen::Quaternionf::FromTwoVectors(Eigen::Vector3f(0.0f, 0.0f, -1.0f), direction.normalized());
+    Eigen::Matrix3f rotationMatrix = rotation.toRotationMatrix();
+    Eigen::Matrix3f invRotation = rotationMatrix.transpose();
 
-    view(0, 1) = yAxis.x();
-    view(1, 1) = yAxis.y();
-    view(2, 1) = yAxis.z(); // Up
+    // 计算相机位置的反向平移
+    Eigen::Vector3f invTranslation = -Position;
 
-    view(0, 2) = zAxis.x();
-    view(1, 2) = zAxis.y();
-    view(2, 2) = zAxis.z(); // Forward
+    // 构建视图矩阵
+    viewMatrix.block<3, 3>(0, 0) = invRotation;
+    viewMatrix.block<3, 1>(0, 3) = invTranslation;
 
-    // 视点平移
-    view(0, 3) = -position.dot(xAxis);
-    view(1, 3) = -position.dot(yAxis);
-    view(2, 3) = -position.dot(zAxis);
-
-    return view;
+    return viewMatrix;
 }
 
-Eigen::Matrix4f Camera::getProjectionMatrix() const
+// 获取投影矩阵 (观察空间到裁剪空间的变换 - 透视投影)
+Eigen::Matrix4f Camera::GetProjectionMatrix() const
 {
-    const float M_PI = 3.14159265358979323846f;
-    float tanHalfFovy = tan(fov / 2.0f * M_PI / 180.0f); // 视野角度的一半的正切值
-
-    Eigen::Matrix4f projection = Eigen::Matrix4f::Zero();
-    projection(0, 0) = 1.0f / (aspect * tanHalfFovy); // 水平视野
-    projection(1, 1) = 1.0f / tanHalfFovy;            // 垂直视野
-    projection(2, 2) = -(farClip + nearClip) / (farClip - nearClip);
-    projection(2, 3) = -(2.0f * farClip * nearClip) / (farClip - nearClip);
-    projection(3, 2) = -1.0f;
-
-    return projection;
+    float tanHalfFOV = tan(fov * M_PI / 360.0f); // 使用 Eigen 的 M_PI
+    Eigen::Matrix4f projectionMatrix = Eigen::Matrix4f::Zero();
+    projectionMatrix(0, 0) = 1.0f / (aspectRatio * tanHalfFOV);
+    projectionMatrix(1, 1) = 1.0f / tanHalfFOV;
+    projectionMatrix(2, 2) = -(farClip + nearClip) / (farClip - nearClip);
+    projectionMatrix(2, 3) = -(2.0f * farClip * nearClip) / (farClip - nearClip);
+    projectionMatrix(3, 2) = -1.0f;
+    return projectionMatrix;
 }
 
-void Camera::setPosition(const Eigen::Vector3f &newPos)
+// 处理键盘输入
+void Camera::ProcessKeyboard(CameraMovement direction, float deltaTime)
 {
-    position = newPos;
+    float velocity = movementSpeed * deltaTime;
+    if (direction == FORWARD)
+        Position += Front * velocity;
+    if (direction == BACKWARD)
+        Position -= Front * velocity;
+    if (direction == LEFT)
+        Position -= Right * velocity;
+    if (direction == RIGHT)
+        Position += Right * velocity;
+    if (direction == UP)
+        Position += Up * velocity;
+    if (direction == DOWN)
+        Position -= Up * velocity;
 }
 
-void Camera::setTarget(const Eigen::Vector3f &target)
+// 处理鼠标移动输入
+void Camera::ProcessMouseMovement(float xoffset, float yoffset, bool constrainPitch)
 {
-    viewDirection = (target - position).normalized();
-    this->target = target;
+    xoffset *= mouseSensitivity;
+    yoffset *= mouseSensitivity;
+
+    Yaw += xoffset;
+    Pitch += yoffset;
+
+    // 确保俯仰角不会超出限制，避免万向锁
+    if (constrainPitch)
+    {
+        if (Pitch > 89.0f)
+            Pitch = 89.0f;
+        if (Pitch < -89.0f)
+            Pitch = -89.0f;
+    }
+
+    // 更新 Front, Right 和 Up 向量
+    updateCameraVectors();
 }
 
-void Camera::setUpDirection(const Eigen::Vector3f &upDirection)
+// 处理鼠标滚轮输入 (用于缩放，改变 FOV)
+void Camera::ProcessMouseScroll(float yoffset)
 {
-    this->upDirection = upDirection;
+    fov -= (float)yoffset * zoomSensitivity;
+    if (fov < 1.0f)
+        fov = 1.0f;
+    if (fov > 45.0f)
+        fov = 45.0f;
 }
 
-void Camera::setFOV(float newFov)
+// 设置宽高比
+void Camera::setAspectRatio(float width, float height)
 {
-    fov = newFov;
+    aspectRatio = width / height;
 }
 
-void Camera::setClippingPlanes(float near, float far)
+// 获取相机的位置
+Eigen::Vector3f Camera::getPosition() const
 {
-    nearClip = near;
-    farClip = far;
+    return Position;
 }
 
-void Camera::setAspect(float newAspect)
+// 获取相机的朝向 (Front 向量)
+Eigen::Vector3f Camera::getFront() const
 {
-    aspect = newAspect;
+    return Front;
 }
 
-void Camera::printCameraInfo() const
+// 更新 Front, Right 和 Up 向量
+void Camera::updateCameraVectors()
 {
-    std::cout << "Position: " << position.transpose() << std::endl;
-    std::cout << "View Direction: " << viewDirection.transpose() << std::endl;
-    std::cout << "Up Direction: " << upDirection.transpose() << std::endl;
+    // 计算新的 Front 向量
+    Eigen::Vector3f front;
+    front.x() = cos(Yaw * M_PI / 180.0f) * cos(Pitch * M_PI / 180.0f);
+    front.y() = sin(Pitch * M_PI / 180.0f);
+    front.z() = sin(Yaw * M_PI / 180.0f) * cos(Pitch * M_PI / 180.0f);
+    Front = front.normalized();
+
+    // 计算 Right 向量 (与世界空间上方向和 Front 向量叉乘得到)
+    Right = (Front.cross(WorldUp)).normalized();
+    // 重新计算 Up 向量 (与 Front 和 Right 向量叉乘得到)
+    Up = (Right.cross(Front)).normalized();
 }

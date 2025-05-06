@@ -4,6 +4,7 @@
 #include "array"
 #include "vertex.h"
 #include <string>
+#include "camera.h"
 
 class Scene
 {
