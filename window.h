@@ -5,6 +5,8 @@
 #include <glad/glad.h>
 #include <chrono>
 
+#include "scene.h"
+
 class Window {
 public:
     // 构造函数：初始化窗口和 OpenGL 上下文
@@ -28,6 +30,10 @@ private:
     int fps = 0;                           // 当前 FPS
     int frameCount = 0;                    // 帧计数器
     std::chrono::time_point<std::chrono::high_resolution_clock> lastTime;  // 上一次时间戳
+
+private:
+    Scene scene_;
+
 };
 
 #endif // WINDOW_H

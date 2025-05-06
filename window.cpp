@@ -40,6 +40,8 @@ Window::Window(const char* title, int width, int height) {
     }
 
     lastTime = std::chrono::high_resolution_clock::now();  // 初始化时间戳
+
+    scene_.init();
 }
 
 Window::~Window() {
@@ -71,6 +73,8 @@ void Window::render() {
     // 清屏操作
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
+
+    scene_.run();
 
     // 交换窗口
     SDL_GL_SwapWindow(window);
