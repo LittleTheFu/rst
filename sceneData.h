@@ -3,12 +3,13 @@
 
 #include <vector>
 #include <Eigen/Dense>
-#include "Mesh.h" // 假设你有一个 Mesh 类来表示网格数据
+#include "Renderable.h" // 使用 Renderable 接口
+#include "transformAble.h" // 使用 Transformable 接口
+
 
 struct ObjectData {
-    Eigen::Matrix4f modelMatrix; // 物体的模型矩阵
-    Mesh* mesh;             // 指向物体网格数据的指针
-    // 可以添加其他材质相关的数据，例如：
+    Renderable* renderable; // 指向可渲染对象的指针
+    Transformable* transformable; // 指向可变换对象的指针
     // Material material; 
 };
 

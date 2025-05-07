@@ -1,9 +1,16 @@
 #include "Mesh.h"
 #include <iostream>
+#include <Eigen/Geometry>
 
-Mesh::Mesh(const std::string& filePath) {
+Mesh::Mesh(const std::string& filePath) :
+    position_(Eigen::Vector3f::Zero()),
+    rotation_(Eigen::Quaternionf::Identity()),
+    scale_(Eigen::Vector3f::Ones()),
+    modelMatrix_(Eigen::Matrix4f::Identity()),
+    diffuseTexture() // 初始化 Texture 对象
+{
     Assimp::Importer importer;
-    const aiScene* scene = importer.ReadFile(filePath, aiProcess_Triangulate | aiProcess_GenNormals);
+    const aiScene* scene = importer.ReadFile(filePath, aiProcess_Triangulate | aiProcess_GenNormals | aiProcess_FlipUVs);
 
     if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
         std::cerr << "ERROR::ASSIMP::" << importer.GetErrorString() << std::endl;
@@ -13,7 +20,6 @@ Mesh::Mesh(const std::string& filePath) {
     // 假设我们只处理第一个网格
     unsigned int meshIndex = scene->mRootNode->mChildren[0]->mMeshes[0];
     aiMesh* mesh = scene->mMeshes[meshIndex];
-    // aiMesh* mesh = scene->mRootNode->mChildren[0]->mMeshes[0]; // 确保这里是 aiMesh*
 
     // 顶点数据
     for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
@@ -32,7 +38,18 @@ Mesh::Mesh(const std::string& filePath) {
         }
     }
 
+    // 材质处理 (简化，假设只有一个漫反射纹理)
+    if (mesh->mMaterialIndex >= 0) {
+        aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
+        aiString texture_file;
+        if (material->GetTexture(aiTextureType_DIFFUSE, 0, &texture_file) == AI_SUCCESS) {
+            std::string texture_path = filePath.substr(0, filePath.find_last_of('/')) + "/" + texture_file.C_Str();
+            diffuseTexture.load(texture_path);
+        }
+    }
+
     setupMesh();
+    updateModelMatrix(); // 初始化模型矩阵
 }
 
 Mesh::~Mesh() {
@@ -70,8 +87,62 @@ void Mesh::setupMesh() {
     glBindVertexArray(0);
 }
 
-void Mesh::draw(Shader& shader) {
+void Mesh::render(Shader& shader) {
+    shader.use();
+
+    // 设置模型矩阵 Uniform
+    shader.setMat4("model", modelMatrix_);
+
+    // 绑定纹理
+    diffuseTexture.use(0);
+    shader.setInt("texture1", 0);
+
     glBindVertexArray(VAO);
     glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
+}
+
+Eigen::Matrix4f Mesh::getModelMatrix() const {
+    return modelMatrix_;
+}
+
+void Mesh::setModelMatrix(const Eigen::Matrix4f& modelMatrix) {
+    modelMatrix_ = modelMatrix;
+}
+
+Eigen::Vector3f Mesh::getPosition() const {
+    return position_;
+}
+
+void Mesh::setPosition(const Eigen::Vector3f& position) {
+    position_ = position;
+    updateModelMatrix();
+}
+
+Eigen::Quaternionf Mesh::getRotation() const {
+    return rotation_;
+}
+
+void Mesh::setRotation(const Eigen::Quaternionf& rotation) {
+    rotation_ = rotation;
+    updateModelMatrix();
+}
+
+Eigen::Vector3f Mesh::getScale() const {
+    return scale_;
+}
+
+void Mesh::setScale(const Eigen::Vector3f& scale) {
+    scale_ = scale;
+    updateModelMatrix();
+}
+
+void Mesh::updateModelMatrix()
+{
+    Eigen::Affine3f model =
+        Eigen::Translation3f(position_) *
+        Eigen::AngleAxisf(rotation_) *
+        Eigen::Scaling(scale_);
+
+    modelMatrix_ = model.matrix();
 }
