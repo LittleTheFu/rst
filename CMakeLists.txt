@@ -27,6 +27,7 @@ add_executable(OpenGL_GLAD_SDL2
     gBufferpass.cpp
     texture.cpp
     mesh.cpp
+    rendererConfig.cpp
     shader.cpp
     render.cpp
     camera.cpp
