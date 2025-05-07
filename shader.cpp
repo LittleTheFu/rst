@@ -1,6 +1,10 @@
-#include "shader.h"
+#include "Shader.h"
 
 Shader::Shader(const std::string& vertexPath, const std::string& fragmentPath) {
+    load(vertexPath, fragmentPath); // 使用 load 函数
+}
+
+void Shader::load(const std::string& vertexPath, const std::string& fragmentPath) {
     // 1. Retrieve the vertex/fragment source code from filePath
     std::string vertexCode;
     std::string fragmentCode;

@@ -57,7 +57,7 @@ public:
     // 获取相机的朝向 (Front 向量)
     Eigen::Vector3f getFront() const;
 
-private:
+public:
     // 相机的位置
     Eigen::Vector3f Position;
     // 世界空间中的上方向

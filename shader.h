@@ -8,7 +8,6 @@
 #include <iostream>
 #include <unordered_map>
 #include <Eigen/Dense>
-#include <string>
 
 class Shader
 {
@@ -16,7 +15,9 @@ public:
     GLuint ID;
 
     Shader(const std::string& vertexPath, const std::string& fragmentPath);
+    Shader() : ID(0) {} // 默认构造函数
     void use();
+    void load(const std::string& vertexPath, const std::string& fragmentPath); // 新增 load 函数
     void setBool(const std::string &name, bool value);
     void setInt(const std::string &name, int value);
     void setFloat(const std::string &name, float value);
