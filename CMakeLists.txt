@@ -25,6 +25,7 @@ add_executable(OpenGL_GLAD_SDL2
     vertex.cpp
     renderPass.cpp
     gBufferpass.cpp
+    texture.cpp
     mesh.cpp
     shader.cpp
     render.cpp
@@ -38,6 +39,7 @@ target_include_directories(OpenGL_GLAD_SDL2 PRIVATE
     ${CMAKE_SOURCE_DIR}/third/SDL/include
     ${CMAKE_SOURCE_DIR}/third/eigen
     ${CMAKE_SOURCE_DIR}/third/lodepng/include
+    ${CMAKE_SOURCE_DIR}/third/stb_image/include
     ${CMAKE_SOURCE_DIR}/third/assimp/include
     ${CMAKE_CURRENT_BINARY_DIR}/third/assimp/include
 )
@@ -46,6 +48,7 @@ target_include_directories(OpenGL_GLAD_SDL2 PRIVATE
 target_link_libraries(OpenGL_GLAD_SDL2
     SDL2::SDL2  # 如果找不到，就换成 SDL2
     ${OPENGL_LIBRARIES}
+    assimp
 )
 
 # MSVC 特别处理
