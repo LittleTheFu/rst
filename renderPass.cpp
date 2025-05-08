@@ -1,7 +1,10 @@
 #include "RenderPass.h"
 #include <iostream>
 
-RenderPass::RenderPass(const std::string& name) : name_(name), shader_("","") // Shader 在派生类中加载
+RenderPass::RenderPass(const std::string &name) : name_(name),
+                                                  shader_("", ""),
+                                                  framebuffer_(0),
+                                                  depthAttachment_(0)
 {
 }
 

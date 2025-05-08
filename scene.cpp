@@ -16,16 +16,8 @@ void Scene::init()
     camera_.Position = Eigen::Vector3f(0.0f, 0.0f, 5.0f);
     camera_.updateCameraVectors();
 
-
-    // ... (加载和编译着色器的代码)
-    // vertex_shader_ = ...;
-    // fragment_shader_ = ...;
-    // shaderProgram_ = createShaderProgram(vertex_shader_, fragment_shader_);
-
-    // ... (创建 VAO 和 VBO 的代码)
-    // glGenVertexArrays(1, &VAO_);
-    // glGenBuffers(1, &VBO_);
-    // ...
+    // 4. 初始化网格
+    mesh_ = std::make_unique<Mesh>("teapot.obj");
 }
 
 void Scene::run()

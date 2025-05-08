@@ -6,6 +6,7 @@
 #include "GBufferPass.h"
 #include "SceneData.h"
 #include <memory>
+#include "mesh.h"
 
 class Scene
 {
@@ -17,6 +18,8 @@ private:
     SceneData sceneData_;
     std::unique_ptr<GBufferPass> gBufferPass_;
     Camera camera_;
+
+    std::unique_ptr<Mesh> mesh_;
 };
 
 #endif

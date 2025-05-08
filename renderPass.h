@@ -26,7 +26,7 @@ public:
 
 protected:
     std::string name_;
-    GLuint framebuffer_ = 0;
+    GLuint framebuffer_;
     std::vector<GLuint> colorAttachments_;
     GLuint depthAttachment_ = 0;
     Shader shader_;

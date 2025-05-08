@@ -2,12 +2,12 @@
 #include <iostream>
 #include <Eigen/Geometry>
 
-Mesh::Mesh(const std::string& filePath) :
+Mesh::Mesh(const std::string& filePath, std::shared_ptr<Material> material) :
     position_(Eigen::Vector3f::Zero()),
     rotation_(Eigen::Quaternionf::Identity()),
     scale_(Eigen::Vector3f::Ones()),
     modelMatrix_(Eigen::Matrix4f::Identity()),
-    diffuseTexture() // 初始化 Texture 对象
+    material_(material) // 初始化 Material
 {
     Assimp::Importer importer;
     const aiScene* scene = importer.ReadFile(filePath, aiProcess_Triangulate | aiProcess_GenNormals | aiProcess_FlipUVs);
@@ -35,16 +35,6 @@ Mesh::Mesh(const std::string& filePath) :
         aiFace face = mesh->mFaces[i];
         for (unsigned int j = 0; j < face.mNumIndices; j++) {
             indices.push_back(face.mIndices[j]);
-        }
-    }
-
-    // 材质处理 (简化，假设只有一个漫反射纹理)
-    if (mesh->mMaterialIndex >= 0) {
-        aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
-        aiString texture_file;
-        if (material->GetTexture(aiTextureType_DIFFUSE, 0, &texture_file) == AI_SUCCESS) {
-            std::string texture_path = filePath.substr(0, filePath.find_last_of('/')) + "/" + texture_file.C_Str();
-            diffuseTexture.load(texture_path);
         }
     }
 
@@ -93,9 +83,11 @@ void Mesh::render(Shader& shader) {
     // 设置模型矩阵 Uniform
     shader.setMat4("model", modelMatrix_);
 
-    // 绑定纹理
-    diffuseTexture.use(0);
-    shader.setInt("texture1", 0);
+    // 绑定材质的纹理和 Uniforms
+    if (material_) {
+        material_->bindTextures(shader);
+        material_->setUniforms(shader); // 假设 Material 类有这个方法
+    }
 
     glBindVertexArray(VAO);
     glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);

@@ -30,6 +30,8 @@ Window::Window(const char* title, int width, int height) {
         exit(-1);
     }
 
+    SDL_GL_MakeCurrent(window, glContext);
+
     // 使用 GLAD 加载 OpenGL 函数
     if (!gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress)) {
         printf("Failed to initialize GLAD\n");
