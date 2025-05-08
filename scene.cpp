@@ -17,7 +17,8 @@ void Scene::init()
     camera_.updateCameraVectors();
 
     // 4. 初始化网格
-    mesh_ = std::make_unique<Mesh>("teapot.obj");
+    std::unique_ptr<Mesh> mesh = std::make_unique<Mesh>("teapot.obj");
+    sceneData_.objects.push_back(std::move(mesh));
 }
 
 void Scene::run()

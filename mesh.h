@@ -12,12 +12,8 @@
 #include "Transformable.h" // 包含 Transformable 接口
 #include "Material.h" // 包含 Material 类
 #include <memory>     // 包含 std::shared_ptr
+#include "vertex.h"   // 包含 Vertex 结构体
 
-struct Vertex {
-    Eigen::Vector3f position;
-    Eigen::Vector3f normal;
-    Eigen::Vector2f texCoords;
-};
 
 class Mesh : public Renderable, public Transformable {
 public:

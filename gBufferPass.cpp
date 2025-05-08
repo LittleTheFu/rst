@@ -44,9 +44,9 @@ void GBufferPass::Render(SceneData& sceneData, Camera& camera) {
 
     // 4. 渲染场景中的所有物体 (这里需要根据你的场景数据结构来修改)
     for (const auto& object : sceneData.objects) {
-        shader_.setMat4("model", object.transformable->getModelMatrix()); // 假设你的物体有模型矩阵
+        // shader_.setMat4("model", object->getModelMatrix()); // 假设你的物体有模型矩阵
         // 设置其他材质相关的 Uniforms (例如，如果有)
-        object.renderable->render(shader_); // 假设你的 object 有 mesh 成员，并且有 draw 方法
+        object->render(shader_); // 假设你的 object 有 mesh 成员，并且有 draw 方法
     }
 
     // 5. 解绑 Framebuffer

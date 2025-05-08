@@ -5,6 +5,7 @@
 #include <Eigen/Dense>
 #include "Renderable.h" // 使用 Renderable 接口
 #include "transformAble.h" // 使用 Transformable 接口
+#include "mesh.h" // 假设 Mesh 是可渲染对象的具体实现
 
 
 struct ObjectData {
@@ -16,7 +17,7 @@ struct ObjectData {
 struct SceneData {
     int screenWidth;
     int screenHeight;
-    std::vector<ObjectData> objects; // 场景中的所有物体
+    std::vector<std::shared_ptr<Mesh>> objects;
     // 可以添加其他场景全局数据，例如：
     // Light light;
 };
