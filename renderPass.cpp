@@ -3,7 +3,7 @@
 #include "SDL_video.h"
 
 RenderPass::RenderPass(const std::string &name) : name_(name),
-                                                  shader_("", ""),
+                                                  shader_("gPass.vert", "gPass.frag"),
                                                   framebuffer_(0),
                                                   depthAttachment_(0)
 {

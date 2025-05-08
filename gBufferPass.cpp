@@ -18,15 +18,17 @@ void GBufferPass::Initialize(int width, int height) {
 
     // 3. 检查 Framebuffer 是否完整
     bindFramebuffer();
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthAttachment_);
     std::vector<GLenum> attachments = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3};
     glDrawBuffers(attachments.size(), attachments.data()); // 告诉 OpenGL 我们要渲染到哪些颜色附件
-    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+    auto err = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+    if (err != GL_FRAMEBUFFER_COMPLETE) {
         std::cerr << "ERROR::FRAMEBUFFER::Framebuffer is not complete!" << std::endl;
     }
     unbindFramebuffer();
 
     // 4. 加载 G-Buffer Pass 的 Shader
-    shader_.load("gbuffer.vert", "gbuffer.frag"); // 假设你的 Shader 文件名为 gbuffer.vert 和 gbuffer.frag
+    // shader_.load("gPass.vert", "gPass.frag"); // 假设你的 Shader 文件名为 gbuffer.vert 和 gbuffer.frag
 }
 
 void GBufferPass::Render(SceneData& sceneData, Camera& camera) {
