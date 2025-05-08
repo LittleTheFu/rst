@@ -1,5 +1,6 @@
 #include "RenderPass.h"
 #include <iostream>
+#include "SDL_video.h"
 
 RenderPass::RenderPass(const std::string &name) : name_(name),
                                                   shader_("", ""),
@@ -15,7 +16,30 @@ void RenderPass::Resize(int width, int height)
 
 void RenderPass::createFramebuffer()
 {
+    if (!SDL_GL_GetCurrentContext()) {
+        std::cerr << "Error: No current OpenGL context set before creating framebuffer!" << std::endl;
+        return;
+    }
+
+    // 检查 gladLoadGLLoader 是否成功
+    if (!gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress)) {
+        std::cerr << "Error: GLAD failed to initialize in createFramebuffer!" << std::endl;
+        return;
+    }
+
+    // 检查 glad_glCreateFramebuffers 函数指针是否为 NULL
+    if (glad_glCreateFramebuffers == nullptr) {
+        std::cerr << "Error: glad_glCreateFramebuffers function pointer is NULL!" << std::endl;
+        return;
+    }
+
     glCreateFramebuffers(1, &framebuffer_);
+    GLenum error = glGetError();
+    if (error != GL_NO_ERROR) {
+        std::cerr << "OpenGL error after glCreateFramebuffers: " << error << " (0x" << std::hex << error << std::dec << ")" << std::endl;
+    } else {
+        std::cout << "Framebuffer created successfully with ID: " << framebuffer_ << std::endl;
+    }
 }
 
 GLuint RenderPass::createColorAttachment(int width, int height, GLenum internalFormat, GLenum format, GLenum type, GLenum attachment)
