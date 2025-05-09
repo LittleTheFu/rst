@@ -25,6 +25,12 @@ public:
     // 处理窗口大小改变
     virtual void Resize(int width, int height);
 
+    // 获取所有颜色附件纹理
+    std::vector<GLuint> getColorAttachments() const;
+
+    // 获取指定索引的颜色附件纹理
+    GLuint getColorAttachment(size_t index) const;
+
 protected:
     std::string name_;
     GLuint framebuffer_;
@@ -40,12 +46,6 @@ protected:
 
     // 创建深度附件纹理 (Renderbuffer 或 Texture)
     GLuint createDepthAttachment(int width, int height, bool useTexture = false);
-
-    // 获取所有颜色附件纹理
-    std::vector<GLuint> getColorAttachments() const;
-
-    // 获取指定索引的颜色附件纹理
-    GLuint getColorAttachment(size_t index) const;
 
     // 绑定 Framebuffer 进行读写
     void bindFramebuffer(bool read = true, bool draw = true);

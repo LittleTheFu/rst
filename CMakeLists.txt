@@ -28,6 +28,7 @@ add_executable(OpenGL_GLAD_SDL2
     texture.cpp
     material.cpp
     mesh.cpp
+    screenPass.cpp
     rendererConfig.cpp
     shader.cpp
     render.cpp

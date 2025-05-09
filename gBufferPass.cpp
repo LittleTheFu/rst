@@ -1,7 +1,9 @@
 #include "GBufferPass.h"
 #include <iostream>
 
-GBufferPass::GBufferPass() : RenderPass("GBufferPass") { // 构造函数
+GBufferPass::GBufferPass() : RenderPass("GBufferPass") 
+{
+    shader_.load("gPass.vert", "gPass.frag");
 }
 
 void GBufferPass::Initialize(int width, int height) {
