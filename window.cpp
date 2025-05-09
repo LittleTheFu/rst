@@ -65,6 +65,8 @@ Window::Window(const char *title, int width, int height)
         exit(-1);
     }
 
+    // SDL_GL_SetSwapInterval(0);
+
     lastTime = std::chrono::high_resolution_clock::now(); // 初始化时间戳
 
     scene_.init();
