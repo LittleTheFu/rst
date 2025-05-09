@@ -4,22 +4,23 @@
 #include <string>
 #include <vector>
 #include <glad/glad.h> // 需要 GLAD 来使用 OpenGL 函数
-#include "Shader.h"   // 假设你已经有 Shader 类
-#include "Camera.h"   // 假设你已经有 Camera 类
+#include "Shader.h"    // 假设你已经有 Shader 类
+#include "Camera.h"    // 假设你已经有 Camera 类
 
 // 假设你有一个存储场景数据的结构体或类
 struct SceneData;
 
-class RenderPass {
+class RenderPass
+{
 public:
-    RenderPass(const std::string& name);
+    RenderPass(const std::string &name);
     virtual ~RenderPass() = default;
 
     // 初始化 Pass，例如创建 Framebuffer 和纹理附件
     virtual void Initialize(int width, int height) = 0;
 
     // 执行渲染 Pass
-    virtual void Render(SceneData& sceneData, Camera& camera) = 0;
+    virtual void Render(SceneData &sceneData, Camera &camera) = 0;
 
     // 处理窗口大小改变
     virtual void Resize(int width, int height);
@@ -39,6 +40,12 @@ protected:
 
     // 创建深度附件纹理 (Renderbuffer 或 Texture)
     GLuint createDepthAttachment(int width, int height, bool useTexture = false);
+
+    // 获取所有颜色附件纹理
+    std::vector<GLuint> getColorAttachments() const;
+
+    // 获取指定索引的颜色附件纹理
+    GLuint getColorAttachment(size_t index) const;
 
     // 绑定 Framebuffer 进行读写
     void bindFramebuffer(bool read = true, bool draw = true);
@@ -62,10 +69,10 @@ protected:
     GLuint getShaderProgram() const;
 
     // 设置 Shader 的 Uniform 变量 (提供一些常用的重载)
-    void setUniformInt(const std::string& name, int value);
-    void setUniformFloat(const std::string& name, float value);
-    void setUniformVec3(const std::string& name, const Eigen::Vector3f& value);
-    void setUniformMat4(const std::string& name, const Eigen::Matrix4f& value);
+    void setUniformInt(const std::string &name, int value);
+    void setUniformFloat(const std::string &name, float value);
+    void setUniformVec3(const std::string &name, const Eigen::Vector3f &value);
+    void setUniformMat4(const std::string &name, const Eigen::Matrix4f &value);
 };
 
 #endif // RENDERPASS_H

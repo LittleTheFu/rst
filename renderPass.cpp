@@ -71,6 +71,22 @@ GLuint RenderPass::createDepthAttachment(int width, int height, bool useTexture)
     return depthAttachment_;
 }
 
+std::vector<GLuint> RenderPass::getColorAttachments() const
+{
+    return colorAttachments_; // 返回基类中受保护的成员
+}
+
+GLuint RenderPass::getColorAttachment(size_t index) const
+{
+    if (index < colorAttachments_.size())
+    {
+        return colorAttachments_[index];
+    }
+    // 可以选择抛出异常或返回一个特定的错误值 (例如 0)
+    std::cerr << "Error: Color attachment index out of bounds for " << name_ << std::endl;
+    return 0;
+}
+
 void RenderPass::bindFramebuffer(bool read, bool draw)
 {
     if (draw)

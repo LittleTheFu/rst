@@ -41,8 +41,8 @@ void GBufferPass::Render(SceneData& sceneData, Camera& camera) {
     shader_.use();
 
     // 3. 设置 Uniform 变量
-    shader_.setMat4("projection", camera.GetProjectionMatrix());
     shader_.setMat4("view", camera.GetViewMatrix());
+    shader_.setMat4("projection", camera.GetProjectionMatrix());
 
     // 4. 渲染场景中的所有物体 (这里需要根据你的场景数据结构来修改)
     for (const auto& object : sceneData.objects) {
