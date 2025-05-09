@@ -13,19 +13,13 @@ layout(location = 0) out vec4 out_Position;    // 写入到 GL_COLOR_ATTACHMENT0
 // layout(location = 2) out vec4 out_AlbedoSpecular; // 写入到 GL_COLOR_ATTACHMENT2
 // layout(location = 3) out vec4 out_RoughnessMetallicAO; // 写入到 GL_COLOR_ATTACHMENT3
 
-void main() {
-
-    // 假设 fragPos 的 x, y, z 分量在一个大致的范围内，例如 -10.0 到 10.0
-    // 你需要根据你的场景调整 divisor 的值
-    float divisor = 2.0;
-    vec3 normalizedPos = (fs_in.fragPos + divisor * 0.5) / divisor; // 将范围映射到 0.0 到 1.0
-
-    out_Position = vec4(normalizedPos, 1.0);
-    // 计算位置信息
-    // out_Position = vec4(fs_in.fragPos, 1.0);
+void main() 
+{
+    // 写入位置信息到第一个颜色附件
+    out_Position = vec4(fs_in.fragPos, 1.0);
 
     // 计算法线信息
-    // out_Normal = vec4(normalize(fragNormal), 0.0);
+    out_Normal = vec4(normalize(fragNormal), 0.0);
 
     // 获取反照率和镜面反射强度 (假设从纹理采样)
     // vec4 albedoMap = texture(albedoTexture, fragTexCoords);
