@@ -30,5 +30,5 @@ void Scene::run()
 {
     gBufferPass_->Render(sceneData_, camera_);
 
-    screenPass_->Render(gBufferPass_->getColorAttachment(0));
+    screenPass_->Render(gBufferPass_->getColorAttachment(1));
 }
