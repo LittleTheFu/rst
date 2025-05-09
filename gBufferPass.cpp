@@ -9,7 +9,7 @@ GBufferPass::GBufferPass() : RenderPass("GBufferPass")
 void GBufferPass::Initialize(int width, int height) {
     // 1. 创建 Framebuffer
     createFramebuffer();
-
+    bindFramebuffer();
     // 2. 创建 G-Buffer 纹理附件
     positionTexture_ = createColorAttachment(width, height, GL_RGBA32F, GL_RGBA, GL_FLOAT, GL_COLOR_ATTACHMENT0); // 位置
     normalTexture_ = createColorAttachment(width, height, GL_RGBA16F, GL_RGBA, GL_FLOAT, GL_COLOR_ATTACHMENT1);   // 法线
@@ -19,7 +19,7 @@ void GBufferPass::Initialize(int width, int height) {
     depthAttachment_ = createDepthAttachment(width, height); // 深度
 
     // 3. 检查 Framebuffer 是否完整
-    bindFramebuffer();
+    // bindFramebuffer();
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthAttachment_);
     std::vector<GLenum> attachments = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3};
     glDrawBuffers(attachments.size(), attachments.data()); // 告诉 OpenGL 我们要渲染到哪些颜色附件
@@ -36,6 +36,8 @@ void GBufferPass::Initialize(int width, int height) {
 void GBufferPass::Render(SceneData& sceneData, Camera& camera) {
     // 1. 绑定 G-Buffer Framebuffer
     bindFramebuffer();
+    glClearColor(1.0f, 0.0f, 1.0f, 1.0f);
+
     clearBuffers(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     setViewport(sceneData.screenWidth, sceneData.screenHeight);
 

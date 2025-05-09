@@ -25,6 +25,7 @@ void ScreenPass::Render(const GLuint& textureID)
  // 绑定默认 Framebuffer
  unbindFramebuffer(); // unbindFramebuffer() 继承自 RenderPass，会绑定回默认的 Framebuffer (ID 0)
 
+ glClearColor(0.0f, 0.3f, 0.0f, 1.0f);
  // 清除默认 Framebuffer
  clearBuffers(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 

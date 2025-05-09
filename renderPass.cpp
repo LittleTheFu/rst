@@ -34,6 +34,7 @@ void RenderPass::createFramebuffer()
     }
 
     glCreateFramebuffers(1, &framebuffer_);
+    // glBindFramebuffer(GL_FRAMEBUFFER, framebuffer_);
     GLenum error = glGetError();
     if (error != GL_NO_ERROR) {
         std::cerr << "OpenGL error after glCreateFramebuffers: " << error << " (0x" << std::hex << error << std::dec << ")" << std::endl;
