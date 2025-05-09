@@ -28,8 +28,8 @@ void Material::bindTextures(Shader& shader) {
     unsigned int textureUnit = 0;
     if (albedoMap_) {
         albedoMap_->use(textureUnit);
-        shader.setInt("material.albedoMap", textureUnit++);
-        shader.setBool("material.hasAlbedoMap", true);
+        shader.setInt("albedoMap", textureUnit++);
+        shader.setBool("hasAlbedoMap", true);
     } else {
         shader.setBool("material.hasAlbedoMap", false);
     }
