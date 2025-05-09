@@ -17,8 +17,8 @@ void Scene::init()
     screenPass_->Initialize(sceneData_.screenWidth, sceneData_.screenHeight);
 
     // 3. 初始化相机
-    camera_.Position = Eigen::Vector3f(0.0f, 0.0f, 5.0f);
-    camera_.Front = Eigen::Vector3f(0.0f, 0.0f, 1.0f);
+    camera_.Position = Eigen::Vector3f(0.0f, 0.0f, 10.0f);
+    camera_.Front = Eigen::Vector3f(0.0f, 0.0f, 0.0f);
     camera_.updateCameraVectors();
 
     // 4. 初始化网格
