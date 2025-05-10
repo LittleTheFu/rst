@@ -37,6 +37,8 @@ void GBufferPass::Render(SceneData& sceneData, Camera& camera) {
     // 1. 绑定 G-Buffer Framebuffer
     bindFramebuffer();
     glClearColor(1.0f, 0.0f, 1.0f, 1.0f);
+    glEnable(GL_DEPTH_TEST);
+
 
     clearBuffers(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     setViewport(sceneData.screenWidth, sceneData.screenHeight);
