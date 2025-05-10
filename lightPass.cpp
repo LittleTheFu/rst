@@ -41,34 +41,34 @@ void LightPass::Render(SceneData& sceneData, Camera& camera)
 
     shader_.use();
 
-    // 绑定 G-buffer 纹理到对应的纹理单元
-    std::vector<GLuint> gBufferTextures = sceneData.gBuffer->getColorAttachments();
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, gBufferTextures[0]); // Position
-    shader_.setInt("gPosition", 0);
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, gBufferTextures[1]); // Normal
-    shader_.setInt("gNormal", 1);
-    glActiveTexture(GL_TEXTURE2);
-    glBindTexture(GL_TEXTURE_2D, gBufferTextures[2]); // Albedo
-    shader_.setInt("gAlbedo", 2);
-    glActiveTexture(GL_TEXTURE3);
-    glBindTexture(GL_TEXTURE_2D, gBufferTextures[3]); // Roughness
-    shader_.setInt("gRoughness", 3);
-    glActiveTexture(GL_TEXTURE4);
-    glBindTexture(GL_TEXTURE_2D, gBufferTextures[4]); // Metallic
-    shader_.setInt("gMetallic", 4);
-    glActiveTexture(GL_TEXTURE5);
-    glBindTexture(GL_TEXTURE_2D, gBufferTextures[5]); // AO
-    shader_.setInt("gAo", 5);
+    // // 绑定 G-buffer 纹理到对应的纹理单元
+    // std::vector<GLuint> gBufferTextures = sceneData.gBuffer->getColorAttachments();
+    // glActiveTexture(GL_TEXTURE0);
+    // glBindTexture(GL_TEXTURE_2D, gBufferTextures[0]); // Position
+    // shader_.setInt("gPosition", 0);
+    // glActiveTexture(GL_TEXTURE1);
+    // glBindTexture(GL_TEXTURE_2D, gBufferTextures[1]); // Normal
+    // shader_.setInt("gNormal", 1);
+    // glActiveTexture(GL_TEXTURE2);
+    // glBindTexture(GL_TEXTURE_2D, gBufferTextures[2]); // Albedo
+    // shader_.setInt("gAlbedo", 2);
+    // glActiveTexture(GL_TEXTURE3);
+    // glBindTexture(GL_TEXTURE_2D, gBufferTextures[3]); // Roughness
+    // shader_.setInt("gRoughness", 3);
+    // glActiveTexture(GL_TEXTURE4);
+    // glBindTexture(GL_TEXTURE_2D, gBufferTextures[4]); // Metallic
+    // shader_.setInt("gMetallic", 4);
+    // glActiveTexture(GL_TEXTURE5);
+    // glBindTexture(GL_TEXTURE_2D, gBufferTextures[5]); // AO
+    // shader_.setInt("gAo", 5);
 
-    // 设置光源信息 (这里假设场景数据中有一个点光源)
-    if (!sceneData.lights.empty())
-    {
-        shader_.setVec3("lightPos", sceneData.lights[0].position);
-        shader_.setVec3("lightColor", sceneData.lights[0].color);
-    }
-    shader_.setVec3("cameraPos", camera.Position);
+    // // 设置光源信息 (这里假设场景数据中有一个点光源)
+    // if (!sceneData.lights.empty())
+    // {
+    //     shader_.setVec3("lightPos", sceneData.lights[0].position);
+    //     shader_.setVec3("lightColor", sceneData.lights[0].color);
+    // }
+    // shader_.setVec3("cameraPos", camera.Position);
 
     renderQuad(); // 渲染覆盖屏幕的四边形
 

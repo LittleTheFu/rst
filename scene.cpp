@@ -14,6 +14,10 @@ void Scene::init()
     gBufferPass_ = std::make_unique<GBufferPass>();
     gBufferPass_->Initialize(sceneData_.screenWidth, sceneData_.screenHeight);
 
+    // 2. 初始化 Light Pass
+    // lightPass_ = std::make_unique<LightPass>();
+    // lightPass_->Initialize(sceneData_.screenWidth, sceneData_.screenHeight);
+
     // 3. 初始化屏幕 Pass
     screenPass_ = std::make_unique<ScreenPass>();
     screenPass_->Initialize(sceneData_.screenWidth, sceneData_.screenHeight);
@@ -48,6 +52,10 @@ void Scene::init()
 void Scene::run()
 {
     gBufferPass_->Render(sceneData_, camera_);
-
-    screenPass_->Render(gBufferPass_->getColorAttachment(3));
+    screenPass_->Render(gBufferPass_->getColorAttachment(0),
+                        gBufferPass_->getColorAttachment(1),
+                        gBufferPass_->getColorAttachment(2),
+                        gBufferPass_->getColorAttachment(3),
+                        gBufferPass_->getColorAttachment(4),
+                        gBufferPass_->getColorAttachment(5));
 }

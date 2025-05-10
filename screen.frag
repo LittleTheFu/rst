@@ -2,9 +2,14 @@
 in vec2 TexCoords;
 out vec4 FragColor;
 
-uniform sampler2D screenTexture;
+uniform sampler2D positionTexture;
+uniform sampler2D normalTexture;
+uniform sampler2D albedoTexture;
+uniform sampler2D metallicTexture;
+uniform sampler2D roughnessTexture;
+uniform sampler2D aoTexture;
 
 void main()
 {
- FragColor = texture(screenTexture, TexCoords);
+ FragColor = texture(positionTexture, TexCoords);
 }

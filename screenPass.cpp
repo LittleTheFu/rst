@@ -41,6 +41,48 @@ void ScreenPass::Render(const GLuint& textureID)
  renderQuad();
 }
 
+void ScreenPass::Render(const GLuint &positionTextureID, const GLuint &normalTextureID, const GLuint &albedoTextureID, const GLuint &roughnessTextureID, const GLuint &metallicTextureID, const GLuint &aoTextureID)
+{
+  // 绑定默认 Framebuffer
+ unbindFramebuffer(); // unbindFramebuffer() 继承自 RenderPass，会绑定回默认的 Framebuffer (ID 0)
+
+ glClearColor(0.0f, 0.3f, 0.0f, 1.0f);
+ // 清除默认 Framebuffer
+ clearBuffers(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+ // 使用屏幕 Shader
+ shader_.use();
+
+ // 绑定要显示的纹理
+ glActiveTexture(GL_TEXTURE0);
+ glBindTexture(GL_TEXTURE_2D, positionTextureID);
+ shader_.setInt("positionTexture", 0);
+
+ glActiveTexture(GL_TEXTURE1);
+ glBindTexture(GL_TEXTURE_2D, normalTextureID);
+ shader_.setInt("normalTexture", 1);
+
+ glActiveTexture(GL_TEXTURE2);
+ glBindTexture(GL_TEXTURE_2D, albedoTextureID);
+ shader_.setInt("albedoTexture", 2);
+
+ glActiveTexture(GL_TEXTURE3);
+ glBindTexture(GL_TEXTURE_2D, roughnessTextureID);
+ shader_.setInt("roughnessTexture", 3);
+
+ glActiveTexture(GL_TEXTURE4);
+ glBindTexture(GL_TEXTURE_2D, metallicTextureID);
+ shader_.setInt("metallicTexture", 4);
+
+ glActiveTexture(GL_TEXTURE5);
+ glBindTexture(GL_TEXTURE_2D, aoTextureID);
+ shader_.setInt("aoTexture", 5);
+
+
+ // 渲染屏幕四边形
+ renderQuad();  
+}
+
 void ScreenPass::Resize(int width, int height)
 {
  setViewport(width, height);
