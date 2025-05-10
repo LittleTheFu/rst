@@ -16,8 +16,11 @@ private:
     // G-Buffer 纹理的 IDs
     GLuint positionTexture_;           // 存储位置信息
     GLuint normalTexture_;             // 存储法线信息
-    GLuint albedoSpecularTexture_;     // 存储反照率和镜面反射强度
-    GLuint roughnessMetallicAOTexture_; // 存储粗糙度、金属度和环境光遮蔽信息
+    GLuint albedoTexture_;     
+    // GLuint roughnessMetallicAOTexture_; // 存储粗糙度、金属度和环境光遮蔽信息
+    GLuint roughnessTexture_;
+    GLuint metallicTexture_;
+    GLuint aoTexture_;
 };
 
 #endif // GBUFFERPASS_H

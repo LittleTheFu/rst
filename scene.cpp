@@ -28,9 +28,16 @@ void Scene::init()
 
     std::shared_ptr<Texture> albedoTexture = std::make_shared<Texture>("lena.png");
     std::shared_ptr<Texture> normalTexture = std::make_shared<Texture>("normal.tga");
+    std::shared_ptr<Texture> roughnessTexture = std::make_shared<Texture>("roughness.tga");
+    std::shared_ptr<Texture> metallicTexture = std::make_shared<Texture>("metallic.tga");
+    std::shared_ptr<Texture> aoTexture = std::make_shared<Texture>("ao.tga");
+
     std::shared_ptr<Material> material = std::make_shared<Material>("teapot_mtrl");
     material->setAlbedoMap(albedoTexture);
     material->setNormalMap(normalTexture);
+    material->setRoughnessMap(roughnessTexture);
+    material->setMetallicMap(metallicTexture);
+    material->setAmbientOcclusionMap(aoTexture);
 
     mesh->setMaterial(material);
 
@@ -42,5 +49,5 @@ void Scene::run()
 {
     gBufferPass_->Render(sceneData_, camera_);
 
-    screenPass_->Render(gBufferPass_->getColorAttachment(1));
+    screenPass_->Render(gBufferPass_->getColorAttachment(3));
 }

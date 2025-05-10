@@ -10,6 +10,18 @@ void Material::setNormalMap(const std::shared_ptr<Texture>& texture) {
     normalMap_ = texture;
 }
 
+void Material::setRoughnessMap(const std::shared_ptr<Texture>& texture) {
+    roughnessMap_ = texture; 
+}
+
+void Material::setMetallicMap(const std::shared_ptr<Texture>& texture) {
+    metallicMap_ = texture; 
+}
+
+void Material::setAmbientOcclusionMap(const std::shared_ptr<Texture>& texture) {
+    aoMap_ = texture; 
+}
+
 // ... 其他纹理 setter ...
 
 void Material::setAlbedoColor(const Eigen::Vector3f& color) {
@@ -31,7 +43,7 @@ void Material::bindTextures(Shader& shader) {
         shader.setInt("albedoMap", textureUnit++);
         shader.setBool("hasAlbedoMap", true);
     } else {
-        shader.setBool("material.hasAlbedoMap", false);
+        shader.setBool("hasAlbedoMap", false);
     }
 
     if (normalMap_) {
@@ -39,31 +51,31 @@ void Material::bindTextures(Shader& shader) {
         shader.setInt("normalMap", textureUnit++);
         shader.setBool("hasNormalMap", true);
     } else {
-        shader.setBool("material.hasNormalMap", false);
+        shader.setBool("hasNormalMap", false);
     }
 
     if (roughnessMap_) {
         roughnessMap_->use(textureUnit);
-        shader.setInt("material.roughnessMap", textureUnit++);
-        shader.setBool("material.hasRoughnessMap", true);
+        shader.setInt("roughnessMap", textureUnit++);
+        shader.setBool("hasRoughnessMap", true);
     } else {
-        shader.setBool("material.hasRoughnessMap", false);
+        shader.setBool("hasRoughnessMap", false);
     }
 
     if (metallicMap_) {
         metallicMap_->use(textureUnit);
-        shader.setInt("material.metallicMap", textureUnit++);
-        shader.setBool("material.hasMetallicMap", true);
+        shader.setInt("metallicMap", textureUnit++);
+        shader.setBool("hasMetallicMap", true);
     } else {
-        shader.setBool("material.hasMetallicMap", false);
+        shader.setBool("hasMetallicMap", false);
     }
 
     if (aoMap_) {
         aoMap_->use(textureUnit);
-        shader.setInt("material.aoMap", textureUnit++);
-        shader.setBool("material.hasAoMap", true);
+        shader.setInt("aoMap", textureUnit++);
+        shader.setBool("hasAoMap", true);
     } else {
-        shader.setBool("material.hasAoMap", false);
+        shader.setBool("hasAoMap", false);
     }
 
     // ... 绑定其他纹理 ...
