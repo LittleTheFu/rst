@@ -26,9 +26,11 @@ void Scene::init()
     // 4. 初始化网格
     std::unique_ptr<Mesh> mesh = std::make_unique<Mesh>("teapot.obj");
 
-    std::shared_ptr<Texture> texture = std::make_shared<Texture>("lena.png");
+    std::shared_ptr<Texture> albedoTexture = std::make_shared<Texture>("lena.png");
+    std::shared_ptr<Texture> normalTexture = std::make_shared<Texture>("normal.tga");
     std::shared_ptr<Material> material = std::make_shared<Material>("teapot_mtrl");
-    material->setAlbedoMap(texture);
+    material->setAlbedoMap(albedoTexture);
+    material->setNormalMap(normalTexture);
 
     mesh->setMaterial(material);
 
@@ -40,5 +42,5 @@ void Scene::run()
 {
     gBufferPass_->Render(sceneData_, camera_);
 
-    screenPass_->Render(gBufferPass_->getColorAttachment(2));
+    screenPass_->Render(gBufferPass_->getColorAttachment(1));
 }

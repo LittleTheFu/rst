@@ -21,14 +21,17 @@ layout(location = 2) out vec4 out_AlbedoSpecular; // 写入到 GL_COLOR_ATTACHME
 uniform sampler2D albedoMap;  // 单独声明
 uniform bool hasAlbedoMap;    // 也可以单独声明（或留在 UBO 里）
 
+uniform sampler2D normalMap;  // 单独声明
+uniform bool hasNormalMap;    // 也可以单独声明（或留在 UBO 里）
+
 void main() 
 {
     // 写入位置信息到第一个颜色附件
     out_Position = vec4(fs_in.fragPos, 1.0);
 
     // 计算法线信息
-    out_Normal = vec4(normalize(fs_in.normal), 0.0);
-
+    // out_Normal = vec4(normalize(fs_in.normal), 0.0);
+    out_Normal = texture(normalMap, fs_in.texCoords);
 
     //for debug
     out_AlbedoSpecular = texture(albedoMap, fs_in.texCoords); // 假设 albedoTexture 是一个纹理采样器

@@ -36,8 +36,8 @@ void Material::bindTextures(Shader& shader) {
 
     if (normalMap_) {
         normalMap_->use(textureUnit);
-        shader.setInt("material.normalMap", textureUnit++);
-        shader.setBool("material.hasNormalMap", true);
+        shader.setInt("normalMap", textureUnit++);
+        shader.setBool("hasNormalMap", true);
     } else {
         shader.setBool("material.hasNormalMap", false);
     }
