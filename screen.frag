@@ -21,8 +21,8 @@ layout (std140) uniform PointLightBlock {
 
 void main()
 {
-//  FragColor = texture(positionTexture, TexCoords);
+ FragColor = texture(positionTexture, TexCoords);
 //  FragColor = PointLightBlock.color;
-    FragColor = vec4(uPointLight.color, 1.0);
+    // FragColor = vec4(uPointLight.color, 1.0);
 
 }
