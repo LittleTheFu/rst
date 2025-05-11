@@ -3,6 +3,7 @@
 #include <glad/glad.h>
 #include "material.h"
 #include "texture.h"
+#include "pointLight.h"
 
 void Scene::init()
 {
@@ -47,6 +48,10 @@ void Scene::init()
 
     sceneData_.objects.push_back(std::move(mesh));
 
+    // 5. 初始化光源
+    sceneData_.light = std::make_shared<PointLight>();
+    sceneData_.light->position = Eigen::Vector3f(0.0f, 0.0f, 0.0f);
+    sceneData_.light->color = Eigen::Vector3f(1.0f, 0.0f, 0.0f);
 }
 
 void Scene::run()
@@ -57,5 +62,6 @@ void Scene::run()
                         gBufferPass_->getColorAttachment(2),
                         gBufferPass_->getColorAttachment(3),
                         gBufferPass_->getColorAttachment(4),
-                        gBufferPass_->getColorAttachment(5));
+                        gBufferPass_->getColorAttachment(5),
+                        sceneData_.light);
 }

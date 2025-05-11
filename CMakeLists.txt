@@ -26,6 +26,8 @@ add_executable(OpenGL_GLAD_SDL2
     renderPass.cpp
     gBufferpass.cpp
     texture.cpp
+    uniformBuffer.cpp
+    glResource.cpp
     lightPass.cpp
     material.cpp
     mesh.cpp

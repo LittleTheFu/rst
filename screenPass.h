@@ -3,6 +3,8 @@
 
 #include "RenderPass.h"
 #include "Shader.h"
+#include "pointLight.h"
+#include "uniformBuffer.h"
 
 class ScreenPass : public RenderPass
 {
@@ -18,7 +20,8 @@ public:
                 const GLuint &albedoTextureID,
                 const GLuint &roughnessTextureID,
                 const GLuint &metallicTextureID,
-                const GLuint &aoTextureID);
+                const GLuint &aoTextureID,
+                const std::shared_ptr<PointLight> &light);
     void Resize(int width, int height) override;
 
 private:
@@ -27,6 +30,10 @@ private:
 
     void initScreenQuad();
     void renderQuad();
+
+    UniformBuffer objectLightUBO_;
+    GLuint lightBindingPoint_;
+
 };
 
 #endif // SCREENPASS_H

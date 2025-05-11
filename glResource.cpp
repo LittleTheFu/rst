@@ -7,6 +7,7 @@ GLuint GLResource::generateId(GLenum target) {
     switch (target) {
         case GL_ARRAY_BUFFER:
         case GL_ELEMENT_ARRAY_BUFFER:
+        case GL_UNIFORM_BUFFER: // 添加 GL_UNIFORM_BUFFER
             glGenBuffers(1, &newId);
             break;
         case GL_FRAMEBUFFER:
@@ -21,9 +22,8 @@ GLuint GLResource::generateId(GLenum target) {
         case GL_RENDERBUFFER:
             glGenRenderbuffers(1, &newId);
             break;
-        // 可以根据需要添加其他 OpenGL 对象类型
         default:
-            // 处理不支持的类型，可以抛出异常或记录错误
+            // 处理不支持的类型
             break;
     }
     id_ = newId;

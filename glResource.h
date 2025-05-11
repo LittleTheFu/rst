@@ -11,7 +11,7 @@ public:
 
     GLuint id() const { return id_; }
 
-    virtual void bind() const = 0;   // 纯虚函数，强制子类实现
+    virtual void bind(GLuint target = 0) const = 0;  // 纯虚函数，接受可选参数
     virtual void unbind() const = 0; // 纯虚函数，强制子类实现
 
 protected:
