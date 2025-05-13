@@ -70,7 +70,7 @@ void main()
     vec3 albedo = texture(albedoTexture, TexCoords).rgb;
     float metallic = texture(metallicTexture, TexCoords).r;
     float roughness = texture(roughnessTexture, TexCoords).r;
-    // vec3 ao = texture(aoTexture, TexCoords).rgb;
+    vec3 ao = texture(aoTexture, TexCoords).rgb;
 
     roughness = clamp(roughness, 0.05, 1.0);  // 不要为0，也不要大于1
 
@@ -107,7 +107,8 @@ void main()
     vec3 Lo = vec3(0.0);      
     Lo += (kD * albedo / PI + specular) * radiance * NdotL;
 
-    FragColor = vec4(Lo, 1.0);
+    vec3 ambient = vec3(0.03) * albedo * ao;
+    FragColor = vec4(Lo, 1.0) + vec4(ambient, 1.0);
     // FragColor = vec4(uPointLight.intensity, uPointLight.intensity, uPointLight.intensity, 1.0);
     
 }
