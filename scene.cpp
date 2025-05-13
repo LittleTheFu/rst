@@ -51,13 +51,21 @@ void Scene::init()
 
     // 5. 初始化光源
     sceneData_.light = std::make_shared<PointLight>();
-    sceneData_.light->position = Eigen::Vector3f(0.0f, 0.0f, 3.0f);
+    sceneData_.light->position = Eigen::Vector3f(0.0f, 0.0f, 10.0f);
     sceneData_.light->color = Eigen::Vector3f(1.0f, 1.0f, 1.0f);
-    sceneData_.light->intensity = 10.0f;
+    sceneData_.light->intensity = 100.0f;
 }
 
 void Scene::run()
 {
+    //for debug,test light---------------------------------------------
+    static int count = 0;
+    count++;
+    count %= 48000;
+    float x = count / 2400.0f - 10.0f;
+    sceneData_.light->position = Eigen::Vector3f(x, x, 30.0f);
+    sceneData_.light->intensity = 200.0f;
+    //-----------------------------------------------------------------
     gBufferPass_->Render(sceneData_, camera_);
     screenPass_->Render(gBufferPass_->getColorAttachment(0),
                         gBufferPass_->getColorAttachment(1),
