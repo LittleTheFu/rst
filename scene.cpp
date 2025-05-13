@@ -50,8 +50,9 @@ void Scene::init()
 
     // 5. 初始化光源
     sceneData_.light = std::make_shared<PointLight>();
-    sceneData_.light->position = Eigen::Vector3f(0.0f, 0.0f, 0.0f);
-    sceneData_.light->color = Eigen::Vector3f(1.0f, 0.0f, 0.0f);
+    sceneData_.light->position = Eigen::Vector3f(0.0f, 0.0f, 3.0f);
+    sceneData_.light->color = Eigen::Vector3f(1.0f, 1.0f, 1.0f);
+    sceneData_.light->intensity = 10.0f;
 }
 
 void Scene::run()

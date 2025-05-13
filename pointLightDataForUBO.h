@@ -9,7 +9,7 @@ struct PointLightDataForUBO
     float _padding1; // 为了对齐 color 到 16 字节
 
     Eigen::Vector3f color;
-    float _padding2; // 为了对齐 intensity 到 16 字节
+    // float _padding2; // 为了对齐 intensity 到 16 字节
 
     float intensity;
     // float _padding3[3]; // 填充到 16 字节
