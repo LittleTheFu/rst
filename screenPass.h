@@ -5,6 +5,7 @@
 #include "Shader.h"
 #include "pointLight.h"
 #include "uniformBuffer.h"
+#include "camera.h"
 
 class ScreenPass : public RenderPass
 {
@@ -21,7 +22,8 @@ public:
                 const GLuint &roughnessTextureID,
                 const GLuint &metallicTextureID,
                 const GLuint &aoTextureID,
-                const std::shared_ptr<PointLight> &light);
+                const std::shared_ptr<PointLight> &light,
+                const Camera& camera);
     void Resize(int width, int height) override;
 
 private:

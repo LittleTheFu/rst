@@ -63,5 +63,6 @@ void Scene::run()
                         gBufferPass_->getColorAttachment(3),
                         gBufferPass_->getColorAttachment(4),
                         gBufferPass_->getColorAttachment(5),
-                        sceneData_.light);
+                        sceneData_.light,
+                        camera_);
 }

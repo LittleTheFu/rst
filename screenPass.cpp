@@ -67,7 +67,8 @@ void ScreenPass::Render(const GLuint &positionTextureID,
                         const GLuint &roughnessTextureID,
                         const GLuint &metallicTextureID,
                         const GLuint &aoTextureID,
-                        const std::shared_ptr<PointLight> &light)
+                        const std::shared_ptr<PointLight> &light,
+                        const Camera &camera)
 {
   // 绑定默认 Framebuffer
   unbindFramebuffer(); // unbindFramebuffer() 继承自 RenderPass，会绑定回默认的 Framebuffer (ID 0)
@@ -93,6 +94,8 @@ void ScreenPass::Render(const GLuint &positionTextureID,
     objectLightUBO_.updateData(0, sizeof(PointLightDataForUBO), &lightData);
     objectLightUBO_.unbind();
   }
+
+  shader_.setVec3("cameraPos", camera.Position);
 
   // 绑定要显示的纹理
   glActiveTexture(GL_TEXTURE0);

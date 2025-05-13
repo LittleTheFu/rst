@@ -9,6 +9,7 @@ uniform sampler2D metallicTexture;
 uniform sampler2D roughnessTexture;
 uniform sampler2D aoTexture;
 
+uniform vec3 cameraPos;
 
 layout (std140) uniform PointLightBlock {
     vec3 position;
