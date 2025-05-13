@@ -31,7 +31,8 @@ void Scene::init()
     // 4. 初始化网格
     std::unique_ptr<Mesh> mesh = std::make_unique<Mesh>("teapot.obj");
 
-    std::shared_ptr<Texture> albedoTexture = std::make_shared<Texture>("lena.png");
+    // std::shared_ptr<Texture> albedoTexture = std::make_shared<Texture>("lena.png");
+    std::shared_ptr<Texture> albedoTexture = std::make_shared<Texture>("color.tga");
     std::shared_ptr<Texture> normalTexture = std::make_shared<Texture>("normal.tga");
     std::shared_ptr<Texture> roughnessTexture = std::make_shared<Texture>("roughness.tga");
     std::shared_ptr<Texture> metallicTexture = std::make_shared<Texture>("metallic.tga");
