@@ -10,7 +10,11 @@ Mesh::Mesh(const std::string& filePath, std::shared_ptr<Material> material) :
     material_(material) // 初始化 Material
 {
     Assimp::Importer importer;
-    const aiScene* scene = importer.ReadFile(filePath, aiProcess_Triangulate | aiProcess_GenNormals | aiProcess_FlipUVs);
+    const aiScene *scene = importer.ReadFile(filePath,
+                                             aiProcess_Triangulate |
+                                                 aiProcess_GenNormals |
+                                                 aiProcess_CalcTangentSpace |
+                                                 aiProcess_FlipUVs);
 
     if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
         std::cerr << "ERROR::ASSIMP::" << importer.GetErrorString() << std::endl;
@@ -73,6 +77,12 @@ void Mesh::setupMesh() {
     // 纹理坐标
     glEnableVertexAttribArray(2);
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, texCoords));
+    // 切线
+    glEnableVertexAttribArray(3);
+    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, tangent));
+    // 副切线
+    glEnableVertexAttribArray(4);
+    glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, bitangent));
 
     glBindVertexArray(0);
 }

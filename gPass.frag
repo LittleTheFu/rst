@@ -5,6 +5,7 @@ in VS_OUT { // 块名必须与顶点着色器中的 out 块名相同
     vec3 fragPos;   // 变量名必须与顶点着色器 out 块中的变量名相同
     vec3 normal;    // 变量名必须与顶点着色器 out 块中的变量名相同
     vec2 texCoords; // 变量名必须与顶点着色器 out 块中的变量名相同
+    mat3 TBN;
 } fs_in; // 实例名可以不同
 
 // 输出到不同的颜色附件
@@ -39,7 +40,9 @@ void main()
 
     // 计算法线信息
     // out_Normal = vec4(normalize(fs_in.normal), 0.0);
-    out_Normal = texture(normalMap, fs_in.texCoords);
+    vec4 normalMapValue = texture(normalMap, fs_in.texCoords); // 假设 normalMap 是一个纹理采样器
+    vec3 normal = normalize(fs_in.TBN * (normalMapValue.xyz * 2.0 - 1.0)); // 转换到切线空间
+    out_Normal = vec4(normal, 1.0);
 
     out_Albedo = texture(albedoMap, fs_in.texCoords); // 假设 albedoTexture 是一个纹理采样器
 

@@ -107,7 +107,8 @@ void main()
     vec3 Lo = vec3(0.0);      
     Lo += (kD * albedo / PI + specular) * radiance * NdotL;
 
-    vec3 ambient = vec3(0.03) * albedo * ao;
+    vec3 ambient = vec3(0.5) * albedo * ao;
+    // vec3 ambient = vec3(0.03) * albedo * ao;
     FragColor = vec4(Lo, 1.0) + vec4(ambient, 1.0);
     // FragColor = vec4(uPointLight.intensity, uPointLight.intensity, uPointLight.intensity, 1.0);
     

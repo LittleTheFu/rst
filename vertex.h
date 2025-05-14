@@ -9,6 +9,8 @@ public:
     Eigen::Vector3f position;
     Eigen::Vector3f normal;
     Eigen::Vector2f texCoords;
+    Eigen::Vector3f tangent;
+    Eigen::Vector3f bitangent;
 };
 
 class ScreenVertex

@@ -31,8 +31,8 @@ void Scene::init()
     // 4. 初始化网格
     std::unique_ptr<Mesh> mesh = std::make_unique<Mesh>("teapot.obj");
 
-    // std::shared_ptr<Texture> albedoTexture = std::make_shared<Texture>("lena.png");
-    std::shared_ptr<Texture> albedoTexture = std::make_shared<Texture>("color.tga");
+    std::shared_ptr<Texture> albedoTexture = std::make_shared<Texture>("lena.png");
+    // std::shared_ptr<Texture> albedoTexture = std::make_shared<Texture>("color.tga");
     std::shared_ptr<Texture> normalTexture = std::make_shared<Texture>("normal.tga");
     std::shared_ptr<Texture> roughnessTexture = std::make_shared<Texture>("roughness.tga");
     std::shared_ptr<Texture> metallicTexture = std::make_shared<Texture>("metallic.tga");
@@ -62,9 +62,9 @@ void Scene::run()
     static int count = 0;
     count++;
     count %= 48000;
-    float x = count / 2400.0f - 10.0f;
-    sceneData_.light->position = Eigen::Vector3f(x, x, 30.0f);
-    sceneData_.light->intensity = 200.0f;
+    float x = count / 1200.0f - 20.0f;
+    sceneData_.light->position = Eigen::Vector3f(x, 1, -3.0f);
+    sceneData_.light->intensity = 90.0f;
     //-----------------------------------------------------------------
     gBufferPass_->Render(sceneData_, camera_);
     screenPass_->Render(gBufferPass_->getColorAttachment(0),
