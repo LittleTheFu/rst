@@ -20,4 +20,10 @@ if (Test-Path -Path $TargetDir -PathType Container) {
     Write-Host "Target directory '$TargetDir' does not exist, skipping copy."
 }
 
+# Get the current date and time with seconds
+$CurrentDateTime = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+
+# Print the current time
+Write-Host "Current time: $CurrentDateTime"
+
 Read-Host "Press any key to continue..."
