@@ -4,6 +4,7 @@
 #include "material.h"
 #include "texture.h"
 #include "pointLight.h"
+#include "cubeMap.h"
 
 void Scene::init()
 {
@@ -41,24 +42,35 @@ void Scene::init()
     std::shared_ptr<Texture> metallicTexture = std::make_shared<Texture>("metallic.tga");
     std::shared_ptr<Texture> aoTexture = std::make_shared<Texture>("ao.tga");
 
-    std::shared_ptr<Material> material = std::make_shared<Material>("teapot_mtrl");
-    material->setAlbedoMap(albedoTexture);
-    material->setNormalMap(normalTexture);
-    material->setRoughnessMap(roughnessTexture);
-    material->setMetallicMap(metallicTexture);
-    material->setAmbientOcclusionMap(aoTexture);
+    std::shared_ptr<Material> material_teapot = std::make_shared<Material>("teapot_mtrl");
+    material_teapot->setAlbedoMap(albedoTexture);
+    material_teapot->setNormalMap(normalTexture);
+    material_teapot->setRoughnessMap(roughnessTexture);
+    material_teapot->setMetallicMap(metallicTexture);
+    material_teapot->setAmbientOcclusionMap(aoTexture);
 
-    mesh_teapot->setMaterial(material);
-    mesh_box->setMaterial(material);
+    // std::shared_ptr<Cubemap> cubemap = std::make_shared<Cubemap>({"right.jpg", "left.jpg", "top.jpg", "bottom.jpg", "front.jpg", "back.jpg"});
+    std::shared_ptr<Cubemap> cubemapPtr = std::make_shared<Cubemap>(std::vector<std::string>{
+        "right.jpg",
+        "left.jpg",
+        "top.jpg",
+        "bottom.jpg",
+        "front.jpg",
+        "back.jpg"});
+    std::shared_ptr<Material> material_cubemap = std::make_shared<Material>("cubemap_mtrl");
+    material_cubemap->setCubemap(cubemapPtr);
+
+    mesh_teapot->setMaterial(material_teapot);
+    mesh_box->setMaterial(material_cubemap);
 
     float teapot_scale = 2.0f;
     mesh_teapot->setScale(Eigen::Vector3f(teapot_scale, teapot_scale, teapot_scale));
 
-    float box_scale = 40.0f;
+    float box_scale = 4.0f;
     mesh_box->setScale(Eigen::Vector3f(box_scale, box_scale, box_scale));
 
     sceneData_.objects.push_back(std::move(mesh_teapot));
-    sceneData_.objects.push_back(std::move(mesh_box));
+    // sceneData_.objects.push_back(std::move(mesh_box));
 
     // 5. 初始化光源
     sceneData_.light = std::make_shared<PointLight>();

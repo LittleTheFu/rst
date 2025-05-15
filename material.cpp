@@ -36,6 +36,11 @@ void Material::setMetallicFactor(float factor) {
     metallicFactor_ = factor;
 }
 
+void Material::setCubemap(const std::shared_ptr<Cubemap> &cubemap)
+{
+    cubemap_ = cubemap;
+}
+
 void Material::bindTextures(Shader& shader) {
     unsigned int textureUnit = 0;
     if (albedoMap_) {
@@ -76,6 +81,14 @@ void Material::bindTextures(Shader& shader) {
         shader.setBool("hasAoMap", true);
     } else {
         shader.setBool("hasAoMap", false);
+    }
+
+    if (cubemap_) {
+        cubemap_->use(textureUnit);
+        shader.setInt("cubemap", textureUnit++);
+        shader.setBool("hasCubemap", true); 
+    } else {
+        shader.setBool("hasCubemap", false); 
     }
 
     // ... 绑定其他纹理 ...

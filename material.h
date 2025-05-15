@@ -6,6 +6,7 @@
 #include <Eigen/Dense>
 #include "Texture.h"
 #include "shader.h"
+#include "cubeMap.h"
 
 class Material {
 public:
@@ -43,6 +44,15 @@ public:
     void setMetallicFactor(float factor);
     float getMetallicFactor() const { return metallicFactor_; }
 
+    //... 其他材质参数的 setter/getter...
+
+    // 立方体贴图
+    void setCubemap(const std::shared_ptr<Cubemap>& cubemap);
+    std::shared_ptr<Cubemap> getCubemap() const { return cubemap_; }
+
+    // 检查是否有立方体贴图
+    bool hasCubemap() const { return cubemap_ != nullptr; }
+
     // ... 其他材质参数的 setter/getter ...
 
     // 绑定材质到 Shader
@@ -59,6 +69,9 @@ private:
     std::shared_ptr<Texture> metallicMap_;
     std::shared_ptr<Texture> aoMap_;
     // ... 其他纹理 ...
+
+    // 立方体贴图
+    std::shared_ptr<Cubemap> cubemap_;
 
     // 材质参数
     Eigen::Vector3f albedoColor_ = Eigen::Vector3f(1.0f, 1.0f, 1.0f);

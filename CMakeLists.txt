@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 project(OpenGL_GLAD_SDL2)
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
 
 # 添加 SDL2 子目录
 add_subdirectory(third/sdl)
@@ -29,6 +29,7 @@ add_executable(OpenGL_GLAD_SDL2
     uniformBuffer.cpp
     glResource.cpp
     lightPass.cpp
+    cubeMap.cpp
     material.cpp
     mesh.cpp
     screenPass.cpp
