@@ -22,6 +22,7 @@ void SkyPass::Render(SceneData &sceneData, Camera &camera)
     shader_.use();
 
     // 3. 设置 Uniform 变量
+    
     shader_.setMat4("view", camera.GetViewMatrix());
     shader_.setMat4("projection", camera.GetProjectionMatrix());
 

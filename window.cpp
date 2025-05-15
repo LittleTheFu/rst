@@ -66,7 +66,7 @@ Window::Window(const char *title, int width, int height)
     }
 
     //V-Sync On/Off (0: Off, 1: On)
-    SDL_GL_SetSwapInterval(0);
+    SDL_GL_SetSwapInterval(1);
 
     lastTime = std::chrono::high_resolution_clock::now(); // 初始化时间戳
 

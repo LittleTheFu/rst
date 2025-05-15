@@ -26,7 +26,7 @@ void Scene::init()
     screenPass_->Initialize(sceneData_.screenWidth, sceneData_.screenHeight);
 
     // 3. 初始化相机
-    camera_.Position = Eigen::Vector3f(0.0f, 3.0f, 20.0f);
+    camera_.Position = Eigen::Vector3f(0.0f, 3.0f, 12.0f);
     camera_.Front = Eigen::Vector3f(0.0f, 0.0f, -1.0f);
     // camera_.Front = -camera_.Position;
     camera_.updateCameraVectors();
@@ -67,7 +67,7 @@ void Scene::init()
     float teapot_scale = 2.0f;
     mesh_teapot->setScale(Eigen::Vector3f(teapot_scale, teapot_scale, teapot_scale));
 
-    float box_scale = 100.0f;
+    float box_scale = 30.0f;
     mesh_box->setScale(Eigen::Vector3f(box_scale, box_scale, box_scale));
 
     sceneData_.objects.push_back(std::move(mesh_teapot));
@@ -93,20 +93,24 @@ void Scene::run()
     sceneData_.light->intensity = 90.0f;
 
     // float scale = (count % 10000) / 100.0f;
+    // scale /= 100.0f;
+    // sceneData_.skybox->setScale(Eigen::Vector3f(scale, scale, scale));
+
+    // float scale = (count % 10000) / 100.0f;
     // sceneData_.objects.at(0)->setScale(Eigen::Vector3f(scale, scale, scale));
     // -----------------------------------------------------------------
 
     glDisable(GL_CULL_FACE);
-    gBufferPass_->Render(sceneData_, camera_);
-    lightPass_->Render(gBufferPass_->getColorAttachment(0),
-                        gBufferPass_->getColorAttachment(1),
-                        gBufferPass_->getColorAttachment(2),
-                        gBufferPass_->getColorAttachment(3),
-                        gBufferPass_->getColorAttachment(4),
-                        gBufferPass_->getColorAttachment(5),
-                        sceneData_.light,
-                        camera_);
+    // gBufferPass_->Render(sceneData_, camera_);
+    // lightPass_->Render(gBufferPass_->getColorAttachment(0),
+    //                     gBufferPass_->getColorAttachment(1),
+    //                     gBufferPass_->getColorAttachment(2),
+    //                     gBufferPass_->getColorAttachment(3),
+    //                     gBufferPass_->getColorAttachment(4),
+    //                     gBufferPass_->getColorAttachment(5),
+    //                     sceneData_.light,
+    //                     camera_);
     skyPass_->Render(sceneData_, camera_);
-    // screenPass_->Render(skyPass_->getColorTexture());
-    screenPass_->Render(lightPass_->getColorAttachment(0));
+    screenPass_->Render(skyPass_->getColorTexture());
+    // screenPass_->Render(lightPass_->getColorAttachment(0));
 }

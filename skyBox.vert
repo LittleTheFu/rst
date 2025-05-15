@@ -5,9 +5,12 @@ out vec3 TexCoords;
 
 uniform mat4 view;
 uniform mat4 projection;
+uniform mat4 model;
 
 void main() {
+    vec4 worldPos = model * vec4(aPos, 1.0);
+
     TexCoords = aPos;
-    vec4 pos = projection * view * vec4(aPos, 1.0);
-    gl_Position = pos.xyww; // 保证 Z=1，拉到最远处
+    // vec4 pos = projection * view * vec4(aPos, 1.0);
+    gl_Position = projection * view * worldPos;
 }
