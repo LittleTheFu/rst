@@ -21,8 +21,8 @@ void Scene::init()
     // lightPass_->Initialize(sceneData_.screenWidth, sceneData_.screenHeight);
 
     // 3. 初始化屏幕 Pass
-    screenPass_ = std::make_unique<ScreenPass>();
-    screenPass_->Initialize(sceneData_.screenWidth, sceneData_.screenHeight);
+    lightPass_ = std::make_unique<LightPass>();
+    lightPass_->Initialize(sceneData_.screenWidth, sceneData_.screenHeight);
 
     // 3. 初始化相机
     camera_.Position = Eigen::Vector3f(0.0f, 3.0f, 20.0f);
@@ -96,7 +96,7 @@ void Scene::run()
 
     // glDisable(GL_CULL_FACE);
     gBufferPass_->Render(sceneData_, camera_);
-    screenPass_->Render(gBufferPass_->getColorAttachment(0),
+    lightPass_->Render(gBufferPass_->getColorAttachment(0),
                         gBufferPass_->getColorAttachment(1),
                         gBufferPass_->getColorAttachment(2),
                         gBufferPass_->getColorAttachment(3),

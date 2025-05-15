@@ -1,89 +1,165 @@
-#include "LightPass.h"
+#include "lightPass.h"
 #include <iostream>
-#include <vector>
+#include "uniformBuffer.h"
+#include "pointLightDataForUBO.h"
 
-LightPass::LightPass(const std::string& name) : RenderPass(name)
+LightPass::LightPass(const std::string &name) : RenderPass(name)
 {
-    shader_.load("light_pass.vert", "light_pass.frag");
+  shader_.load("screen.vert", "screen.frag"); // 假设你的屏幕 Shader 文件名为 screen.vert 和 screen.frag
 }
 
 void LightPass::Initialize(int width, int height)
 {
-    // 创建用于渲染屏幕四边形的 VAO 和 VBO
-    float quadVertices[] = {
-        // positions   // texCoords
-        -1.0f,  1.0f,  0.0f, 1.0f,
-        -1.0f, -1.0f,  0.0f, 0.0f,
-         1.0f, -1.0f,  1.0f, 0.0f,
+  lightBindingPoint_ = 0;
 
-        -1.0f,  1.0f,  0.0f, 1.0f,
-         1.0f, -1.0f,  1.0f, 0.0f,
-         1.0f,  1.0f,  1.0f, 1.0f
-    };
+  objectLightUBO_.create(sizeof(PointLightDataForUBO), GL_DYNAMIC_DRAW);
+  objectLightUBO_.bind(lightBindingPoint_);
 
-    glCreateVertexArrays(1, &quadVAO_);
-    glCreateBuffers(1, &quadVBO_);
-    glBindVertexArray(quadVAO_);
-    glBindBuffer(GL_ARRAY_BUFFER, quadVBO_);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
-    glBindVertexArray(0);
+   // 获取 Shader 中 Uniform Block 的索引
+    GLuint lightBlockIndex = glGetUniformBlockIndex(shader_.ID, "PointLightBlock");
+    if (lightBlockIndex == GL_INVALID_INDEX)
+    {
+        std::cerr << "Error: Uniform block 'PointLightBlock' not found in screen shader!" << std::endl;
+        return;
+    }
+
+    // 将 Uniform Block 绑定到相同的绑定点
+    glUniformBlockBinding(shader_.ID, lightBlockIndex, lightBindingPoint_);
+
+    objectLightUBO_.unbind(); // 解绑 UBO 是一个好习惯
+
+  initScreenQuad();
 }
 
-void LightPass::Render(SceneData& sceneData, Camera& camera)
+void LightPass::Render(SceneData &sceneData, Camera &camera)
 {
-    bindFramebuffer(false, true); // 绑定默认帧缓冲进行写入
-    clearBuffers(GL_COLOR_BUFFER_BIT);
-    disableState(GL_DEPTH_TEST); // 关闭深度测试，因为我们渲染的是屏幕空间四边形
+  std::cerr << "Warning: lightPass::Render(SceneData&, Camera&) called - consider using Render(GLuint)." << std::endl;
+}
 
-    shader_.use();
+void LightPass::Render(const GLuint &textureID)
+{
+  // 绑定默认 Framebuffer
+  unbindFramebuffer(); // unbindFramebuffer() 继承自 RenderPass，会绑定回默认的 Framebuffer (ID 0)
 
-    // // 绑定 G-buffer 纹理到对应的纹理单元
-    // std::vector<GLuint> gBufferTextures = sceneData.gBuffer->getColorAttachments();
-    // glActiveTexture(GL_TEXTURE0);
-    // glBindTexture(GL_TEXTURE_2D, gBufferTextures[0]); // Position
-    // shader_.setInt("gPosition", 0);
-    // glActiveTexture(GL_TEXTURE1);
-    // glBindTexture(GL_TEXTURE_2D, gBufferTextures[1]); // Normal
-    // shader_.setInt("gNormal", 1);
-    // glActiveTexture(GL_TEXTURE2);
-    // glBindTexture(GL_TEXTURE_2D, gBufferTextures[2]); // Albedo
-    // shader_.setInt("gAlbedo", 2);
-    // glActiveTexture(GL_TEXTURE3);
-    // glBindTexture(GL_TEXTURE_2D, gBufferTextures[3]); // Roughness
-    // shader_.setInt("gRoughness", 3);
-    // glActiveTexture(GL_TEXTURE4);
-    // glBindTexture(GL_TEXTURE_2D, gBufferTextures[4]); // Metallic
-    // shader_.setInt("gMetallic", 4);
-    // glActiveTexture(GL_TEXTURE5);
-    // glBindTexture(GL_TEXTURE_2D, gBufferTextures[5]); // AO
-    // shader_.setInt("gAo", 5);
+  glClearColor(0.0f, 0.3f, 0.0f, 1.0f);
+  // 清除默认 Framebuffer
+  clearBuffers(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    // // 设置光源信息 (这里假设场景数据中有一个点光源)
-    // if (!sceneData.lights.empty())
-    // {
-    //     shader_.setVec3("lightPos", sceneData.lights[0].position);
-    //     shader_.setVec3("lightColor", sceneData.lights[0].color);
-    // }
-    // shader_.setVec3("cameraPos", camera.Position);
+  // 使用屏幕 Shader
+  shader_.use();
 
-    renderQuad(); // 渲染覆盖屏幕的四边形
+  // 绑定要显示的纹理
+  glActiveTexture(GL_TEXTURE0);
+  glBindTexture(GL_TEXTURE_2D, textureID);
+  shader_.setInt("screenTexture", 0);
 
-    enableState(GL_DEPTH_TEST); // 重新启用深度测试
-    unbindFramebuffer();
+  // 渲染屏幕四边形
+  renderQuad();
+}
+
+void LightPass::Render(const GLuint &positionTextureID,
+                        const GLuint &normalTextureID,
+                        const GLuint &albedoTextureID,
+                        const GLuint &roughnessTextureID,
+                        const GLuint &metallicTextureID,
+                        const GLuint &aoTextureID,
+                        const std::shared_ptr<PointLight> &light,
+                        const Camera &camera)
+{
+  // 绑定默认 Framebuffer
+  unbindFramebuffer(); // unbindFramebuffer() 继承自 RenderPass，会绑定回默认的 Framebuffer (ID 0)
+
+  glClearColor(0.0f, 0.3f, 0.0f, 1.0f);
+  // 清除默认 Framebuffer
+  clearBuffers(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+  // 使用屏幕 Shader
+  shader_.use();
+
+  if (light != nullptr)
+  {
+    PointLightDataForUBO lightData;
+    lightData.position = light->position;
+    lightData.color = light->color;
+    lightData.intensity = light->intensity;
+    lightData.constant = light->constant;
+    lightData.linear = light->linear;
+    lightData.quadratic = light->quadratic;
+
+    objectLightUBO_.bind(lightBindingPoint_);
+    objectLightUBO_.updateData(0, sizeof(PointLightDataForUBO), &lightData);
+    objectLightUBO_.unbind();
+  }
+
+  shader_.setVec3("cameraPos", camera.Position);
+
+  // 绑定要显示的纹理
+  glActiveTexture(GL_TEXTURE0);
+  glBindTexture(GL_TEXTURE_2D, positionTextureID);
+  shader_.setInt("positionTexture", 0);
+
+  glActiveTexture(GL_TEXTURE1);
+  glBindTexture(GL_TEXTURE_2D, normalTextureID);
+  shader_.setInt("normalTexture", 1);
+
+  glActiveTexture(GL_TEXTURE2);
+  glBindTexture(GL_TEXTURE_2D, albedoTextureID);
+  shader_.setInt("albedoTexture", 2);
+
+  glActiveTexture(GL_TEXTURE3);
+  glBindTexture(GL_TEXTURE_2D, roughnessTextureID);
+  shader_.setInt("roughnessTexture", 3);
+
+  glActiveTexture(GL_TEXTURE4);
+  glBindTexture(GL_TEXTURE_2D, metallicTextureID);
+  shader_.setInt("metallicTexture", 4);
+
+  glActiveTexture(GL_TEXTURE5);
+  glBindTexture(GL_TEXTURE_2D, aoTextureID);
+  shader_.setInt("aoTexture", 5);
+
+  // 渲染屏幕四边形
+  renderQuad();
 }
 
 void LightPass::Resize(int width, int height)
 {
-    // Light Pass 通常不需要特殊的 resize 处理，因为它渲染到屏幕
+  setViewport(width, height);
+}
+
+void LightPass::initScreenQuad()
+{
+  float quadVertices[] = {
+      // positions   // texCoords
+      -1.0f, 1.0f, 0.0f, 1.0f,
+      -1.0f, -1.0f, 0.0f, 0.0f,
+      1.0f, -1.0f, 1.0f, 0.0f,
+
+      -1.0f, 1.0f, 0.0f, 1.0f,
+      1.0f, -1.0f, 1.0f, 0.0f,
+      1.0f, 1.0f, 1.0f, 1.0f};
+
+  glCreateVertexArrays(1, &quadVAO_);
+  glBindVertexArray(quadVAO_);
+
+  glCreateBuffers(1, &quadVBO_);
+  glBindBuffer(GL_ARRAY_BUFFER, quadVBO_);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
+
+  // 设置顶点属性指针
+  // 位置属性
+  glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *)0);
+  glEnableVertexAttribArray(0);
+  // 纹理坐标属性
+  glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *)(2 * sizeof(float)));
+  glEnableVertexAttribArray(1);
+
+  glBindVertexArray(0);
 }
 
 void LightPass::renderQuad()
 {
-    glBindVertexArray(quadVAO_);
-    glDrawArrays(GL_TRIANGLES, 0, 6);
-    glBindVertexArray(0);
+  glBindVertexArray(quadVAO_);
+  glDrawArrays(GL_TRIANGLES, 0, 6);
+  glBindVertexArray(0);
 }

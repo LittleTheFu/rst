@@ -4,7 +4,7 @@
 #include <string>
 #include "camera.h"
 #include "GBufferPass.h"
-#include "screenPass.h"
+#include "lightPass.h"
 #include "lightPass.h"
 #include "SceneData.h"
 #include <memory>
@@ -19,7 +19,6 @@ public:
 private:
     SceneData sceneData_;
     std::unique_ptr<GBufferPass> gBufferPass_;
-    std::unique_ptr<ScreenPass> screenPass_;
     std::unique_ptr<LightPass> lightPass_;
     Camera camera_;
 };
