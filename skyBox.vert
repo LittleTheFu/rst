@@ -1,9 +1,13 @@
 #version 330 core
-in vec3 TexCoords;
-out vec4 FragColor;
+layout (location = 0) in vec3 aPos;
 
-uniform samplerCube skybox;
+out vec3 TexCoords;
+
+uniform mat4 view;
+uniform mat4 projection;
 
 void main() {
-    FragColor = texture(skybox, TexCoords);
+    TexCoords = aPos;
+    vec4 pos = projection * view * vec4(aPos, 1.0);
+    gl_Position = pos.xyww; // 保证 Z=1，拉到最远处
 }

@@ -1,13 +1,10 @@
 #version 330 core
-layout (location = 0) in vec3 aPos;
+in vec3 TexCoords;
+out vec4 FragColor;
 
-out vec3 TexCoords;
-
-uniform mat4 view;
-uniform mat4 projection;
+uniform samplerCube cubeMap;
 
 void main() {
-    TexCoords = aPos;
-    vec4 pos = projection * view * vec4(aPos, 1.0);
-    gl_Position = pos.xyww; // 保证 Z=1，拉到最远处
+    FragColor = texture(cubeMap, TexCoords);
+    //  FragColor = vec4(TexCoords, 1);
 }

@@ -19,6 +19,9 @@ void Scene::init()
     lightPass_ = std::make_unique<LightPass>();
     lightPass_->Initialize(sceneData_.screenWidth, sceneData_.screenHeight);
 
+    skyPass_ = std::make_unique<SkyPass>();
+    skyPass_->Initialize(sceneData_.screenWidth, sceneData_.screenHeight);
+
     screenPass_ = std::make_unique<ScreenPass>();
     screenPass_->Initialize(sceneData_.screenWidth, sceneData_.screenHeight);
 
@@ -31,7 +34,6 @@ void Scene::init()
     // 4. 初始化网格
     std::unique_ptr<Mesh> mesh_teapot = std::make_unique<Mesh>("teapot.obj");
     std::unique_ptr<Mesh> mesh_box = std::make_unique<Mesh>("bx.obj");
-    
 
     std::shared_ptr<Texture> albedoTexture = std::make_shared<Texture>("lena.png");
     // std::shared_ptr<Texture> albedoTexture = std::make_shared<Texture>("color.tga");
@@ -57,6 +59,7 @@ void Scene::init()
         "back.jpg"});
     std::shared_ptr<Material> material_cubemap = std::make_shared<Material>("cubemap_mtrl");
     material_cubemap->setCubemap(cubemapPtr);
+    // sceneData_.skybox = cubemapPtr;
 
     mesh_teapot->setMaterial(material_teapot);
     mesh_box->setMaterial(material_cubemap);
@@ -64,11 +67,12 @@ void Scene::init()
     float teapot_scale = 2.0f;
     mesh_teapot->setScale(Eigen::Vector3f(teapot_scale, teapot_scale, teapot_scale));
 
-    float box_scale = 4.0f;
+    float box_scale = 100.0f;
     mesh_box->setScale(Eigen::Vector3f(box_scale, box_scale, box_scale));
 
     sceneData_.objects.push_back(std::move(mesh_teapot));
     // sceneData_.objects.push_back(std::move(mesh_box));
+    sceneData_.skybox = std::move(mesh_box);
 
     // 5. 初始化光源
     sceneData_.light = std::make_shared<PointLight>();
@@ -90,9 +94,9 @@ void Scene::run()
 
     // float scale = (count % 10000) / 100.0f;
     // sceneData_.objects.at(0)->setScale(Eigen::Vector3f(scale, scale, scale));
-    //-----------------------------------------------------------------
+    // -----------------------------------------------------------------
 
-    // glDisable(GL_CULL_FACE);
+    glDisable(GL_CULL_FACE);
     gBufferPass_->Render(sceneData_, camera_);
     lightPass_->Render(gBufferPass_->getColorAttachment(0),
                         gBufferPass_->getColorAttachment(1),
@@ -102,5 +106,7 @@ void Scene::run()
                         gBufferPass_->getColorAttachment(5),
                         sceneData_.light,
                         camera_);
+    skyPass_->Render(sceneData_, camera_);
+    // screenPass_->Render(skyPass_->getColorTexture());
     screenPass_->Render(lightPass_->getColorAttachment(0));
 }
