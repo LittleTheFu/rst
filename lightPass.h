@@ -25,6 +25,8 @@ public:
                 const std::shared_ptr<PointLight> &light,
                 const Camera& camera);
     void Resize(int width, int height) override;
+    
+    GLuint getOutputTexture() const { return outputTexture_; }
 
 private:
     GLuint quadVAO_ = 0;
@@ -35,6 +37,8 @@ private:
 
     UniformBuffer objectLightUBO_;
     GLuint lightBindingPoint_;
+
+    GLuint outputTexture_;
 
 };
 

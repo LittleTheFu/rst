@@ -5,11 +5,23 @@
 
 LightPass::LightPass(const std::string &name) : RenderPass(name)
 {
-  shader_.load("screen.vert", "screen.frag"); // 假设你的屏幕 Shader 文件名为 screen.vert 和 screen.frag
+  shader_.load("light.vert", "light.frag"); // 假设你的屏幕 Shader 文件名为 screen.vert 和 screen.frag
 }
 
 void LightPass::Initialize(int width, int height)
 {
+  createFramebuffer();
+  bindFramebuffer();
+
+  outputTexture_ = createColorAttachment(width, height, GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE, GL_COLOR_ATTACHMENT0);
+  std::vector<GLenum> attachments = {GL_COLOR_ATTACHMENT0};
+  glDrawBuffers(attachments.size(), attachments.data()); // 告诉 OpenGL 我们要渲染到哪些颜色附件
+  auto err = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+  if (err != GL_FRAMEBUFFER_COMPLETE)
+  {
+    std::cerr << "ERROR::FRAMEBUFFER::Framebuffer is not complete!" << std::endl;
+  }
+
   lightBindingPoint_ = 0;
 
   objectLightUBO_.create(sizeof(PointLightDataForUBO), GL_DYNAMIC_DRAW);
@@ -27,6 +39,7 @@ void LightPass::Initialize(int width, int height)
     glUniformBlockBinding(shader_.ID, lightBlockIndex, lightBindingPoint_);
 
     objectLightUBO_.unbind(); // 解绑 UBO 是一个好习惯
+    unbindFramebuffer();
 
   initScreenQuad();
 }
@@ -39,7 +52,8 @@ void LightPass::Render(SceneData &sceneData, Camera &camera)
 void LightPass::Render(const GLuint &textureID)
 {
   // 绑定默认 Framebuffer
-  unbindFramebuffer(); // unbindFramebuffer() 继承自 RenderPass，会绑定回默认的 Framebuffer (ID 0)
+  // unbindFramebuffer(); // unbindFramebuffer() 继承自 RenderPass，会绑定回默认的 Framebuffer (ID 0)
+  bindFramebuffer();
 
   glClearColor(0.0f, 0.3f, 0.0f, 1.0f);
   // 清除默认 Framebuffer
@@ -51,10 +65,13 @@ void LightPass::Render(const GLuint &textureID)
   // 绑定要显示的纹理
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, textureID);
-  shader_.setInt("screenTexture", 0);
+  shader_.setInt("out_Texture", 0);
 
   // 渲染屏幕四边形
   renderQuad();
+
+  // 解绑纹理
+  unbindFramebuffer();
 }
 
 void LightPass::Render(const GLuint &positionTextureID,
@@ -67,7 +84,8 @@ void LightPass::Render(const GLuint &positionTextureID,
                         const Camera &camera)
 {
   // 绑定默认 Framebuffer
-  unbindFramebuffer(); // unbindFramebuffer() 继承自 RenderPass，会绑定回默认的 Framebuffer (ID 0)
+  // unbindFramebuffer(); // unbindFramebuffer() 继承自 RenderPass，会绑定回默认的 Framebuffer (ID 0)
+  bindFramebuffer();
 
   glClearColor(0.0f, 0.3f, 0.0f, 1.0f);
   // 清除默认 Framebuffer
@@ -120,6 +138,8 @@ void LightPass::Render(const GLuint &positionTextureID,
 
   // 渲染屏幕四边形
   renderQuad();
+
+  unbindFramebuffer();
 }
 
 void LightPass::Resize(int width, int height)
