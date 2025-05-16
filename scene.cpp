@@ -26,13 +26,14 @@ void Scene::init()
     screenPass_->Initialize(sceneData_.screenWidth, sceneData_.screenHeight);
 
     // 3. 初始化相机
-    camera_.Position = Eigen::Vector3f(0.0f, 2.0f, 20.0f);
+    camera_.Position = Eigen::Vector3f(0.0f, 2.0f, 15.0f);
     camera_.Front = Eigen::Vector3f(0.0f, 0.0f, -1.0f);
     // camera_.Front = -camera_.Position;
     camera_.updateCameraVectors();
 
     // 4. 初始化网格
     std::unique_ptr<Mesh> mesh_teapot = std::make_unique<Mesh>("teapot.obj");
+    std::unique_ptr<Mesh> mesh_box = std::make_unique<Mesh>("bx.obj");
     std::unique_ptr<Mesh> mesh_sky = std::make_unique<Mesh>("bx.obj");
 
     std::shared_ptr<Texture> albedoTexture = std::make_shared<Texture>("lena.png");
@@ -48,6 +49,8 @@ void Scene::init()
     material_teapot->setRoughnessMap(roughnessTexture);
     material_teapot->setMetallicMap(metallicTexture);
     material_teapot->setAmbientOcclusionMap(aoTexture);
+    
+  
 
     // std::shared_ptr<Cubemap> cubemap = std::make_shared<Cubemap>({"right.jpg", "left.jpg", "top.jpg", "bottom.jpg", "front.jpg", "back.jpg"});
     std::shared_ptr<Cubemap> cubemapPtr = std::make_shared<Cubemap>(std::vector<std::string>{
@@ -61,25 +64,29 @@ void Scene::init()
     material_cubemap->setCubemap(cubemapPtr);
     // sceneData_.skybox = cubemapPtr;
 
+    float mesh_box_scale = 20.0f;
+    mesh_box->setMaterial(material_teapot);
+    mesh_box->setScale(Eigen::Vector3f(mesh_box_scale, mesh_box_scale, mesh_box_scale));
+
     mesh_teapot->setMaterial(material_teapot);
     mesh_sky->setMaterial(material_cubemap);
 
     float teapot_scale = 1.0f;
     mesh_teapot->setScale(Eigen::Vector3f(teapot_scale, teapot_scale, teapot_scale));
 
-    float box_scale = 30.0f;
+    float box_scale = 16.0f;
     mesh_sky->setScale(Eigen::Vector3f(box_scale, box_scale, box_scale));
 
     mesh_teapot->setPosition(Eigen::Vector3f(0.0f, 0.0f, 0.0f));
     sceneData_.objects.push_back(std::move(mesh_teapot));
-    // sceneData_.objects.push_back(std::move(mesh_box));
+    sceneData_.objects.push_back(std::move(mesh_box));
     sceneData_.skybox = std::move(mesh_sky);
 
     // 5. 初始化光源
     sceneData_.light = std::make_shared<PointLight>();
     sceneData_.light->position = Eigen::Vector3f(0.0f, 0.0f, -30.0f);
     sceneData_.light->color = Eigen::Vector3f(1.0f, 1.0f, 1.0f);
-    sceneData_.light->intensity = 10.0f;
+    sceneData_.light->intensity = 8.0f;
 }
 
 void Scene::run()
@@ -90,8 +97,8 @@ void Scene::run()
     count %= 48000;
     float x = count / 1200.0f - 20.0f;
     x *= 2;
-    sceneData_.light->position = Eigen::Vector3f(x, 0, -3.0f);
-    sceneData_.light->intensity = 9000.0f;
+    sceneData_.light->position = Eigen::Vector3f(x, 4, 6.0f);
+    sceneData_.light->intensity = 900.0f;
 
     // float scale = (count % 10000) / 100.0f;
     // scale /= 100.0f;
