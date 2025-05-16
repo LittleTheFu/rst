@@ -22,7 +22,7 @@ void ScreenPass::Render(SceneData &sceneData, Camera &camera)
   std::cerr << "Warning: ScreenPass::Render(SceneData&, Camera&) called - consider using Render(GLuint)." << std::endl;
 }
 
-void ScreenPass::Render(const GLuint &textureID)
+void ScreenPass::Render(const GLuint &lightTextureID, const GLuint &skyTextureID, const GLuint &lightDepthTextureID)
 {
   // 绑定默认 Framebuffer
 //   bindFramebuffer();
@@ -37,8 +37,16 @@ void ScreenPass::Render(const GLuint &textureID)
 
   // 绑定要显示的纹理
   glActiveTexture(GL_TEXTURE0);
-  glBindTexture(GL_TEXTURE_2D, textureID);
-  shader_.setInt("screenTexture", 0);
+  glBindTexture(GL_TEXTURE_2D, lightTextureID);
+  shader_.setInt("lightTexture", 0);
+
+  glActiveTexture(GL_TEXTURE1);
+  glBindTexture(GL_TEXTURE_2D, skyTextureID);
+  shader_.setInt("skyTexture", 1);
+
+  glActiveTexture(GL_TEXTURE2);
+  glBindTexture(GL_TEXTURE_2D, lightDepthTextureID);
+  shader_.setInt("lightDepthTexture", 2);
 
   // 渲染屏幕四边形
   renderQuad();

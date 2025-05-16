@@ -11,6 +11,7 @@ out VS_OUT {
     vec3 normal;
     vec2 texCoords;
     mat3 TBN;
+    vec4 clipPos; // 新增：传递裁剪空间坐标
 } vs_out;
 
 uniform mat4 projection;
@@ -19,14 +20,15 @@ uniform mat4 model;
 
 void main() {
     vec4 worldPos = model * vec4(aPos, 1.0);
+    vec4 eyePos = view * worldPos;
+    vec4 clipPos = projection * eyePos;
     vs_out.fragPos = vec3(worldPos);
-    vs_out.normal = mat3(transpose(inverse(model))) * aNormal; // 计算世界空间法线
+    vs_out.normal = mat3(transpose(inverse(model))) * aNormal;
     vs_out.texCoords = aTexCoords;
-
     vec3 T_world = normalize(mat3(transpose(inverse(model))) * aTangent);
     vec3 N_world = normalize(mat3(transpose(inverse(model))) * aNormal);
-    vec3 B_world = normalize(cross(N_world, T_world)); // 计算世界空间副切线
-    vs_out.TBN = mat3(T_world, B_world, N_world); // 构建 TBN 矩阵
-    
-    gl_Position = projection * view * worldPos;
+    vec3 B_world = normalize(cross(N_world, T_world));
+    vs_out.TBN = mat3(T_world, B_world, N_world);
+    vs_out.clipPos = clipPos; // 将裁剪空间坐标传递给片段着色器
+    gl_Position = clipPos;
 }

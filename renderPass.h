@@ -31,6 +31,12 @@ public:
     // 获取指定索引的颜色附件纹理
     GLuint getColorAttachment(size_t index) const;
 
+    // 获取深度附件纹理 (Renderbuffer 或 Texture)
+    GLuint getDepthAttachment() const
+    {
+        return depthAttachment_;
+    }
+
 protected:
     std::string name_;
     GLuint framebuffer_;

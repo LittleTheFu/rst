@@ -1,55 +1,44 @@
 #version 450 core
 
-// 输入属性 (来自顶点着色器)
-in VS_OUT { // 块名必须与顶点着色器中的 out 块名相同
-    vec3 fragPos;   // 变量名必须与顶点着色器 out 块中的变量名相同
-    vec3 normal;    // 变量名必须与顶点着色器 out 块中的变量名相同
-    vec2 texCoords; // 变量名必须与顶点着色器 out 块中的变量名相同
+in VS_OUT {
+    vec3 fragPos;
+    vec3 normal;
+    vec2 texCoords;
     mat3 TBN;
-} fs_in; // 实例名可以不同
+    vec4 clipPos; // 新增：接收裁剪空间坐标
+} fs_in;
 
-// 输出到不同的颜色附件
-layout(location = 0) out vec4 out_Position;    // 写入到 GL_COLOR_ATTACHMENT0
-layout(location = 1) out vec4 out_Normal;      // 写入到 GL_COLOR_ATTACHMENT1
-layout(location = 2) out vec4 out_Albedo; // 写入到 GL_COLOR_ATTACHMENT2
-layout(location = 3) out vec4 out_Roughness; // 写入到 GL_COLOR_ATTACHMENT3
-layout(location = 4) out vec4 out_Metallic;  // 写入到 GL_COLOR_ATTACHMENT4
-layout(location = 5) out vec4 out_Ao;        // 写入到 GL_COLOR_ATTACHMENT5
+layout(location = 0) out vec4 out_Position;
+layout(location = 1) out vec4 out_Normal;
+layout(location = 2) out vec4 out_Albedo;
+layout(location = 3) out vec4 out_Roughness;
+layout(location = 4) out vec4 out_Metallic;
+layout(location = 5) out vec4 out_Ao;
 
+uniform sampler2D albedoMap;
+uniform bool hasAlbedoMap;
+uniform sampler2D normalMap;
+uniform bool hasNormalMap;
+uniform sampler2D metallicMap;
+uniform bool hasMetallicMap;
+uniform sampler2D roughnessMap;
+uniform bool hasRoughnessMap;
+uniform sampler2D aoMap;
+uniform bool hasAoMap;
 
-// 纹理采样器
-uniform sampler2D albedoMap;  // 单独声明
-uniform bool hasAlbedoMap;    // 也可以单独声明（或留在 UBO 里）
-
-uniform sampler2D normalMap;  // 单独声明
-uniform bool hasNormalMap;    // 也可以单独声明（或留在 UBO 里）
-
-uniform sampler2D metallicMap;  // 单独声明
-uniform bool hasMetallicMap;    // 也可以单独声明（或留在 UBO 里）
-
-uniform sampler2D roughnessMap;      // 单独声明
-uniform bool hasRoughnessMap;        // 也可以单独声明（或留在 UBO 里）
-
-uniform sampler2D aoMap;       // 单独声明
-uniform bool hasAoMap;        // 也可以单独声明（或留在 UBO 里）
-
-void main() 
+void main()
 {
-    // 写入位置信息到第一个颜色附件
     out_Position = vec4(fs_in.fragPos, 1.0);
-
-    // 计算法线信息
-    // out_Normal = vec4(normalize(fs_in.normal), 0.0);
-    vec4 normalMapValue = texture(normalMap, fs_in.texCoords); // 假设 normalMap 是一个纹理采样器
-    vec3 normal = normalize(fs_in.TBN * (normalMapValue.xyz * 2.0 - 1.0)); // 转换到切线空间
+    vec4 normalMapValue = texture(normalMap, fs_in.texCoords);
+    vec3 normal = normalize(fs_in.TBN * (normalMapValue.xyz * 2.0 - 1.0));
     out_Normal = vec4(normal, 1.0);
-
-    out_Albedo = texture(albedoMap, fs_in.texCoords); // 假设 albedoTexture 是一个纹理采样器
-
-    // 获取反照率和镜面反射强度 (假设从纹理采样)
+    out_Albedo = texture(albedoMap, fs_in.texCoords);
     out_Ao = texture(aoMap, fs_in.texCoords);
+    out_Roughness = texture(roughnessMap, fs_in.texCoords);
+    out_Metallic = texture(metallicMap, fs_in.texCoords);
 
-    // 获取粗糙度和金属度 (假设从纹理采样)
-    out_Roughness = texture(roughnessMap, fs_in.texCoords); // 假设 rmaMap 是一个纹理采样器
-    out_Metallic = texture(metallicMap, fs_in.texCoords); // 假设 metallicMap 是一个纹理采样器
+    // 使用接收到的裁剪空间坐标计算深度并写入 gl_FragDepth
+    float ndcZ = fs_in.clipPos.z / fs_in.clipPos.w;
+    float depthValue = (ndcZ + 1.0) / 2.0;
+    gl_FragDepth = depthValue;
 }

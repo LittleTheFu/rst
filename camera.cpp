@@ -10,24 +10,37 @@ Camera::Camera(const Eigen::Vector3f &position, const Eigen::Vector3f &worldUp, 
 }
 
 // 获取观察矩阵 (世界空间到观察空间的变换)
+// Eigen::Matrix4f Camera::GetViewMatrix() const
+// {
+//     Eigen::Matrix4f viewMatrix = Eigen::Matrix4f::Identity();
+
+//     // 计算相机的朝向的反向旋转
+//     Eigen::Vector3f direction = -Front; // 相机看向 -Z 轴
+//     Eigen::Quaternionf rotation = Eigen::Quaternionf::FromTwoVectors(Eigen::Vector3f(0.0f, 0.0f, -1.0f), direction.normalized());
+//     Eigen::Matrix3f rotationMatrix = rotation.toRotationMatrix();
+//     Eigen::Matrix3f invRotation = rotationMatrix.transpose();
+
+//     // 计算相机位置的反向平移
+//     Eigen::Vector3f invTranslation = -Position;
+
+//     // 构建视图矩阵
+//     viewMatrix.block<3, 3>(0, 0) = invRotation;
+//     viewMatrix.block<3, 1>(0, 3) = invTranslation;
+
+//     return viewMatrix;
+// }
+
 Eigen::Matrix4f Camera::GetViewMatrix() const
 {
-    Eigen::Matrix4f viewMatrix = Eigen::Matrix4f::Identity();
+    Eigen::Vector3f zaxis = (Position - (Position + Front)).normalized(); // camera direction
+    Eigen::Vector3f xaxis = WorldUp.cross(zaxis).normalized();            // camera right
+    Eigen::Vector3f yaxis = zaxis.cross(xaxis);                           // camera up
 
-    // 计算相机的朝向的反向旋转
-    Eigen::Vector3f direction = -Front; // 相机看向 -Z 轴
-    Eigen::Quaternionf rotation = Eigen::Quaternionf::FromTwoVectors(Eigen::Vector3f(0.0f, 0.0f, -1.0f), direction.normalized());
-    Eigen::Matrix3f rotationMatrix = rotation.toRotationMatrix();
-    Eigen::Matrix3f invRotation = rotationMatrix.transpose();
-
-    // 计算相机位置的反向平移
-    Eigen::Vector3f invTranslation = -Position;
-
-    // 构建视图矩阵
-    viewMatrix.block<3, 3>(0, 0) = invRotation;
-    viewMatrix.block<3, 1>(0, 3) = invTranslation;
-
-    return viewMatrix;
+    Eigen::Matrix4f view = Eigen::Matrix4f::Identity();
+    view(0, 0) = xaxis.x(); view(0, 1) = xaxis.y(); view(0, 2) = xaxis.z(); view(0, 3) = -xaxis.dot(Position);
+    view(1, 0) = yaxis.x(); view(1, 1) = yaxis.y(); view(1, 2) = yaxis.z(); view(1, 3) = -yaxis.dot(Position);
+    view(2, 0) = zaxis.x(); view(2, 1) = zaxis.y(); view(2, 2) = zaxis.z(); view(2, 3) = -zaxis.dot(Position);
+    return view;
 }
 
 // 获取投影矩阵 (观察空间到裁剪空间的变换 - 透视投影)
@@ -40,6 +53,7 @@ Eigen::Matrix4f Camera::GetProjectionMatrix() const
     projectionMatrix(2, 2) = -(farClip + nearClip) / (farClip - nearClip);
     projectionMatrix(2, 3) = -(2.0f * farClip * nearClip) / (farClip - nearClip);
     projectionMatrix(3, 2) = -1.0f;
+    projectionMatrix(3, 3) = 0.0f; // 关键的修改
     return projectionMatrix;
 }
 
