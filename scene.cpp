@@ -19,6 +19,9 @@ void Scene::init()
     lightPass_ = std::make_unique<LightPass>();
     lightPass_->Initialize(sceneData_.screenWidth, sceneData_.screenHeight);
 
+    shadowPass_ = std::make_unique<ShadowPass>();
+    shadowPass_->Initialize(sceneData_.screenWidth, sceneData_.screenHeight);
+
     skyPass_ = std::make_unique<SkyPass>();
     skyPass_->Initialize(sceneData_.screenWidth, sceneData_.screenHeight);
 
@@ -28,8 +31,12 @@ void Scene::init()
     // 3. 初始化相机
     camera_.Position = Eigen::Vector3f(0.0f, 2.0f, 15.0f);
     camera_.Front = Eigen::Vector3f(0.0f, 0.0f, -1.0f);
-    // camera_.Front = -camera_.Position;
     camera_.updateCameraVectors();
+
+    // 3. 初始化shadow_map相机
+    shadow_camera_.Position = Eigen::Vector3f(0.0f, 2.0f, 15.0f);
+    shadow_camera_.Front = Eigen::Vector3f(0.0f, 0.0f, -1.0f);
+    shadow_camera_.updateCameraVectors();
 
     // 4. 初始化网格
     std::unique_ptr<Mesh> mesh_teapot = std::make_unique<Mesh>("teapot.obj");
@@ -92,13 +99,13 @@ void Scene::init()
 void Scene::run()
 {
     //for debug,test light---------------------------------------------
-    static int count = 0;
-    count++;
-    count %= 48000;
-    float x = count / 1200.0f - 20.0f;
-    x *= 2;
-    sceneData_.light->position = Eigen::Vector3f(x, 4, 6.0f);
-    sceneData_.light->intensity = 900.0f;
+    // static int count = 0;
+    // count++;
+    // count %= 48000;
+    // float x = count / 1200.0f - 20.0f;
+    // x *= 2;
+    // sceneData_.light->position = Eigen::Vector3f(x, 4, 6.0f);
+    // sceneData_.light->intensity = 900.0f;
 
     // float scale = (count % 10000) / 100.0f;
     // scale /= 100.0f;
@@ -108,19 +115,21 @@ void Scene::run()
     // sceneData_.objects.at(0)->setScale(Eigen::Vector3f(scale, scale, scale));
     // -----------------------------------------------------------------
 
+    shadowPass_->Render(sceneData_, shadow_camera_);
+
     // glDisable(GL_CULL_FACE);
-    gBufferPass_->Render(sceneData_, camera_);
-    lightPass_->Render(gBufferPass_->getColorAttachment(0),
-                        gBufferPass_->getColorAttachment(1),
-                        gBufferPass_->getColorAttachment(2),
-                        gBufferPass_->getColorAttachment(3),
-                        gBufferPass_->getColorAttachment(4),
-                        gBufferPass_->getColorAttachment(5),
-                        sceneData_.light,
-                        camera_);
-    skyPass_->Render(sceneData_, camera_);
-    screenPass_->Render(lightPass_->getColorAttachment(0),
-                        skyPass_->getColorTexture(),
-                        gBufferPass_->getDepthAttachment());
+    // gBufferPass_->Render(sceneData_, camera_);
+    // lightPass_->Render(gBufferPass_->getColorAttachment(0),
+    //                     gBufferPass_->getColorAttachment(1),
+    //                     gBufferPass_->getColorAttachment(2),
+    //                     gBufferPass_->getColorAttachment(3),
+    //                     gBufferPass_->getColorAttachment(4),
+    //                     gBufferPass_->getColorAttachment(5),
+    //                     sceneData_.light,
+    //                     camera_);
+    // skyPass_->Render(sceneData_, camera_);
+    // screenPass_->Render(lightPass_->getColorAttachment(0),
+    //                     skyPass_->getColorTexture(),
+    //                     gBufferPass_->getDepthAttachment());
     // screenPass_->Render(lightPass_->getColorAttachment(0));
 }

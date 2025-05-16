@@ -32,6 +32,7 @@ add_executable(OpenGL_GLAD_SDL2
     cubeMap.cpp
     material.cpp
     mesh.cpp
+    shadowPass.cpp
     lightPass.cpp
     skyPass.cpp
     screenPass.cpp
