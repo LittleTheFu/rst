@@ -55,14 +55,19 @@ void GBufferPass::Render(SceneData& sceneData, Camera& camera) {
     setViewport(sceneData.screenWidth, sceneData.screenHeight);
 
     shader_.use();
-    shader_.setMat4("view", camera.GetViewMatrix());
-    shader_.setMat4("projection", camera.GetProjectionMatrix());
+    Eigen::Matrix4f viewMatrix = camera.GetViewMatrix();
+    Eigen::Matrix4f projectionMatrix = camera.GetProjectionMatrix();
 
-    std::cout << "Camera Position: " << camera.Position.transpose() << std::endl;
+    // std::cout << "Camera Position: " << camera.Position.transpose() << std::endl;
+    // std::cout << "View Matrix:\n" << viewMatrix << std::endl;
+    // std::cout << "Projection Matrix:\n" << projectionMatrix << std::endl;
+
+    shader_.setMat4("view", viewMatrix);
+    shader_.setMat4("projection", projectionMatrix);
 
     for (const auto& object : sceneData.objects) {
         Eigen::Matrix4f modelMatrix = object->getModelMatrix();
-        std::cout << "Model Matrix:\n" << modelMatrix << std::endl;
+        // std::cout << "Model Matrix:\n" << modelMatrix << std::endl;
         shader_.setMat4("model", modelMatrix);
         object->render(shader_);
     }

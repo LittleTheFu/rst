@@ -11,7 +11,8 @@ out VS_OUT {
     vec3 normal;
     vec2 texCoords;
     mat3 TBN;
-    vec4 clipPos; // 新增：传递裁剪空间坐标
+    vec4 clipPos;
+    float clipW; // 新增输出
 } vs_out;
 
 uniform mat4 projection;
@@ -29,6 +30,7 @@ void main() {
     vec3 N_world = normalize(mat3(transpose(inverse(model))) * aNormal);
     vec3 B_world = normalize(cross(N_world, T_world));
     vs_out.TBN = mat3(T_world, B_world, N_world);
-    vs_out.clipPos = clipPos; // 将裁剪空间坐标传递给片段着色器
+    vs_out.clipPos = clipPos;
+    vs_out.clipW = clipPos.w; // 输出 clipW
     gl_Position = clipPos;
 }

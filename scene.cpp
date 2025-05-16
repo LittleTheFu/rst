@@ -26,14 +26,14 @@ void Scene::init()
     screenPass_->Initialize(sceneData_.screenWidth, sceneData_.screenHeight);
 
     // 3. 初始化相机
-    camera_.Position = Eigen::Vector3f(0.0f, 0.0f, 3.0f);
+    camera_.Position = Eigen::Vector3f(0.0f, 2.0f, 20.0f);
     camera_.Front = Eigen::Vector3f(0.0f, 0.0f, -1.0f);
     // camera_.Front = -camera_.Position;
     camera_.updateCameraVectors();
 
     // 4. 初始化网格
     std::unique_ptr<Mesh> mesh_teapot = std::make_unique<Mesh>("teapot.obj");
-    std::unique_ptr<Mesh> mesh_box = std::make_unique<Mesh>("bx.obj");
+    std::unique_ptr<Mesh> mesh_sky = std::make_unique<Mesh>("bx.obj");
 
     std::shared_ptr<Texture> albedoTexture = std::make_shared<Texture>("lena.png");
     // std::shared_ptr<Texture> albedoTexture = std::make_shared<Texture>("color.tga");
@@ -62,18 +62,18 @@ void Scene::init()
     // sceneData_.skybox = cubemapPtr;
 
     mesh_teapot->setMaterial(material_teapot);
-    mesh_box->setMaterial(material_cubemap);
+    mesh_sky->setMaterial(material_cubemap);
 
     float teapot_scale = 1.0f;
     mesh_teapot->setScale(Eigen::Vector3f(teapot_scale, teapot_scale, teapot_scale));
 
     float box_scale = 30.0f;
-    mesh_box->setScale(Eigen::Vector3f(box_scale, box_scale, box_scale));
+    mesh_sky->setScale(Eigen::Vector3f(box_scale, box_scale, box_scale));
 
     mesh_teapot->setPosition(Eigen::Vector3f(0.0f, 0.0f, 0.0f));
     sceneData_.objects.push_back(std::move(mesh_teapot));
     // sceneData_.objects.push_back(std::move(mesh_box));
-    sceneData_.skybox = std::move(mesh_box);
+    sceneData_.skybox = std::move(mesh_sky);
 
     // 5. 初始化光源
     sceneData_.light = std::make_shared<PointLight>();
@@ -90,8 +90,8 @@ void Scene::run()
     count %= 48000;
     float x = count / 1200.0f - 20.0f;
     x *= 2;
-    sceneData_.light->position = Eigen::Vector3f(x, 0, -5.0f);
-    sceneData_.light->intensity = 90.0f;
+    sceneData_.light->position = Eigen::Vector3f(x, 0, -3.0f);
+    sceneData_.light->intensity = 9000.0f;
 
     // float scale = (count % 10000) / 100.0f;
     // scale /= 100.0f;
@@ -101,7 +101,7 @@ void Scene::run()
     // sceneData_.objects.at(0)->setScale(Eigen::Vector3f(scale, scale, scale));
     // -----------------------------------------------------------------
 
-    glDisable(GL_CULL_FACE);
+    // glDisable(GL_CULL_FACE);
     gBufferPass_->Render(sceneData_, camera_);
     lightPass_->Render(gBufferPass_->getColorAttachment(0),
                         gBufferPass_->getColorAttachment(1),
