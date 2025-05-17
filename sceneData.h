@@ -21,6 +21,9 @@ struct SceneData {
     std::vector<std::shared_ptr<Mesh>> objects;
     std::shared_ptr<Mesh> skybox;
     std::shared_ptr<PointLight> light;
+
+    int shadowMapWidth;
+    int shadowMapHeight;
 };
 
 #endif // SCENEDATA_H

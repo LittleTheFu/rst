@@ -23,7 +23,9 @@ public:
                 const GLuint &metallicTextureID,
                 const GLuint &aoTextureID,
                 const std::shared_ptr<PointLight> &light,
-                const Camera& camera);
+                const Camera& camera,
+                const GLuint &shadowMapTexture,
+                const Eigen::Matrix4f& lightSpaceMatrix);
     void Resize(int width, int height) override;
     
     GLuint getOutputTexture() const { return outputTexture_; }

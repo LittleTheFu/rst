@@ -75,13 +75,15 @@ void LightPass::Render(const GLuint &textureID)
 }
 
 void LightPass::Render(const GLuint &positionTextureID,
-                        const GLuint &normalTextureID,
-                        const GLuint &albedoTextureID,
-                        const GLuint &roughnessTextureID,
-                        const GLuint &metallicTextureID,
-                        const GLuint &aoTextureID,
-                        const std::shared_ptr<PointLight> &light,
-                        const Camera &camera)
+                       const GLuint &normalTextureID,
+                       const GLuint &albedoTextureID,
+                       const GLuint &roughnessTextureID,
+                       const GLuint &metallicTextureID,
+                       const GLuint &aoTextureID,
+                       const std::shared_ptr<PointLight> &light,
+                       const Camera &camera,
+                       const GLuint &shadowMapTextureID,
+                       const Eigen::Matrix4f &lightSpaceMatrix)
 {
   // 绑定默认 Framebuffer
   // unbindFramebuffer(); // unbindFramebuffer() 继承自 RenderPass，会绑定回默认的 Framebuffer (ID 0)
@@ -110,6 +112,7 @@ void LightPass::Render(const GLuint &positionTextureID,
   }
 
   shader_.setVec3("cameraPos", camera.Position);
+  shader_.setMat4("lightSpaceMatrix", lightSpaceMatrix);
 
   // 绑定要显示的纹理
   glActiveTexture(GL_TEXTURE0);
@@ -135,6 +138,10 @@ void LightPass::Render(const GLuint &positionTextureID,
   glActiveTexture(GL_TEXTURE5);
   glBindTexture(GL_TEXTURE_2D, aoTextureID);
   shader_.setInt("aoTexture", 5);
+
+  glActiveTexture(GL_TEXTURE6);
+  glBindTexture(GL_TEXTURE_2D, shadowMapTextureID); // 假设 shadowMapTexture 是阴影贴图的纹理 ID
+  shader_.setInt("shadowMapTexture", 6);                 // 假设阴影贴图绑定到纹理单元 6
 
   // 渲染屏幕四边形
   renderQuad();

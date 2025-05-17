@@ -24,14 +24,16 @@ public:
     float zoomSensitivity = 0.5f; // 用于滚轮缩放的灵敏度
     float fov = 45.0f;
     float aspectRatio = 800.0f / 600.0f; // 默认宽高比
-    float nearClip = 10.0f;
-    float farClip = 18.0f;
+    float nearClip = 1.0f;
+    float farClip = 50.0f;
 
     // 构造函数
     Camera(const Eigen::Vector3f &position = Eigen::Vector3f(0.0f, 0.0f, 3.0f),
            const Eigen::Vector3f &worldUp = Eigen::Vector3f(0.0f, 1.0f, 0.0f),
            float yaw = -90.0f,
            float pitch = 0.0f);
+
+    void lookAt(const Eigen::Vector3f &target);
 
     // 获取观察矩阵 (世界空间到观察空间的变换)
     Eigen::Matrix4f GetViewMatrix() const;

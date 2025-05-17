@@ -9,27 +9,6 @@ Camera::Camera(const Eigen::Vector3f &position, const Eigen::Vector3f &worldUp, 
     updateCameraVectors();
 }
 
-// 获取观察矩阵 (世界空间到观察空间的变换)
-// Eigen::Matrix4f Camera::GetViewMatrix() const
-// {
-//     Eigen::Matrix4f viewMatrix = Eigen::Matrix4f::Identity();
-
-//     // 计算相机的朝向的反向旋转
-//     Eigen::Vector3f direction = -Front; // 相机看向 -Z 轴
-//     Eigen::Quaternionf rotation = Eigen::Quaternionf::FromTwoVectors(Eigen::Vector3f(0.0f, 0.0f, -1.0f), direction.normalized());
-//     Eigen::Matrix3f rotationMatrix = rotation.toRotationMatrix();
-//     Eigen::Matrix3f invRotation = rotationMatrix.transpose();
-
-//     // 计算相机位置的反向平移
-//     Eigen::Vector3f invTranslation = -Position;
-
-//     // 构建视图矩阵
-//     viewMatrix.block<3, 3>(0, 0) = invRotation;
-//     viewMatrix.block<3, 1>(0, 3) = invTranslation;
-
-//     return viewMatrix;
-// }
-
 Eigen::Matrix4f Camera::GetViewMatrix() const
 {
     Eigen::Vector3f zaxis = (Position - (Position + Front)).normalized(); // camera direction
@@ -124,6 +103,17 @@ Eigen::Vector3f Camera::getFront() const
 {
     return Front;
 }
+
+void Camera::lookAt(const Eigen::Vector3f &target)
+{
+    Eigen::Vector3f direction = (target - Position).normalized();
+
+    Pitch = std::asin(direction.y()) * 180.0f / M_PI;
+    Yaw = std::atan2(direction.z(), direction.x()) * 180.0f / M_PI;
+
+    updateCameraVectors();
+}
+
 
 // 更新 Front, Right 和 Up 向量
 void Camera::updateCameraVectors()
