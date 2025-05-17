@@ -8,11 +8,10 @@ uniform sampler2D albedoTexture;
 uniform sampler2D metallicTexture;
 uniform sampler2D roughnessTexture;
 uniform sampler2D aoTexture;
-uniform sampler2D shadowMapTexture;
+uniform samplerCube shadowMapTexture;
 
 
 uniform vec3 cameraPos;
-uniform mat4 lightSpaceMatrix;
 
 layout(location = 0) out vec4 out_Texture;    // 写入到 GL_COLOR_ATTACHMENT0
 
@@ -78,37 +77,14 @@ void main()
     float roughness = texture(roughnessTexture, TexCoords).r;
     vec3 ao = texture(aoTexture, TexCoords).rgb;
 
-    vec4 lightSpacePos = lightSpaceMatrix * vec4(position, 1.0);
-    vec3 projCoords = lightSpacePos.xyz / lightSpacePos.w;  // 透视除法
-    projCoords = projCoords * 0.5 + 0.5;  // 转换到[0,1]范围
-
-    if(projCoords.x < 0.0 || 
-        projCoords.y < 0.0 || 
-        projCoords.x > 1.0 || 
-        projCoords.y > 1.0 )
-    {
-        // out_Texture = vec4(0.0, 0.0, 0.0, 1.0);  // 超出范围的片元丢弃
-        // return;
-    }
-    else if(projCoords.z > 1.0)
-    {
-        // out_Texture = vec4(0.0, 0.0, 0.0, 1.0);  // 超出范围的片元丢弃
-        // return;
-    }
-    else
-    {
-        // out_Texture = vec4(0.0, 0.0, 0.0, 1.0);  // 丢弃
-        // return;
-
-        float closestDepth = texture(shadowMapTexture, projCoords.xy).r;  // 从深度纹理中获取最近的深度值
-        float currentDepth = projCoords.z;  // 当前片元的深度值
-
-        if(currentDepth > closestDepth + 0.005)  // 比较当前深度值和最近深度值
-        {
-            out_Texture = vec4(0.0, 0.0, 0.0, 1.0);  // 丢弃
-            return;
-        }
-    }
+    // 这里暗含一个bug，因为depth的映射不是线性的。
+    float farClip = 50.0;
+    vec3 fragToLight = position - uPointLight.position;
+    float dpth = texture(shadowMapTexture, fragToLight).r;
+    float closestDepth = texture(shadowMapTexture, fragToLight).r * farClip;
+    float currentDepth = length(fragToLight);
+    float bias = 0.0000; // 可调
+    float shadow = currentDepth - bias > closestDepth ? 1.0 : 0.0;
 
     // 确保粗糙度在0.05到1.0之间
     roughness = clamp(roughness, 0.05, 1.0);  // 不要为0，也不要大于1
@@ -148,7 +124,8 @@ void main()
 
     vec3 ambient = vec3(0.5) * albedo * ao;
     // vec3 ambient = vec3(0.03) * albedo * ao;
-    out_Texture = vec4(Lo, 1.0) + vec4(ambient, 1.0);
+    vec4 outColor = vec4(Lo, 1.0) + vec4(ambient, 1.0);
+    out_Texture = (1 - shadow) * outColor;
     // FragColor = vec4(uPointLight.intensity, uPointLight.intensity, uPointLight.intensity, 1.0);
-    
+    // out_Texture = vec4(dpth, dpth, dpth, 1.0);
 }

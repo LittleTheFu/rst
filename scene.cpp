@@ -12,8 +12,8 @@ void Scene::init()
     sceneData_.screenWidth = 800;
     sceneData_.screenHeight = 600;
 
-    sceneData_.shadowMapWidth = 800; // 阴影贴图的宽度和高度
-    sceneData_.shadowMapHeight = 600; // 阴影贴图的宽度和高度;
+    sceneData_.shadowMapWidth = 1024; // 阴影贴图的宽度和高度
+    sceneData_.shadowMapHeight = 1024; // 阴影贴图的宽度和高度;
 
     // 2. 初始化 G-Buffer Pass
     gBufferPass_ = std::make_unique<GBufferPass>();
@@ -108,15 +108,15 @@ void Scene::run()
     count %= 48000;
     float x = count / 1200.0f - 15.0f;
     x *= 1;
-    sceneData_.light->position = Eigen::Vector3f(x, 0, 15.0f);
+    sceneData_.light->position = Eigen::Vector3f(x, 0, 14.0f);
     sceneData_.light->intensity = 900.0f;
 
     shadow_camera_.Position = sceneData_.light->position;
-    Eigen::Vector3f front = -sceneData_.light->position.normalized();
+    // Eigen::Vector3f front = -sceneData_.light->position.normalized();
     // shadow_camera_.Front = front;
     // shadow_camera_.Front = Eigen::Vector3f(0.0f, 100.0f, 0.0f);
-    shadow_camera_.lookAt(Eigen::Vector3f(0.0f, 0.0f, 0.0f));
-    shadow_camera_.updateCameraVectors();
+    // shadow_camera_.lookAt(Eigen::Vector3f(0.0f, 0.0f, 0.0f));
+    // shadow_camera_.updateCameraVectors();
 
     // float scale = (count % 10000) / 100.0f;
     // scale /= 100.0f;
@@ -140,8 +140,7 @@ void Scene::run()
                         gBufferPass_->getColorAttachment(5),
                         sceneData_.light,
                         camera_,
-                        shadowPass_->getDepthTexture(),
-                        lightSpaceMatrix);
+                        shadowPass_->getDepthTexture());
     skyPass_->Render(sceneData_, camera_);
     screenPass_->Render(lightPass_->getColorAttachment(0),
                         skyPass_->getColorTexture(),

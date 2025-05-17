@@ -35,6 +35,8 @@ public:
 
     void lookAt(const Eigen::Vector3f &target);
 
+    Eigen::Matrix4f LookAtCube(const Eigen::Vector3f &eye, const Eigen::Vector3f &center, const Eigen::Vector3f &up);
+
     // 获取观察矩阵 (世界空间到观察空间的变换)
     Eigen::Matrix4f GetViewMatrix() const;
 
