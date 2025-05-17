@@ -34,6 +34,7 @@ public:
            float pitch = 0.0f);
 
     void lookAt(const Eigen::Vector3f &target);
+    void setAspectRatio(float ration);
 
     Eigen::Matrix4f LookAtCube(const Eigen::Vector3f &eye, const Eigen::Vector3f &center, const Eigen::Vector3f &up);
 
@@ -42,6 +43,8 @@ public:
 
     // 获取投影矩阵 (观察空间到裁剪空间的变换 - 透视投影)
     Eigen::Matrix4f GetProjectionMatrix() const;
+
+    void setFOV(float fov);
 
     // 处理键盘输入
     void ProcessKeyboard(CameraMovement direction, float deltaTime);

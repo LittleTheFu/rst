@@ -36,6 +36,11 @@ Eigen::Matrix4f Camera::GetProjectionMatrix() const
     return projectionMatrix;
 }
 
+void Camera::setFOV(float fov)
+{
+    this->fov = fov;
+}
+
 // 处理键盘输入
 void Camera::ProcessKeyboard(CameraMovement direction, float deltaTime)
 {
@@ -103,6 +108,12 @@ Eigen::Vector3f Camera::getFront() const
 {
     return Front;
 }
+
+void Camera::setAspectRatio(float ration)
+{
+    aspectRatio = ration; 
+}
+
 
 void Camera::lookAt(const Eigen::Vector3f &target)
 {

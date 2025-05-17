@@ -7,33 +7,54 @@ ShadowPass::ShadowPass() : RenderPass("ShadowPass")
 
 void ShadowPass::Initialize(int width, int height)
 {
+    // 1. 创建并绑定帧缓冲
     createFramebuffer();
     bindFramebuffer();
 
-    // 创建立方体纹理
-    glCreateTextures(GL_TEXTURE_CUBE_MAP, 1, &depthAttachment_);
+    // 2. 创建一个立方体深度纹理
+    glGenTextures(1, &depthAttachment_);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, depthAttachment_);
 
-    // 为整个立方体贴图分配存储（只调用一次！）
-    glTextureStorage2D(depthAttachment_, 1, GL_DEPTH_COMPONENT32F, width, height);
+    // 3. 为立方体每个面分配深度存储
+    for (unsigned int i = 0; i < 6; ++i)
+    {
+        glTexImage2D(
+            GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
+            0,                         // mipmap level
+            GL_DEPTH_COMPONENT32F,    // internal format
+            width, height,
+            0,                         // border
+            GL_DEPTH_COMPONENT,       // format
+            GL_FLOAT,                 // type
+            nullptr                   // no initial data
+        );
+    }
 
-    // 设置纹理参数
-    glTextureParameteri(depthAttachment_, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTextureParameteri(depthAttachment_, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTextureParameteri(depthAttachment_, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTextureParameteri(depthAttachment_, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTextureParameteri(depthAttachment_, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+    // 4. 设置纹理参数
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 
-    // 绑定纹理到帧缓冲深度附件（深度附件没有 mipmap 层级，所以level固定为0）
+    // 5. 不绑定颜色附件，只绑定深度
     glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthAttachment_, 0);
+    glDrawBuffer(GL_NONE);
+    glReadBuffer(GL_NONE);
 
+    // 6. 检查帧缓冲完整性
     GLenum err = glCheckFramebufferStatus(GL_FRAMEBUFFER);
     if (err != GL_FRAMEBUFFER_COMPLETE)
     {
         std::cerr << "ERROR::FRAMEBUFFER::Framebuffer is not complete!" << std::endl;
     }
 
-    unbindFramebuffer();
+    // 7. 解绑
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 }
+
+
 
 
 

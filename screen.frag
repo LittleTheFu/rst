@@ -27,4 +27,6 @@ void main()
     {
         FragColor = lightColor;
     }
+
+    FragColor = lightColor;
 }

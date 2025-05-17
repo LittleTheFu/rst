@@ -12,8 +12,8 @@ void Scene::init()
     sceneData_.screenWidth = 800;
     sceneData_.screenHeight = 600;
 
-    sceneData_.shadowMapWidth = 1024; // 阴影贴图的宽度和高度
-    sceneData_.shadowMapHeight = 1024; // 阴影贴图的宽度和高度;
+    sceneData_.shadowMapWidth = 2048; // 阴影贴图的宽度和高度
+    sceneData_.shadowMapHeight = 2048; // 阴影贴图的宽度和高度;
 
     // 2. 初始化 G-Buffer Pass
     gBufferPass_ = std::make_unique<GBufferPass>();
@@ -32,13 +32,13 @@ void Scene::init()
     screenPass_->Initialize(sceneData_.screenWidth, sceneData_.screenHeight);
 
     // 3. 初始化相机
-    camera_.Position = Eigen::Vector3f(0.0f, 2.0f, 10.0f);
+    camera_.Position = Eigen::Vector3f(0.0f, 2.0f, 18.0f);
     // camera_.Front = Eigen::Vector3f(0.0f, 0.0f, -1.0f);
     camera_.lookAt(Eigen::Vector3f(0.0f, 0.0f, 0.0f));
     camera_.updateCameraVectors();
 
     // 3. 初始化shadow_map相机
-    shadow_camera_.Position = Eigen::Vector3f(1.0f, 3.0f, 10.0f);
+    shadow_camera_.Position = Eigen::Vector3f(1.0f, 3.0f, 20.0f);
     shadow_camera_.Front = Eigen::Vector3f(0.0f, 0.0f, -1.0f);
     shadow_camera_.updateCameraVectors();
 
@@ -75,8 +75,9 @@ void Scene::init()
     material_cubemap->setCubemap(cubemapPtr);
     // sceneData_.skybox = cubemapPtr;
 
-    float mesh_box_scale = 30.0f;
+    float mesh_box_scale = 16.0f;
     mesh_box->setMaterial(material_teapot);
+    mesh_box->setPosition(Eigen::Vector3f(0.0f, 0.0f, -25.0f));
     mesh_box->setScale(Eigen::Vector3f(mesh_box_scale, mesh_box_scale, mesh_box_scale));
 
     mesh_teapot->setMaterial(material_teapot);
@@ -85,7 +86,7 @@ void Scene::init()
     float teapot_scale = 1.0f;
     mesh_teapot->setScale(Eigen::Vector3f(teapot_scale, teapot_scale, teapot_scale));
 
-    float box_scale = 13.0f;
+    float box_scale = 1.0f;
     mesh_sky->setScale(Eigen::Vector3f(box_scale, box_scale, box_scale));
 
     mesh_teapot->setPosition(Eigen::Vector3f(0.0f, 0.0f, 0.0f));
@@ -108,10 +109,12 @@ void Scene::run()
     count %= 48000;
     float x = count / 1200.0f - 15.0f;
     x *= 1;
-    sceneData_.light->position = Eigen::Vector3f(x, 0, 14.0f);
+    sceneData_.light->position = Eigen::Vector3f(2, 5, 4.0f);
     sceneData_.light->intensity = 900.0f;
 
     shadow_camera_.Position = sceneData_.light->position;
+    shadow_camera_.setAspectRatio(1);
+    shadow_camera_.setFOV(90.0f);
     // Eigen::Vector3f front = -sceneData_.light->position.normalized();
     // shadow_camera_.Front = front;
     // shadow_camera_.Front = Eigen::Vector3f(0.0f, 100.0f, 0.0f);

@@ -80,11 +80,17 @@ void main()
     // 这里暗含一个bug，因为depth的映射不是线性的。
     float farClip = 50.0;
     vec3 fragToLight = position - uPointLight.position;
-    float dpth = texture(shadowMapTexture, fragToLight).r;
+    // float dpth = texture(shadowMapTexture, fragToLight).r;
     float closestDepth = texture(shadowMapTexture, fragToLight).r * farClip;
     float currentDepth = length(fragToLight);
-    float bias = 0.0000; // 可调
-    float shadow = currentDepth - bias > closestDepth ? 1.0 : 0.0;
+    float bias = 0.0; // 尝试加大一些偏移看看效果
+    float shadow = 0.0;
+    // if (currentDepth > farClip) {
+    if(false){
+        shadow = 0.0; // 超出范围，不投影阴影
+    } else {
+        shadow = (currentDepth - bias > closestDepth) ? 1.0 : 0.0;
+    }
 
     // 确保粗糙度在0.05到1.0之间
     roughness = clamp(roughness, 0.05, 1.0);  // 不要为0，也不要大于1
@@ -126,6 +132,18 @@ void main()
     // vec3 ambient = vec3(0.03) * albedo * ao;
     vec4 outColor = vec4(Lo, 1.0) + vec4(ambient, 1.0);
     out_Texture = (1 - shadow) * outColor;
+
+    // if(closestDepth > 1)
+    // {
+    //     closestDepth = 0;
+    // }
+    // currentDepth = currentDepth / 60;
+    // out_Texture = vec4(currentDepth, currentDepth, currentDepth, 1.0);
+
+    // closestDepth = closestDepth / 60;
+    // out_Texture = vec4(closestDepth, closestDepth, closestDepth, 1.0);
+    // out_Texture = vec4(texture(shadowMapTexture, fragToLight).r, texture(shadowMapTexture, fragToLight).r, texture(shadowMapTexture, fragToLight).r, 1.0);
+
     // FragColor = vec4(uPointLight.intensity, uPointLight.intensity, uPointLight.intensity, 1.0);
     // out_Texture = vec4(dpth, dpth, dpth, 1.0);
 }
