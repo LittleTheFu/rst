@@ -77,7 +77,7 @@ float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness)
 
 void main()
 {
-    vec3 position = texture(positionTexture, TexCoords).rgb;
+    vec3 world_position = texture(positionTexture, TexCoords).rgb;
     vec3 normal = texture(normalTexture, TexCoords).rgb;
     vec3 albedo = texture(albedoTexture, TexCoords).rgb;
     float metallic = texture(metallicTexture, TexCoords).r;
@@ -85,10 +85,12 @@ void main()
     vec3 ao = texture(aoTexture, TexCoords).rgb;
 
     // 这里暗含一个bug，因为depth的映射不是线性的。
-    vec3 fragToLight = (position - uPointLight.position);
+    vec3 fragToLight = (world_position - uPointLight.position);
     vec3 fragToLight_norm = normalize(fragToLight);
     // vec3 fragToLight = normalize(position - uPointLight.position);
-    float closestDepth = texture(shadowMapTexture, fragToLight_norm).r * shadowCameraFarClip;
+    float closestDepth = texture(shadowMapTexture, vec3(0,0,-1)).r * shadowCameraFarClip;
+    // float closestDepth = texture(shadowMapTexture, fragToLight_norm).r * shadowCameraFarClip;
+    // float closestDepth = texture(shadowMapTexture, fragToLight_norm).r;
     float currentDepth = length(fragToLight);
     float bias = 0.0000; // 尝试加大一些偏移看看效果
     float shadow = 0.0;
@@ -105,11 +107,11 @@ void main()
     // 确保粗糙度在0.05到1.0之间
     roughness = clamp(roughness, 0.05, 1.0);  // 不要为0，也不要大于1
 
-    vec3 viewDir = normalize(cameraPos - position);
-    vec3 lightDir = normalize(uPointLight.position - position);
+    vec3 viewDir = normalize(cameraPos - world_position);
+    vec3 lightDir = normalize(uPointLight.position - world_position);
     vec3 halfwayDir = normalize(lightDir + viewDir);
 
-    float distance = length(uPointLight.position - position);
+    float distance = length(uPointLight.position - world_position);
     float attenuation = 1.0 / (distance * distance);
 
     // attenuation = 1.0;
@@ -165,7 +167,7 @@ void main()
     
 
     // float diff = (currentDepth - bias) - closestDepth;
-    // out_Texture = vec4(diff, diff, diff, 1.0);
+    // out_DebugClosestDepth = vec4(diff, diff, diff, 1.0);
 
     // FragColor = vec4(uPointLight.intensity, uPointLight.intensity, uPointLight.intensity, 1.0);
     // out_Texture = vec4(dpth, dpth, dpth, 1.0);
