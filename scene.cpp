@@ -44,6 +44,7 @@ void Scene::init()
 
     // 4. 初始化网格
     std::unique_ptr<Mesh> mesh_teapot = std::make_unique<Mesh>("teapot.obj");
+    std::unique_ptr<Mesh> mesh_cursor = std::make_unique<Mesh>("bx.obj");
     std::unique_ptr<Mesh> mesh_box = std::make_unique<Mesh>("bx.obj");
     std::unique_ptr<Mesh> mesh_sky = std::make_unique<Mesh>("bx.obj");
 
@@ -90,9 +91,14 @@ void Scene::init()
     float box_scale = 1.0f;
     mesh_sky->setScale(Eigen::Vector3f(box_scale, box_scale, box_scale));
 
+    mesh_cursor->setMaterial(material_teapot);
+    float cursor_scale = 0.2f;
+    mesh_cursor->setScale(Eigen::Vector3f(cursor_scale, cursor_scale, cursor_scale));
+
     mesh_teapot->setPosition(Eigen::Vector3f(0.0f, 0.0f, 0.0f));
     sceneData_.objects.push_back(std::move(mesh_box));
     sceneData_.objects.push_back(std::move(mesh_teapot));
+    sceneData_.objects.push_back(std::move(mesh_cursor));
     sceneData_.skybox = std::move(mesh_sky);
 
     // 5. 初始化光源
@@ -113,9 +119,13 @@ void Scene::run()
     count %= 48000;
     float x = count / 1200.0f - 15.0f;
     x *= 0.5;
-    sceneData_.light->position = Eigen::Vector3f(2, 3, 7.0f);
-    // sceneData_.light->position = Eigen::Vector3f(x, 0, -7.0f);
+    // sceneData_.light->position = Eigen::Vector3f(2, 3, 7.0f);
+    sceneData_.light->position = Eigen::Vector3f(x, x, 7.0f);
     sceneData_.light->intensity = 10.0f;
+
+    //debug
+    Eigen::Vector3f offset = Eigen::Vector3f(0.0f, 0.5f, 0.0f);
+    sceneData_.objects.at(2)->setPosition(sceneData_.light->position + offset);
 
     shadow_camera_.Position = sceneData_.light->position;
     shadow_camera_.setAspectRatio(1);
