@@ -114,7 +114,7 @@ void Scene::run()
     float x = count / 1200.0f - 15.0f;
     x *= 0.5;
     // sceneData_.light->position = Eigen::Vector3f(2, 3, -7.0f);
-    sceneData_.light->position = Eigen::Vector3f(x, x, -7.0f);
+    sceneData_.light->position = Eigen::Vector3f(x, 0, -7.0f);
     sceneData_.light->intensity = 10.0f;
 
     shadow_camera_.Position = sceneData_.light->position;

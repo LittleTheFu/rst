@@ -95,9 +95,10 @@ void main()
     float currentDepth = length(fragToLight);
     float bias = 0.0000 * shadowCameraFarClip; // 尝试加大一些偏移看看效果
     float shadow = 0.0;
+    // if (currentDepth > 10) {
     // if (currentDepth > shadowCameraFarClip) {
     if(false){
-        shadow = 1.0; // 超出范围，不投影阴影
+        shadow = 0.0; // 超出范围，不投影阴影
     } else {
         shadow = (currentDepth - bias > closestDepth) ? 1.0 : 0.0;
     }
@@ -161,10 +162,12 @@ void main()
 
     closestDepth = closestDepth / shadowCameraFarClip;
     out_DebugClosestDepth = vec4(closestDepth, closestDepth, closestDepth, 1.0);
+
     // out_DebugClosestDepth = vec4(fragToLight, 1.0);
     // out_Texture = vec4(closestDepth, closestDepth, closestDepth, 1.0);
     // out_Texture = vec4(texture(shadowMapTexture, fragToLight).r, texture(shadowMapTexture, fragToLight).r, texture(shadowMapTexture, fragToLight).r, 1.0);
 
+    // out_Texture = out_DebugClosestDepth;
     
 
     // float diff = (currentDepth - bias) - closestDepth;
