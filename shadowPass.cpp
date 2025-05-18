@@ -11,8 +11,8 @@ void ShadowPass::Initialize(int width, int height)
     createFramebuffer();
 
     // 2. 创建一个立方体深度纹理
-    glGenTextures(1, &depthAttachment_);
-    glBindTexture(GL_TEXTURE_CUBE_MAP, depthAttachment_);
+    glGenTextures(1, &colorAttachment_);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, colorAttachment_);
 
     // 3. 为立方体每个面分配深度存储
     for (unsigned int i = 0; i < 6; ++i)
@@ -20,10 +20,10 @@ void ShadowPass::Initialize(int width, int height)
         glTexImage2D(
             GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
             0,                                     // mipmap level
-            GL_DEPTH_COMPONENT32F,                 // internal format
+            GL_R32F,                 // internal format
             width, height,
             0,                                     // border
-            GL_DEPTH_COMPONENT,                    // format
+            GL_RED,                    // format
             GL_FLOAT,                              // type
             nullptr                                 // no initial data
         );
@@ -130,14 +130,18 @@ void ShadowPass::Render(SceneData &sceneData, Camera &camera)
     for (int face = 0; face < 6; ++face)
     {
         Eigen::Matrix4f viewMat = camera.LookAtCube(pos, targets[face], ups[face]);
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
                                GL_TEXTURE_CUBE_MAP_POSITIVE_X + face,
-                               depthAttachment_, 0);
+                               colorAttachment_, 0);
 
-        glDrawBuffer(GL_NONE);
-        glReadBuffer(GL_NONE);
+        GLenum drawBuffers[1] = { GL_COLOR_ATTACHMENT0 };
+        glDrawBuffers(1, drawBuffers);
 
-        glClear(GL_DEPTH_BUFFER_BIT);
+        // glDrawBuffer(GL_NONE);
+        // glReadBuffer(GL_NONE);
+
+        glClear(GL_COLOR_BUFFER_BIT);
+        // glClear(GL_DEPTH_BUFFER_BIT);
 
         // 这里用shadow map分辨率，而不是sceneData.screenWidth/Height
         setViewport(sceneData.shadowMapWidth, sceneData.shadowMapHeight);

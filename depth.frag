@@ -11,5 +11,5 @@ void main() {
     float distance = length(FragPosWorld - lightPos);
     // 归一化写入 [0,1]
     FragDepth = distance / farClip;//这里不是写入深度buffer
-    gl_FragDepth = distance / farClip;
+    // gl_FragDepth = distance / farClip;
 }

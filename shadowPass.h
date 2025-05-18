@@ -12,10 +12,10 @@ public:
     void Initialize(int width, int height) override; // 重写基类的 Initialize 方法
     void Render(SceneData& sceneData, Camera& camera) override; // 重写基类的 Render 方法
 
-    GLuint getDepthTexture() { return depthAttachment_; }
+    GLuint getShadowTexture() { return colorAttachment_; }
 
 private:
-    GLuint depthAttachment_;           // 存储位置信息
+    GLuint colorAttachment_;           // 存储位置信息
 };
 
 #endif // ShadowPass_H

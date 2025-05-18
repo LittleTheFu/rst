@@ -181,7 +181,8 @@ void LightPass::Render(const GLuint &positionTextureID,
   }
 
   shader_.setVec3("cameraPos", camera.Position);
-  shader_.setFloat("farClip", camera.farClip);
+  //这里应该使用shadowmap_camera的farClip,因为都一样，这里暂时省事这样写
+  shader_.setFloat("shadowCameraFarClip", camera.farClip);
   
 
   // 绑定要显示的纹理

@@ -12,7 +12,8 @@ uniform samplerCube shadowMapTexture;
 
 
 uniform vec3 cameraPos;
-uniform float farClip;
+
+uniform float shadowCameraFarClip;
 
 layout(location = 0) out vec4 out_Texture;    // 写入到 GL_COLOR_ATTACHMENT0
 layout(location = 1) out vec4 out_DebugCurrentDepth;  // 对应 GL_COLOR_ATTACHMENT1
@@ -85,12 +86,13 @@ void main()
 
     // 这里暗含一个bug，因为depth的映射不是线性的。
     vec3 fragToLight = (position - uPointLight.position);
+    vec3 fragToLight_norm = normalize(fragToLight);
     // vec3 fragToLight = normalize(position - uPointLight.position);
-    float closestDepth = texture(shadowMapTexture, fragToLight).r * farClip;
+    float closestDepth = texture(shadowMapTexture, fragToLight_norm).r * shadowCameraFarClip;
     float currentDepth = length(fragToLight);
     float bias = 0.0000; // 尝试加大一些偏移看看效果
     float shadow = 0.0;
-    // if (currentDepth > farClip) {
+    // if (currentDepth > shadowCameraFarClip) {
     if(false){
         shadow = 1.0; // 超出范围，不投影阴影
     } else {
@@ -150,11 +152,11 @@ void main()
     // {
     //     closestDepth = 0;
     // }
-    currentDepth = currentDepth / farClip;
+    currentDepth = currentDepth / shadowCameraFarClip;
     // out_Texture = vec4(currentDepth, currentDepth, currentDepth, 1.0);
     out_DebugCurrentDepth = vec4(currentDepth, currentDepth, currentDepth, 1.0);
 
-    closestDepth = closestDepth / farClip;
+    closestDepth = closestDepth / shadowCameraFarClip;
     out_DebugClosestDepth = vec4(closestDepth, closestDepth, closestDepth, 1.0);
     // out_DebugClosestDepth = vec4(fragToLight, 1.0);
     // out_Texture = vec4(closestDepth, closestDepth, closestDepth, 1.0);
