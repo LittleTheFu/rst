@@ -41,6 +41,9 @@ private:
 
     GLuint outputTexture_;
 
+    GLuint debugCurrentDepthTexture_;
+    GLuint debugClosestDepthTexture_;
+
 };
 
 #endif

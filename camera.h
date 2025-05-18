@@ -25,7 +25,7 @@ public:
     float fov = 45.0f;
     float aspectRatio = 800.0f / 600.0f; // 默认宽高比
     float nearClip = 1.0f;
-    float farClip = 50.0f;
+    float farClip = 100.0f;
 
     // 构造函数
     Camera(const Eigen::Vector3f &position = Eigen::Vector3f(0.0f, 0.0f, 3.0f),

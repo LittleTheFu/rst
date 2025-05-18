@@ -38,9 +38,9 @@ void Scene::init()
     camera_.updateCameraVectors();
 
     // 3. 初始化shadow_map相机
-    shadow_camera_.Position = Eigen::Vector3f(1.0f, 3.0f, 20.0f);
-    shadow_camera_.Front = Eigen::Vector3f(0.0f, 0.0f, -1.0f);
-    shadow_camera_.updateCameraVectors();
+    // shadow_camera_.Position = Eigen::Vector3f(1.0f, 3.0f, 20.0f);
+    // shadow_camera_.Front = Eigen::Vector3f(0.0f, 0.0f, -1.0f);
+    // shadow_camera_.updateCameraVectors();
 
     // 4. 初始化网格
     std::unique_ptr<Mesh> mesh_teapot = std::make_unique<Mesh>("teapot.obj");
@@ -75,9 +75,10 @@ void Scene::init()
     material_cubemap->setCubemap(cubemapPtr);
     // sceneData_.skybox = cubemapPtr;
 
-    float mesh_box_scale = 16.0f;
+    float mesh_box_scale = 10.0f;
     mesh_box->setMaterial(material_teapot);
-    mesh_box->setPosition(Eigen::Vector3f(0.0f, 0.0f, -25.0f));
+    mesh_box->setPosition(Eigen::Vector3f(0.0f, 0.0f, -12.0f));
+    // mesh_box->setPosition(Eigen::Vector3f(0.0f, 0.0f, 0.0f));
     mesh_box->setScale(Eigen::Vector3f(mesh_box_scale, mesh_box_scale, mesh_box_scale));
 
     mesh_teapot->setMaterial(material_teapot);
@@ -90,8 +91,8 @@ void Scene::init()
     mesh_sky->setScale(Eigen::Vector3f(box_scale, box_scale, box_scale));
 
     mesh_teapot->setPosition(Eigen::Vector3f(0.0f, 0.0f, 0.0f));
-    sceneData_.objects.push_back(std::move(mesh_teapot));
     sceneData_.objects.push_back(std::move(mesh_box));
+    sceneData_.objects.push_back(std::move(mesh_teapot));
     sceneData_.skybox = std::move(mesh_sky);
 
     // 5. 初始化光源
@@ -103,13 +104,17 @@ void Scene::init()
 
 void Scene::run()
 {
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
+
     // for debug,test light---------------------------------------------
     static int count = 0;
     count++;
     count %= 48000;
     float x = count / 1200.0f - 15.0f;
-    x *= 1;
-    sceneData_.light->position = Eigen::Vector3f(2, 5, 4.0f);
+    x *= 4;
+    sceneData_.light->position = Eigen::Vector3f(3, 3, 14.0f);
+    // sceneData_.light->position = Eigen::Vector3f(x, x, 14.0f);
     sceneData_.light->intensity = 900.0f;
 
     shadow_camera_.Position = sceneData_.light->position;
@@ -148,5 +153,4 @@ void Scene::run()
     screenPass_->Render(lightPass_->getColorAttachment(0),
                         skyPass_->getColorTexture(),
                         gBufferPass_->getDepthAttachment());
-    // screenPass_->Render(lightPass_->getColorAttachment(0));
 }

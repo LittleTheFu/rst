@@ -27,7 +27,7 @@ void SkyPass::Render(SceneData &sceneData, Camera &camera)
     shader_.setMat4("projection", camera.GetProjectionMatrix());
 
     glEnable(GL_DEPTH_TEST);
-    glDepthMask(GL_FALSE);
+    // glDepthMask(GL_FALSE);
 
     // 4. 绑定天空盒纹理
     sceneData.skybox->render(shader_);
