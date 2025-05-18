@@ -24,7 +24,8 @@ public:
                 const GLuint &aoTextureID,
                 const std::shared_ptr<PointLight> &light,
                 const Camera& camera,
-                const GLuint &shadowMapTexture);
+                const GLuint &shadowMapTexture,
+                const Camera& shadowCamera);
     void Resize(int width, int height) override;
     
     GLuint getOutputTexture() const { return outputTexture_; }

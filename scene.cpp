@@ -113,13 +113,13 @@ void Scene::run()
     count %= 48000;
     float x = count / 1200.0f - 15.0f;
     x *= 0.5;
-    // sceneData_.light->position = Eigen::Vector3f(2, 3, -7.0f);
-    sceneData_.light->position = Eigen::Vector3f(x, 0, -7.0f);
+    sceneData_.light->position = Eigen::Vector3f(2, 3, 7.0f);
+    // sceneData_.light->position = Eigen::Vector3f(x, 0, -7.0f);
     sceneData_.light->intensity = 10.0f;
 
     shadow_camera_.Position = sceneData_.light->position;
     shadow_camera_.setAspectRatio(1);
-    shadow_camera_.setFOV(90.0f);
+    shadow_camera_.setFOV(90);
     // Eigen::Vector3f front = -sceneData_.light->position.normalized();
     // shadow_camera_.Front = front;
     // shadow_camera_.Front = Eigen::Vector3f(0.0f, 100.0f, 0.0f);
@@ -148,7 +148,8 @@ void Scene::run()
                         gBufferPass_->getColorAttachment(5),
                         sceneData_.light,
                         camera_,
-                        shadowPass_->getShadowTexture());
+                        shadowPass_->getShadowTexture(),
+                        shadow_camera_);
     skyPass_->Render(sceneData_, camera_);
     screenPass_->Render(lightPass_->getColorAttachment(0),
                         skyPass_->getColorTexture(),

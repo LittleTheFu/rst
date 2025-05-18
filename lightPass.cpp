@@ -152,7 +152,8 @@ void LightPass::Render(const GLuint &positionTextureID,
                        const GLuint &aoTextureID,
                        const std::shared_ptr<PointLight> &light,
                        const Camera &camera,
-                       const GLuint &shadowMapTextureID)
+                       const GLuint &shadowMapTextureID,
+                       const Camera &shadowCamera)
 {
   // 绑定默认 Framebuffer
   // unbindFramebuffer(); // unbindFramebuffer() 继承自 RenderPass，会绑定回默认的 Framebuffer (ID 0)
@@ -182,7 +183,7 @@ void LightPass::Render(const GLuint &positionTextureID,
 
   shader_.setVec3("cameraPos", camera.Position);
   //这里应该使用shadowmap_camera的farClip,因为都一样，这里暂时省事这样写
-  shader_.setFloat("shadowCameraFarClip", camera.farClip);
+  shader_.setFloat("shadowCameraFarClip", shadowCamera.farClip);
   
 
   // 绑定要显示的纹理
