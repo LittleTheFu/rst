@@ -38,7 +38,6 @@ add_executable(OpenGL_GLAD_SDL2
     screenPass.cpp
     rendererConfig.cpp
     shader.cpp
-    render.cpp
     camera.cpp
     scene.cpp)
 
