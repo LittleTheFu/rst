@@ -88,6 +88,7 @@
         "xtree": "cpp",
         "xutility": "cpp",
         "dense": "cpp",
-        "geometry": "cpp"
+        "geometry": "cpp",
+        "resumable": "cpp"
     }
 }
