@@ -12,8 +12,8 @@ void Scene::init()
     sceneData_.screenWidth = 800;
     sceneData_.screenHeight = 600;
 
-    sceneData_.shadowMapWidth = 2048; // 阴影贴图的宽度和高度
-    sceneData_.shadowMapHeight = 2048; // 阴影贴图的宽度和高度;
+    sceneData_.shadowMapWidth = 1024; // 阴影贴图的宽度和高度
+    sceneData_.shadowMapHeight = 1024; // 阴影贴图的宽度和高度;
 
     // 2. 初始化 G-Buffer Pass
     gBufferPass_ = std::make_unique<GBufferPass>();
@@ -92,7 +92,7 @@ void Scene::init()
 
     mesh_teapot->setPosition(Eigen::Vector3f(0.0f, 0.0f, 0.0f));
     sceneData_.objects.push_back(std::move(mesh_box));
-    // sceneData_.objects.push_back(std::move(mesh_teapot));
+    sceneData_.objects.push_back(std::move(mesh_teapot));
     sceneData_.skybox = std::move(mesh_sky);
 
     // 5. 初始化光源
@@ -112,10 +112,10 @@ void Scene::run()
     count++;
     count %= 48000;
     float x = count / 1200.0f - 15.0f;
-    x *= 4;
-    sceneData_.light->position = Eigen::Vector3f(3, 3, 4.0f);
-    // sceneData_.light->position = Eigen::Vector3f(x, x, 14.0f);
-    sceneData_.light->intensity = 10000.0f;
+    x *= 0.5;
+    // sceneData_.light->position = Eigen::Vector3f(2, 3, -7.0f);
+    sceneData_.light->position = Eigen::Vector3f(x, x, -7.0f);
+    sceneData_.light->intensity = 10.0f;
 
     shadow_camera_.Position = sceneData_.light->position;
     shadow_camera_.setAspectRatio(1);

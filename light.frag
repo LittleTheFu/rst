@@ -86,13 +86,14 @@ void main()
 
     // 这里暗含一个bug，因为depth的映射不是线性的。
     vec3 fragToLight = (world_position - uPointLight.position);
+    // fragToLight.z = -fragToLight.z;
     vec3 fragToLight_norm = normalize(fragToLight);
-    // vec3 fragToLight = normalize(position - uPointLight.position);
-    float closestDepth = texture(shadowMapTexture, vec3(0,0,-1)).r * shadowCameraFarClip;
+    // fragToLight_norm.z = -fragToLight_norm.z;
+    float closestDepth = texture(shadowMapTexture, fragToLight_norm).r * shadowCameraFarClip;
     // float closestDepth = texture(shadowMapTexture, fragToLight_norm).r * shadowCameraFarClip;
     // float closestDepth = texture(shadowMapTexture, fragToLight_norm).r;
     float currentDepth = length(fragToLight);
-    float bias = 0.0000; // 尝试加大一些偏移看看效果
+    float bias = 0.0000 * shadowCameraFarClip; // 尝试加大一些偏移看看效果
     float shadow = 0.0;
     // if (currentDepth > shadowCameraFarClip) {
     if(false){
