@@ -147,7 +147,7 @@ void ShadowPass::Render(SceneData &sceneData, Camera &camera)
         setViewport(sceneData.shadowMapWidth, sceneData.shadowMapHeight);
 
         shader_.use();
-        shader_.setMat4("view", viewMat);
+        shader_.setMat4("view", viewMat.inverse());
         shader_.setMat4("projection", camera.GetProjectionMatrix());
 
         shader_.setVec3("lightPos", pos);
