@@ -113,9 +113,9 @@ void Scene::run()
     count %= 48000;
     float x = count / 1200.0f - 15.0f;
     x *= 4;
-    sceneData_.light->position = Eigen::Vector3f(3, 3, 14.0f);
-    // sceneData_.light->position = Eigen::Vector3f(x, x, 14.0f);
-    sceneData_.light->intensity = 900.0f;
+    // sceneData_.light->position = Eigen::Vector3f(3, 3, 14.0f);
+    sceneData_.light->position = Eigen::Vector3f(x, x, 14.0f);
+    sceneData_.light->intensity = 10000.0f;
 
     shadow_camera_.Position = sceneData_.light->position;
     shadow_camera_.setAspectRatio(1);

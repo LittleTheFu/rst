@@ -25,11 +25,13 @@ const float PI = 3.14159265359;
 
 layout (std140) uniform PointLightBlock {
     vec3 position;
+    float pad0;
     vec3 color;
+    float pad1;
     float intensity;
-    float constant;
-    float linear;
-    float quadratic;
+    // float constant;
+    // float linear;
+    // float quadratic;
 } uPointLight;
 
 vec3 fresnelSchlick(float cosTheta, vec3 F0)
@@ -108,6 +110,8 @@ void main()
     float distance = length(uPointLight.position - position);
     float attenuation = 1.0 / (distance * distance);
 
+    // attenuation = 1.0;
+    // vec3 radiance = uPointLight.color * 1000 * attenuation;
     vec3 radiance = uPointLight.color * uPointLight.intensity * attenuation;
     // vec3 radiance = uPointLight.color * uPointLight.intensity;
     // vec3 radiance = uPointLight.color;
@@ -134,9 +138,10 @@ void main()
     vec3 Lo = vec3(0.0);      
     Lo += (kD * albedo / PI + specular) * radiance * NdotL;
 
-    vec3 ambient = vec3(0.5) * albedo * ao;
+    vec3 ambient = vec3(0.45) * albedo * ao;
     // vec3 ambient = vec3(0.03) * albedo * ao;
     vec4 outColor = vec4(Lo, 1.0) + vec4(ambient, 1.0);
+    //  vec4 outColor = vec4(Lo, 1.0);
     out_Texture = (1 - shadow) * outColor;
 
     // out_Texture = vec4(shadow, shadow, shadow, 1.0);
@@ -146,12 +151,12 @@ void main()
     //     closestDepth = 0;
     // }
     currentDepth = currentDepth / farClip;
-    currentDepth = 1;
     // out_Texture = vec4(currentDepth, currentDepth, currentDepth, 1.0);
     out_DebugCurrentDepth = vec4(currentDepth, currentDepth, currentDepth, 1.0);
 
     closestDepth = closestDepth / farClip;
     out_DebugClosestDepth = vec4(closestDepth, closestDepth, closestDepth, 1.0);
+    // out_DebugClosestDepth = vec4(fragToLight, 1.0);
     // out_Texture = vec4(closestDepth, closestDepth, closestDepth, 1.0);
     // out_Texture = vec4(texture(shadowMapTexture, fragToLight).r, texture(shadowMapTexture, fragToLight).r, texture(shadowMapTexture, fragToLight).r, 1.0);
 

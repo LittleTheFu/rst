@@ -171,9 +171,9 @@ void LightPass::Render(const GLuint &positionTextureID,
     lightData.position = light->position;
     lightData.color = light->color;
     lightData.intensity = light->intensity;
-    lightData.constant = light->constant;
-    lightData.linear = light->linear;
-    lightData.quadratic = light->quadratic;
+    // lightData.constant = light->constant;
+    // lightData.linear = light->linear;
+    // lightData.quadratic = light->quadratic;
 
     objectLightUBO_.bind(lightBindingPoint_);
     objectLightUBO_.updateData(0, sizeof(PointLightDataForUBO), &lightData);
