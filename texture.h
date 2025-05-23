@@ -3,6 +3,7 @@
 
 #include <string>
 #include <glad/glad.h>
+// #include <gli/gli.hpp> // 用于加载 HDR 纹理
 
 class Texture {
 public:

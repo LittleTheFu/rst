@@ -52,7 +52,7 @@ target_include_directories(OpenGL_GLAD_SDL2 PRIVATE
     ${CMAKE_SOURCE_DIR}/third/stb_image/include
     ${CMAKE_SOURCE_DIR}/third/assimp/include
     ${CMAKE_CURRENT_BINARY_DIR}/third/assimp/include
-    ${CMAKE_SOURCE_DIR}/third/gli/include
+    ${CMAKE_SOURCE_DIR}/third/gli
 )
 
 # 链接库
