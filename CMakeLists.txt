@@ -36,6 +36,8 @@ add_executable(OpenGL_GLAD_SDL2
     shadowPass.cpp
     lightPass.cpp
     skyPass.cpp
+    iblPass.cpp
+    textureCubeMap.cpp
     screenPass.cpp
     rendererConfig.cpp
     shader.cpp

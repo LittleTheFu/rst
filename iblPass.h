@@ -3,10 +3,11 @@
 
 #include "RenderPass.h"
 #include "Shader.h"
-#include "camera.h" // 假设 camera.h 包含了 Camera 类定义
+#include "camera.h"
 
-// 需要在你的项目中添加这些头文件，或者根据你的项目结构调整路径
-// #include "textureLoader.h" // 假设你有一个加载DDS纹理的工具类
+// 包含新的 TextureCubeMap 类
+#include "TextureCubeMap.h" 
+// 如果你为2D浮点纹理（如BRDF LUT）创建了新的Texture2D类，也需要包含
 
 class IBLPass : public RenderPass
 {
@@ -15,24 +16,27 @@ public:
     ~IBLPass() override = default;
 
     void Initialize(int width, int height) override;
-    void Render(SceneData &sceneData, Camera &camera) override; // 不会使用sceneData,但为了override留着
+    void Render(SceneData &sceneData, Camera &camera) override;
     void Render(const GLuint &positionTextureID,
                 const GLuint &normalTextureID,
                 const GLuint &albedoTextureID,
                 const GLuint &roughnessTextureID,
                 const GLuint &metallicTextureID,
                 const GLuint &aoTextureID,
-                const Camera& camera); // 接收G-Buffer纹理和相机
+                const Camera& camera);
 
     void Resize(int width, int height) override;
 
-    // 获取输出纹理，通常是包含了IBL结果的颜色纹理
     GLuint getOutputTexture() const { return outputTexture_; }
 
-    // 设置IBL纹理的方法
-    void setIrradianceMap(GLuint textureID) { irradianceMap_ = textureID; }
-    void setPrefilterMap(GLuint textureID) { prefilterMap_ = textureID; }
-    void setBrdfLUT(GLuint textureID) { brdfLUT_ = textureID; }
+    // 修改 set 方法，接收 TextureCubeMap 的共享指针，以便管理生命周期
+    void setIrradianceMap(std::shared_ptr<TextureCubeMap> texture) { irradianceMap_ = texture; }
+    void setPrefilterMap(std::shared_ptr<TextureCubeMap> texture) { prefilterMap_ = texture; }
+    
+    // BRDF LUT 仍然是 2D 纹理，如果它不是由 TextureCubeMap 管理，保持 GLuint
+    // 但如果你的 brdfLUT 也是通过 gli 加载的 DDS 2D 纹理，你可能需要一个 Texture2D 类
+    // 假设你有一个通用的 2D Texture 类，或者直接传递 GLuint
+    void setBrdfLUT(GLuint textureID) { brdfLUT_ = textureID; } 
 
 private:
     GLuint quadVAO_ = 0;
@@ -41,20 +45,16 @@ private:
     void initScreenQuad();
     void renderQuad();
 
-    // 输出纹理：IBL 计算结果
     GLuint outputTexture_;
 
-    // IBL 所需的预计算纹理ID
-    GLuint irradianceMap_ = 0; // 辐照度图 (HDR立方体贴图)
-    GLuint prefilterMap_ = 0;  // 预过滤环境贴图 (HDR立方体贴图，带mipmaps)
-    GLuint brdfLUT_ = 0;       // BRDF积分贴图 (2D纹理)
+    // IBL 所需的预计算纹理对象
+    // 现在使用 std::shared_ptr 来持有 TextureCubeMap 实例
+    std::shared_ptr<TextureCubeMap> irradianceMap_; // 辐照度图 (HDR立方体贴图)
+    std::shared_ptr<TextureCubeMap> prefilterMap_;  // 预过滤环境贴图 (HDR立方体贴图，带mipmaps)
+    
+    GLuint brdfLUT_ = 0;       // BRDF积分贴图 (2D纹理，假设仍为 GLuint)
 
-    // 着色器中用于采样 prefilterMap 的最大 LOD 级别
-    // 这个值应该和你生成 prefilterMap 时使用的最大 mipmap 级别相匹配
-    // 如果你使用 LearnOpenGL 的例子，128x128的立方体贴图有7个mipmap级别 (0-7)，
-    // 但教程只渲染了5个级别(0-4)，所以MAX_REFLECTION_LOD是4.0。
     const float MAX_REFLECTION_LOD = 4.0f; // 根据你的prefilterMap实际mip级别设置
-
 };
 
 #endif // IBL_PASS_H
