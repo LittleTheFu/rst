@@ -15,7 +15,7 @@ public:
 
     void Initialize(int width, int height) override;
     void Render(SceneData &sceneData, Camera &camera) override;
-    void Render(const GLuint &lightTextureID, const GLuint &skyTextureID, const GLuint &lightDepthTextureID);
+    void Render(const GLuint &lightTextureID, const GLuint &iblTextureID, const GLuint &lightDepthTextureID);
    
     void Resize(int width, int height) override;
 

@@ -58,11 +58,11 @@ void Scene::init()
     std::unique_ptr<Mesh> mesh_sky = std::make_unique<Mesh>("bx.obj"); // 用于天空盒
 
     // LDR 纹理 (使用你现有的 Texture 类，它基于 stb_image)
-    std::shared_ptr<Texture> albedoTexture = std::make_shared<Texture>("path/to/lena.png");
-    std::shared_ptr<Texture> normalTexture = std::make_shared<Texture>("path/to/normal.tga");
-    std::shared_ptr<Texture> roughnessTexture = std::make_shared<Texture>("path/to/roughness.tga");
-    std::shared_ptr<Texture> metallicTexture = std::make_shared<Texture>("path/to/metallic.tga");
-    std::shared_ptr<Texture> aoTexture = std::make_shared<Texture>("path/to/ao.tga");
+    std::shared_ptr<Texture> albedoTexture = std::make_shared<Texture>("lena.png");
+    std::shared_ptr<Texture> normalTexture = std::make_shared<Texture>("normal.tga");
+    std::shared_ptr<Texture> roughnessTexture = std::make_shared<Texture>("roughness.tga");
+    std::shared_ptr<Texture> metallicTexture = std::make_shared<Texture>("metallic.tga");
+    std::shared_ptr<Texture> aoTexture = std::make_shared<Texture>("ao.tga");
 
     std::shared_ptr<Material> material_teapot = std::make_shared<Material>("teapot_mtrl");
     material_teapot->setAlbedoMap(albedoTexture);
@@ -81,20 +81,20 @@ void Scene::init()
 
     // --- 新增：加载 IBL 纹理 ---
     irradianceMapTex_ = std::make_shared<TextureCubeMap>();
-    if (!irradianceMapTex_->loadDDS("path/to/homeDiffuseHDR.dds")) {
+    if (!irradianceMapTex_->loadDDS("homeDiffuseHDR.dds")) {
         std::cerr << "ERROR::SCENE::Failed to load irradiance map! Check path and DDS format." << std::endl;
         // 考虑加载一个默认的黑色纹理或终止程序
     }
 
     prefilterMapTex_ = std::make_shared<TextureCubeMap>();
-    if (!prefilterMapTex_->loadDDS("path/to/homeSpecularHDR.dds")) {
+    if (!prefilterMapTex_->loadDDS("homeSpecularHDR.dds")) {
         std::cerr << "ERROR::SCENE::Failed to load prefilter map! Check path and DDS format." << std::endl;
         // 考虑加载一个默认的黑色纹理或终止程序
     }
 
     // BRDF LUT 加载：现在使用新的 Texture2D 类
     brdfLUTTex_ = std::make_shared<Texture2D>();
-    if (!brdfLUTTex_->loadDDS("path/to/homeBrdf.dds")) {
+    if (!brdfLUTTex_->loadDDS("homeBrdf.dds")) {
         std::cerr << "ERROR::SCENE::Failed to load BRDF LUT! Check path and DDS format." << std::endl;
         // 错误处理
     }

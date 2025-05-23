@@ -22,7 +22,7 @@ void ScreenPass::Render(SceneData &sceneData, Camera &camera)
   std::cerr << "Warning: ScreenPass::Render(SceneData&, Camera&) called - consider using Render(GLuint)." << std::endl;
 }
 
-void ScreenPass::Render(const GLuint &lightTextureID, const GLuint &skyTextureID, const GLuint &lightDepthTextureID)
+void ScreenPass::Render(const GLuint &lightTextureID, const GLuint &iblTextureID, const GLuint &lightDepthTextureID)
 {
   // 绑定默认 Framebuffer
 //   bindFramebuffer();
@@ -41,8 +41,8 @@ void ScreenPass::Render(const GLuint &lightTextureID, const GLuint &skyTextureID
   shader_.setInt("lightTexture", 0);
 
   glActiveTexture(GL_TEXTURE1);
-  glBindTexture(GL_TEXTURE_2D, skyTextureID);
-  shader_.setInt("skyTexture", 1);
+  glBindTexture(GL_TEXTURE_2D, iblTextureID);
+  shader_.setInt("iblTexture", 1);
 
   glActiveTexture(GL_TEXTURE2);
   glBindTexture(GL_TEXTURE_2D, lightDepthTextureID);
