@@ -7,6 +7,7 @@ set(CMAKE_CXX_STANDARD 17)
 add_subdirectory(third/sdl)
 add_subdirectory(third/assimp)
 add_subdirectory(third/lodepng)
+add_subdirectory(third/gli)
 
 # 禁用 Eigen 自带的测试
 set(BUILD_TESTING OFF CACHE BOOL "Disable Eigen tests")
@@ -51,6 +52,7 @@ target_include_directories(OpenGL_GLAD_SDL2 PRIVATE
     ${CMAKE_SOURCE_DIR}/third/stb_image/include
     ${CMAKE_SOURCE_DIR}/third/assimp/include
     ${CMAKE_CURRENT_BINARY_DIR}/third/assimp/include
+    ${CMAKE_SOURCE_DIR}/third/gli/include
 )
 
 # 链接库
@@ -58,6 +60,7 @@ target_link_libraries(OpenGL_GLAD_SDL2
     SDL2::SDL2  # 如果找不到，就换成 SDL2
     ${OPENGL_LIBRARIES}
     assimp
+    gli
 )
 
 # MSVC 特别处理
