@@ -197,8 +197,8 @@ void Scene::run()
     // 渲染天空盒
     // 如果你打算用 IBL 的原始环境图来渲染天空盒，这里需要修改 SkyPass 的 Render 方法
     // 例如：skyPass_->Render(environmentMapTex_->getID(), camera_);
-    // 目前使用 sceneData_ 和 camera_，这意味着 SkyPass 内部会使用 sceneData_.skybox 的材质
-    skyPass_->Render(sceneData_, camera_);
+    // // 目前使用 sceneData_ 和 camera_，这意味着 SkyPass 内部会使用 sceneData_.skybox 的材质
+    // skyPass_->Render(sceneData_, camera_);
 
 
     // 最终的后处理/合成 Pass
