@@ -75,7 +75,7 @@ bool TextureCubeMap::loadDDS(const std::string& path)
                          0,        // border (always 0)
                          format,
                          type,
-                         Texture.data(face, 0, mip)); // 获取当前面和 mipmap 级别的数据指针
+                         Texture.data(0, face, mip)); // 获取当前面和 mipmap 级别的数据指针
         }
     }
 
