@@ -81,20 +81,20 @@ void Scene::init()
 
     // --- 新增：加载 IBL 纹理 ---
     irradianceMapTex_ = std::make_shared<TextureCubeMap>();
-    if (!irradianceMapTex_->loadDDS("house/houseDiffuseHDR.dds")) {
+    if (!irradianceMapTex_->loadDDS("ibl/house/houseDiffuseHDR.dds")) {
         std::cerr << "ERROR::SCENE::Failed to load irradiance map! Check path and DDS format." << std::endl;
         // 考虑加载一个默认的黑色纹理或终止程序
     }
 
     prefilterMapTex_ = std::make_shared<TextureCubeMap>();
-    if (!prefilterMapTex_->loadDDS("house/houseSpecularHDR.dds")) {
+    if (!prefilterMapTex_->loadDDS("ibl/house/houseSpecularHDR.dds")) {
         std::cerr << "ERROR::SCENE::Failed to load prefilter map! Check path and DDS format." << std::endl;
         // 考虑加载一个默认的黑色纹理或终止程序
     }
 
     // BRDF LUT 加载：现在使用新的 Texture2D 类
     brdfLUTTex_ = std::make_shared<Texture2D>();
-    if (!brdfLUTTex_->loadDDS("house/houseBrdf.dds")) {
+    if (!brdfLUTTex_->loadDDS("ibl/house/houseBrdf.dds")) {
         std::cerr << "ERROR::SCENE::Failed to load BRDF LUT! Check path and DDS format." << std::endl;
         // 错误处理
     }
