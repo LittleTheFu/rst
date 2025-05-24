@@ -14,11 +14,11 @@ IndexBuffer::~IndexBuffer() {
     release();
 }
 
-void IndexBuffer::bind() const override {
+void IndexBuffer::bind() const {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, id_);
 }
 
-void IndexBuffer::unbind() const override {
+void IndexBuffer::unbind() const {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
