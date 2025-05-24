@@ -4,7 +4,7 @@
 
 TextureBuffer::TextureBuffer() : bufferId_(0), internalFormat_(GL_NONE)
 {
-    generateId(GL_TEXTURE); // TBO 也是一个纹理对象
+    glGenTextures(1, &id_);
 }
 
 TextureBuffer::~TextureBuffer()

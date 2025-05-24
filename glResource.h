@@ -15,7 +15,7 @@ public:
     virtual void unbind() const = 0; // 纯虚函数，强制子类实现
 
 protected:
-    GLuint generateId(GLenum target); // 根据目标类型生成 ID
+    // GLuint generateId(GLenum target); // 根据目标类型生成 ID
     virtual void release() = 0;      // 子类实现资源释放逻辑
 
     GLuint id_;

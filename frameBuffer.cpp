@@ -4,7 +4,7 @@
 
 Framebuffer::Framebuffer(int width, int height, int numColorAttachments, GLenum colorFormat, bool depthStencil)
     : width_(width), height_(height) {
-    generateId(GL_FRAMEBUFFER);
+    glGenFramebuffers(1, &id_);
     glBindFramebuffer(GL_FRAMEBUFFER, id_);
 
     createColorAttachments(numColorAttachments, colorFormat);

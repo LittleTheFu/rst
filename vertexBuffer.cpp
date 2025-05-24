@@ -3,7 +3,7 @@
 #include <glad/glad.h>
 
 VertexBuffer::VertexBuffer(const void* data, size_t size, GLenum usage) {
-    generateId(GL_ARRAY_BUFFER);
+    glGenBuffers(1, &id_);
     glBindBuffer(GL_ARRAY_BUFFER, id_);
     glBufferData(GL_ARRAY_BUFFER, size, data, usage);
     // glBindBuffer(GL_ARRAY_BUFFER, 0);

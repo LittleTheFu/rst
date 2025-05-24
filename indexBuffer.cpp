@@ -4,7 +4,7 @@
 
 IndexBuffer::IndexBuffer(const unsigned int* data, size_t count, GLenum usage)
     : count_(count) {
-    generateId(GL_ELEMENT_ARRAY_BUFFER);
+    glGenBuffers(1, &id_);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, id_);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(unsigned int), data, usage);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);

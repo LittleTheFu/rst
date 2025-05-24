@@ -14,7 +14,9 @@ UniformBuffer::~UniformBuffer()
 void UniformBuffer::create(size_t size, GLenum usage)
 {
     size_ = size;
-    generateId(GL_ARRAY_BUFFER); // Uniform Buffer 也是一种 Buffer 对象
+
+    glGenBuffers(1, &id_);
+    
     glBindBuffer(GL_UNIFORM_BUFFER, id());
     glBufferData(GL_UNIFORM_BUFFER, size, nullptr, usage);
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
