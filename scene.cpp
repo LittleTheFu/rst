@@ -58,11 +58,11 @@ void Scene::init()
     std::unique_ptr<Mesh> mesh_sky = std::make_unique<Mesh>("bx.obj"); // 用于天空盒
 
     // LDR 纹理 (使用你现有的 Texture 类，它基于 stb_image)
-    std::shared_ptr<Texture> albedoTexture = std::make_shared<Texture>("lena.png");
-    std::shared_ptr<Texture> normalTexture = std::make_shared<Texture>("normal.tga");
-    std::shared_ptr<Texture> roughnessTexture = std::make_shared<Texture>("roughness.tga");
-    std::shared_ptr<Texture> metallicTexture = std::make_shared<Texture>("metallic.tga");
-    std::shared_ptr<Texture> aoTexture = std::make_shared<Texture>("ao.tga");
+    std::shared_ptr<Texture> albedoTexture = std::make_shared<Texture>("gold/albedo.png");
+    std::shared_ptr<Texture> normalTexture = std::make_shared<Texture>("gold/normal.png");
+    std::shared_ptr<Texture> roughnessTexture = std::make_shared<Texture>("gold/roughness.png");
+    std::shared_ptr<Texture> metallicTexture = std::make_shared<Texture>("gold/metallic.png");
+    std::shared_ptr<Texture> aoTexture = std::make_shared<Texture>("gold/ao.png");
 
     std::shared_ptr<Material> material_teapot = std::make_shared<Material>("teapot_mtrl");
     material_teapot->setAlbedoMap(albedoTexture);
