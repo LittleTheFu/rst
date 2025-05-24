@@ -5,7 +5,7 @@
 
 ScreenPass::ScreenPass(const std::string &name) : RenderPass(name)
 {
-  shader_.load("screen.vert", "screen.frag"); // 假设你的屏幕 Shader 文件名为 screen.vert 和 screen.frag
+  shader_.load("shader/screen.vert", "shader/screen.frag"); // 假设你的屏幕 Shader 文件名为 screen.vert 和 screen.frag
 }
 
 void ScreenPass::Initialize(int width, int height)

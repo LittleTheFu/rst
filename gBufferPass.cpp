@@ -3,7 +3,7 @@
 
 GBufferPass::GBufferPass() : RenderPass("GBufferPass") 
 {
-    shader_.load("gPass.vert", "gPass.frag");
+    shader_.load("shader/gPass.vert", "shader/gPass.frag");
 }
 
 void GBufferPass::Initialize(int width, int height) {

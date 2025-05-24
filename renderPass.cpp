@@ -6,7 +6,7 @@ RenderPass::RenderPass(const std::string &name) : name_(name),
                                                   framebuffer_(0),
                                                   depthAttachment_(0)
 {
-    shader_.load("screen.vert", "screen.frag");
+    shader_.load("shader/screen.vert", "shader/screen.frag");
 }
 
 void RenderPass::Resize(int width, int height)

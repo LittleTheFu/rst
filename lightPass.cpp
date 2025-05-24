@@ -5,7 +5,7 @@
 
 LightPass::LightPass(const std::string &name) : RenderPass(name)
 {
-  shader_.load("light.vert", "light.frag"); // 假设你的屏幕 Shader 文件名为 screen.vert 和 screen.frag
+  shader_.load("shader/light.vert", "shader/light.frag"); // 假设你的屏幕 Shader 文件名为 screen.vert 和 screen.frag
 }
 
 void LightPass::Initialize(int width, int height)

@@ -2,7 +2,7 @@
 
 SkyPass::SkyPass() : RenderPass("SkyPass")
 {
-    shader_.load("skyBox.vert", "skyBox.frag");
+    shader_.load("shader/skyBox.vert", "shader/skyBox.frag");
 }
 
 

@@ -2,7 +2,7 @@
 
 ShadowPass::ShadowPass() : RenderPass("ShadowPass")
 {
-    shader_.load("depth.vert", "depth.frag");
+    shader_.load("shader/depth.vert", "shader/depth.frag");
 }
 
 void ShadowPass::Initialize(int width, int height)
