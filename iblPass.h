@@ -4,6 +4,7 @@
 #include "RenderPass.h"
 #include "Shader.h"
 #include "camera.h"
+#include "shader.h"
 
 // 包含新的 TextureCubeMap 类
 #include "TextureCubeMap.h" 
@@ -39,6 +40,8 @@ public:
     void setBrdfLUT(GLuint textureID) { brdfLUT_ = textureID; } 
 
 private:
+    Shader shader_;
+
     GLuint quadVAO_ = 0;
     GLuint quadVBO_ = 0;
 

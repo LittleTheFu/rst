@@ -31,6 +31,8 @@ public:
     GLuint getOutputTexture() const { return outputTexture_; }
 
 private:
+    Shader shader_;
+
     GLuint quadVAO_ = 0;
     GLuint quadVBO_ = 0;
 

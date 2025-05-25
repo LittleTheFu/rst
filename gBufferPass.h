@@ -3,6 +3,7 @@
 
 #include "RenderPass.h" // 包含基类 RenderPass 的定义
 #include "SceneData.h"  // 包含 SceneData 类的定义
+#include "shader.h"
 
 class GBufferPass : public RenderPass { // GBufferPass 类继承自 RenderPass
 public:
@@ -13,6 +14,8 @@ public:
     void Render(SceneData& sceneData, Camera& camera) override; // 重写基类的 Render 方法
 
 private:
+    Shader shader_;
+
     // G-Buffer 纹理的 IDs
     GLuint positionTexture_;           // 存储位置信息
     GLuint normalTexture_;             // 存储法线信息

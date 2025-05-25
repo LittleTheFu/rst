@@ -3,6 +3,7 @@
 
 #include "RenderPass.h" // 包含基类 RenderPass 的定义
 #include "SceneData.h"  // 包含 SceneData 类的定义
+#include "shader.h"
 
 class SkyPass : public RenderPass
 { // GBufferPass 类继承自 RenderPass
@@ -16,6 +17,8 @@ public:
     GLuint getColorTexture() const { return colorTexture_; }
 
 private:
+    Shader shader_;
+
     // G-Buffer 纹理的 IDs
     GLuint colorTexture_; // 存储位置信息
 

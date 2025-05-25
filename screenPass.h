@@ -20,6 +20,8 @@ public:
     void Resize(int width, int height) override;
 
 private:
+    Shader shader_;
+
     GLuint quadVAO_ = 0;
     GLuint quadVBO_ = 0;
 

@@ -3,6 +3,7 @@
 
 #include "RenderPass.h"
 #include "SceneData.h"
+#include "shader.h"
 
 class ShadowPass : public RenderPass { 
 public:
@@ -15,6 +16,8 @@ public:
     GLuint getShadowTexture() { return colorAttachment_; }
 
 private:
+    Shader shader_;
+
     GLuint colorAttachment_;           // 存储位置信息
 };
 

@@ -6,7 +6,6 @@ RenderPass::RenderPass(const std::string &name) : name_(name),
                                                   framebuffer_(0),
                                                   depthAttachment_(0)
 {
-    shader_.load("shader/screen.vert", "shader/screen.frag");
 }
 
 void RenderPass::Resize(int width, int height)
@@ -123,25 +122,25 @@ void RenderPass::disableState(GLenum state)
 
 GLuint RenderPass::getShaderProgram() const
 {
-    return shader_.ID;
+    return 0;
 }
 
 void RenderPass::setUniformInt(const std::string& name, int value)
 {
-    shader_.setInt(name, value);
+    // shader_.setInt(name, value);
 }
 
 void RenderPass::setUniformFloat(const std::string& name, float value)
 {
-    shader_.setFloat(name, value);
+    // shader_.setFloat(name, value);
 }
 
 void RenderPass::setUniformVec3(const std::string& name, const Eigen::Vector3f& value)
 {
-    shader_.setVec3(name, value);
+    // shader_.setVec3(name, value);
 }
 
 void RenderPass::setUniformMat4(const std::string& name, const Eigen::Matrix4f& value)
 {
-    shader_.setMat4(name, value);
+    // shader_.setMat4(name, value);
 }

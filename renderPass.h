@@ -4,7 +4,6 @@
 #include <string>
 #include <vector>
 #include <glad/glad.h> // 需要 GLAD 来使用 OpenGL 函数
-#include "Shader.h"    // 假设你已经有 Shader 类
 #include "Camera.h"    // 假设你已经有 Camera 类
 
 // 假设你有一个存储场景数据的结构体或类
@@ -42,7 +41,6 @@ protected:
     GLuint framebuffer_;
     std::vector<GLuint> colorAttachments_;
     GLuint depthAttachment_ = 0;
-    Shader shader_;
 
     // 创建并绑定 Framebuffer
     void createFramebuffer();
