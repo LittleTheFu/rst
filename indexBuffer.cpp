@@ -22,7 +22,7 @@ size_t IndexBuffer::getCount() const {
     return count_;
 }
 
-void IndexBuffer::release() override {
+void IndexBuffer::release() {
     if (id_ != 0) {
         glDeleteBuffers(1, &id_);
         id_ = 0;

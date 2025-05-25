@@ -24,6 +24,7 @@ add_executable(OpenGL_GLAD_SDL2
     third/glad/src/glad.c
     window.cpp
     vertex.cpp
+    frameBuffer.cpp
     renderPass.cpp
     gBufferpass.cpp
     texture.cpp
