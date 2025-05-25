@@ -1,19 +1,26 @@
 // Framebuffer.cpp
 #include "Framebuffer.h"
 #include <glad/glad.h>
+#include "glException.h"
 
 Framebuffer::Framebuffer(int width, int height, int numColorAttachments, GLenum colorFormat, bool depthStencil)
-    : width_(width), height_(height) {
+    : width_(width), height_(height)
+{
     glGenFramebuffers(1, &id_);
+    if (id_ == 0) {
+        THROW_GL_EXCEPTION("Failed to generate Framebuffer ID."); // 使用宏
+    }
+
     glBindFramebuffer(GL_FRAMEBUFFER, id_);
 
     createColorAttachments(numColorAttachments, colorFormat);
     createDepthStencilAttachment(depthStencil);
 
     // 检查帧缓冲是否完整
-    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+    {
         // 处理帧缓冲不完整的错误，例如抛出异常或记录错误日志
-        fprintf(stderr, "Framebuffer is not complete!\n");
+         THROW_GL_EXCEPTION("Framebuffer is not complete!"); 
     }
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
