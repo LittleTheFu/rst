@@ -12,8 +12,16 @@ public:
     UniformBuffer();
 
     void create(size_t size, GLenum usage);
-    void bind(GLuint bindingPoint) const override;
+
+    // 实现 GLResource::bind() 纯虚函数，用于通用绑定
+    void bind() const override;
+
+    // 实现 GLResource::unbind() 纯虚函数
     void unbind() const override;
+
+    // 新增方法：将UBO绑定到特定的着色器绑定点
+    void bindToBindingPoint(GLuint bindingPoint) const;
+
     void updateData(size_t offset, size_t size, const void* data);
 
 protected:

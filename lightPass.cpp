@@ -50,7 +50,7 @@ void LightPass::Initialize(int width, int height)
     lightBindingPoint_ = 0;
 
     objectLightUBO_.create(sizeof(PointLightDataForUBO), GL_DYNAMIC_DRAW);
-    objectLightUBO_.bind(lightBindingPoint_);
+    objectLightUBO_.bindToBindingPoint(lightBindingPoint_);
 
     // 获取 Shader 中 Uniform Block 的索引
     GLuint lightBlockIndex = glGetUniformBlockIndex(shader_.ID, "PointLightBlock");
@@ -176,7 +176,7 @@ void LightPass::Render(const GLuint &positionTextureID,
     // lightData.linear = light->linear;
     // lightData.quadratic = light->quadratic;
 
-    objectLightUBO_.bind(lightBindingPoint_);
+    objectLightUBO_.bindToBindingPoint(lightBindingPoint_);
     objectLightUBO_.updateData(0, sizeof(PointLightDataForUBO), &lightData);
     objectLightUBO_.unbind();
   }
