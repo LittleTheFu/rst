@@ -10,10 +10,10 @@
 class ScreenPass : public RenderPass
 {
 public:
-    ScreenPass(const std::string &name = "ScreenPass");
+    ScreenPass(int width, int height);
     ~ScreenPass() override = default;
 
-    void Initialize(int width, int height) override;
+    // void Initialize(int width, int height) override;
     void Render(SceneData &sceneData, Camera &camera) override;
     void Render(const GLuint &lightTextureID, const GLuint &iblTextureID, const GLuint &lightDepthTextureID);
    

@@ -1,31 +1,37 @@
 #include "IBLPass.h"
 #include <iostream>
 
-IBLPass::IBLPass(const std::string &name) : RenderPass(name)
+IBLPass::IBLPass(int width, int height)
+    : RenderPass("IBLPass", width, height)
 {
     shader_.load("ibl.vert", "ibl.frag"); // IBL 着色器
-}
-
-void IBLPass::Initialize(int width, int height)
-{
-    createFramebuffer();
-    bindFramebuffer();
-
-    outputTexture_ = createColorAttachment(width, height, GL_RGBA16F, GL_RGBA, GL_FLOAT, GL_COLOR_ATTACHMENT0);
 
     std::vector<GLenum> attachments = {GL_COLOR_ATTACHMENT0};
-    glDrawBuffers(static_cast<GLsizei>(attachments.size()), attachments.data());
-
-    auto err = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-    if (err != GL_FRAMEBUFFER_COMPLETE)
-    {
-        std::cerr << "ERROR::FRAMEBUFFER::IBLPass Framebuffer is not complete! Error: " << err << std::endl;
-    }
-
-    unbindFramebuffer();
+    createFramebuffer(attachments, DepthStencilAttachmentType::None); // 无深度和模板附件
 
     initScreenQuad();
 }
+
+// void IBLPass::Initialize(int width, int height)
+// {
+//     createFramebuffer();
+//     bindFramebuffer();
+
+//     outputTexture_ = createColorAttachment(width, height, GL_RGBA16F, GL_RGBA, GL_FLOAT, GL_COLOR_ATTACHMENT0);
+
+//     std::vector<GLenum> attachments = {GL_COLOR_ATTACHMENT0};
+//     glDrawBuffers(static_cast<GLsizei>(attachments.size()), attachments.data());
+
+//     auto err = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+//     if (err != GL_FRAMEBUFFER_COMPLETE)
+//     {
+//         std::cerr << "ERROR::FRAMEBUFFER::IBLPass Framebuffer is not complete! Error: " << err << std::endl;
+//     }
+
+//     unbindFramebuffer();
+
+//     initScreenQuad();
+// }
 
 void IBLPass::Render(SceneData &sceneData, Camera &camera)
 {
@@ -103,17 +109,17 @@ void IBLPass::Render(const GLuint &positionTextureID,
 
 void IBLPass::Resize(int width, int height)
 {
-    setViewport(width, height);
-    glDeleteTextures(1, &outputTexture_);
-    outputTexture_ = createColorAttachment(width, height, GL_RGBA16F, GL_RGBA, GL_FLOAT, GL_COLOR_ATTACHMENT0);
-    bindFramebuffer();
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, outputTexture_, 0);
-    auto err = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-    if (err != GL_FRAMEBUFFER_COMPLETE)
-    {
-        std::cerr << "ERROR::FRAMEBUFFER::IBLPass Framebuffer resize is not complete! Error: " << err << std::endl;
-    }
-    unbindFramebuffer();
+    // setViewport(width, height);
+    // glDeleteTextures(1, &outputTexture_);
+    // outputTexture_ = createColorAttachment(width, height, GL_RGBA16F, GL_RGBA, GL_FLOAT, GL_COLOR_ATTACHMENT0);
+    // bindFramebuffer();
+    // glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, outputTexture_, 0);
+    // auto err = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+    // if (err != GL_FRAMEBUFFER_COMPLETE)
+    // {
+    //     std::cerr << "ERROR::FRAMEBUFFER::IBLPass Framebuffer resize is not complete! Error: " << err << std::endl;
+    // }
+    // unbindFramebuffer();
 }
 
 void IBLPass::initScreenQuad()

@@ -10,10 +10,10 @@
 class LightPass : public RenderPass
 {
 public:
-    LightPass(const std::string &name = "LightPass");
+    LightPass(int width, int height);
     ~LightPass() override = default;
 
-    void Initialize(int width, int height) override;
+    // void Initialize(int width, int height) override;
     void Render(SceneData &sceneData, Camera &camera) override;
     void Render(const GLuint &textureID); // 用于直接渲染纹理的便捷方法
     void Render(const GLuint &positionTextureID,

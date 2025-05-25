@@ -7,10 +7,10 @@
 
 class GBufferPass : public RenderPass { // GBufferPass 类继承自 RenderPass
 public:
-    GBufferPass(); // 构造函数
+    GBufferPass(int width, int height); // 构造函数
     ~GBufferPass() = default; // 析构函数（使用默认行为）
 
-    void Initialize(int width, int height) override; // 重写基类的 Initialize 方法
+    // void Initialize(int width, int height) override; // 重写基类的 Initialize 方法
     void Render(SceneData& sceneData, Camera& camera) override; // 重写基类的 Render 方法
 
 private:

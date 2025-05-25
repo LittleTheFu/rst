@@ -34,9 +34,11 @@ public:
      */
     void resize(int width, int height);
 
+    const std::vector<GLuint>& getColorAttachments() const { return colorAttachments_; }
+
     // 获取颜色附件纹理ID (如果只有一个颜色附件)
     // 如果有多个颜色附件，建议使用 getColorAttachmentID(index)
-    GLuint getColorAttachmentID(size_t index = 0) const {
+    GLuint getColorAttachment(size_t index = 0) const {
         if (index >= colorAttachments_.size()) {
             throw std::out_of_range("Color attachment index out of range.");
         }
@@ -44,7 +46,7 @@ public:
     }
 
     // 获取深度/模板附件ID
-    GLuint getDepthStencilAttachmentID() const { return depthStencilAttachment_; }
+    GLuint getDepthStencilAttachment() const { return depthStencilAttachment_; }
 
     // 获取帧缓冲宽度
     int getWidth() const { return width_; }
@@ -68,13 +70,13 @@ private:
      * @brief 辅助函数：创建颜色附件。
      * @param formats 颜色附件的内部格式列表。
      */
-    void createColorAttachments(const std::vector<GLenum>& formats);
+    void createColorAttachments();
 
     /**
      * @brief 辅助函数：创建深度和/或模板附件。
      * @param dsType 深度/模板附件的类型。
      */
-    void createDepthStencilAttachment(DepthStencilAttachmentType dsType);
+    void createDepthStencilAttachment();
 };
 
 #endif // FRAMEBUFFER_H

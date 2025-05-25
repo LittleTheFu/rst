@@ -3,19 +3,20 @@
 #include "uniformBuffer.h"
 #include "pointLightDataForUBO.h"
 
-ScreenPass::ScreenPass(const std::string &name) : RenderPass(name)
+ScreenPass::ScreenPass(int width, int height)
+    : RenderPass("ScreenPass", width, height)
 {
   shader_.load("shader/screen.vert", "shader/screen.frag"); // 假设你的屏幕 Shader 文件名为 screen.vert 和 screen.frag
+
+  initScreenQuad();
 }
 
-void ScreenPass::Initialize(int width, int height)
-{
-    // createFramebuffer();
-    // bindFramebuffer();
-    // unbindFramebuffer();
-
-    initScreenQuad();
-}
+// void ScreenPass::Initialize(int width, int height)
+// {
+//     // createFramebuffer();
+//     // bindFramebuffer();
+//     // unbindFramebuffer();
+// }
 
 void ScreenPass::Render(SceneData &sceneData, Camera &camera)
 {

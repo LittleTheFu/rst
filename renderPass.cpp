@@ -2,102 +2,84 @@
 #include <iostream>
 #include "SDL_video.h"
 
-RenderPass::RenderPass(const std::string &name) : name_(name),
-                                                  framebuffer_(0),
-                                                  depthAttachment_(0)
+RenderPass::RenderPass(const std::string &name, int width, int height)
+    : name_(name),
+      width_(width),
+      height_(height),
+      frameBuffer_(nullptr)
 {
 }
+
+// void RenderPass::Initialize()
+// {+
+// }
 
 void RenderPass::Resize(int width, int height)
 {
     // 默认实现可以为空，派生类可以根据需要重写
 }
 
-void RenderPass::createFramebuffer()
+void RenderPass::createFramebuffer(const std::vector<GLenum>& colorFormats, DepthStencilAttachmentType dsType)
 {
-    if (!SDL_GL_GetCurrentContext()) {
-        std::cerr << "Error: No current OpenGL context set before creating framebuffer!" << std::endl;
-        return;
-    }
-
-    // 检查 gladLoadGLLoader 是否成功
-    if (!gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress)) {
-        std::cerr << "Error: GLAD failed to initialize in createFramebuffer!" << std::endl;
-        return;
-    }
-
-    // 检查 glad_glCreateFramebuffers 函数指针是否为 NULL
-    if (glad_glCreateFramebuffers == nullptr) {
-        std::cerr << "Error: glad_glCreateFramebuffers function pointer is NULL!" << std::endl;
-        return;
-    }
-
-    glGenFramebuffers(1, &framebuffer_);
-    // glBindFramebuffer(GL_FRAMEBUFFER, framebuffer_);
-    GLenum error = glGetError();
-    if (error != GL_NO_ERROR) {
-        std::cerr << "OpenGL error after glCreateFramebuffers: " << error << " (0x" << std::hex << error << std::dec << ")" << std::endl;
-    } else {
-        std::cout << "Framebuffer created successfully with ID: " << framebuffer_ << std::endl;
-    }
+    frameBuffer_ = std::make_unique<Framebuffer>( width_, height_, colorFormats, dsType);
 }
 
-GLuint RenderPass::createColorAttachment(int width, int height, GLenum internalFormat, GLenum format, GLenum type, GLenum attachment)
-{
-    GLuint texture;
-    glCreateTextures(GL_TEXTURE_2D, 1, &texture);
-    glTextureStorage2D(texture, 1, internalFormat, width, height);
-    glTextureParameteri(texture, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTextureParameteri(texture, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, attachment, GL_TEXTURE_2D, texture, 0);
-    colorAttachments_.push_back(texture);
-    return texture;
-}
-
-GLuint RenderPass::createDepthAttachment(int width, int height, bool useTexture)
-{
-    if (useTexture)
-    {
-        glCreateTextures(GL_TEXTURE_2D, 1, &depthAttachment_);
-        glTextureStorage2D(depthAttachment_, 1, GL_DEPTH_COMPONENT32F, width, height);
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthAttachment_, 0);
-    }
-    else
-    {
-        glCreateRenderbuffers(1, &depthAttachment_);
-        glNamedRenderbufferStorage(depthAttachment_, GL_DEPTH_COMPONENT32F, width, height);
-        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthAttachment_);
-    }
-    return depthAttachment_;
-}
+// GLuint RenderPass::createColorAttachment(int width, int height, GLenum internalFormat, GLenum format, GLenum type, GLenum attachment)
+// {
+//     GLuint texture;
+//     glCreateTextures(GL_TEXTURE_2D, 1, &texture);
+//     glTextureStorage2D(texture, 1, internalFormat, width, height);
+//     glTextureParameteri(texture, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+//     glTextureParameteri(texture, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+//     glFramebufferTexture2D(GL_FRAMEBUFFER, attachment, GL_TEXTURE_2D, texture, 0);
+//     colorAttachments_.push_back(texture);
+//     return texture;
+// }
 
 std::vector<GLuint> RenderPass::getColorAttachments() const
 {
-    return colorAttachments_; // 返回基类中受保护的成员
+    if(frameBuffer_)
+    {
+        return frameBuffer_->getColorAttachments();
+    }
+
+    return {};
 }
 
 GLuint RenderPass::getColorAttachment(size_t index) const
 {
-    if (index < colorAttachments_.size())
+    if (frameBuffer_)
     {
-        return colorAttachments_[index];
+        return frameBuffer_->getColorAttachment(index);
     }
-    // 可以选择抛出异常或返回一个特定的错误值 (例如 0)
-    std::cerr << "Error: Color attachment index out of bounds for " << name_ << std::endl;
+
+    return 0;
+}
+
+GLuint RenderPass::getDepthAttachment() const
+{
+    if (frameBuffer_)
+    {
+        return frameBuffer_->getDepthStencilAttachment();
+    }
+
     return 0;
 }
 
 void RenderPass::bindFramebuffer(bool read, bool draw)
 {
-    if (draw)
-        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, framebuffer_);
-    if (read)
-        glBindFramebuffer(GL_READ_FRAMEBUFFER, framebuffer_);
+    if (frameBuffer_)
+    {
+        frameBuffer_->bind();
+    }
 }
 
 void RenderPass::unbindFramebuffer()
 {
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    if (frameBuffer_)
+    {
+        frameBuffer_->unbind();
+    }
 }
 
 void RenderPass::clearBuffers(GLbitfield mask)

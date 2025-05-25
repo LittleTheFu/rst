@@ -3,72 +3,96 @@
 #include "uniformBuffer.h"
 #include "pointLightDataForUBO.h"
 
-LightPass::LightPass(const std::string &name) : RenderPass(name)
+LightPass::LightPass(int width, int height)
+    : RenderPass("LightPass", width, height)
 {
   shader_.load("shader/light.vert", "shader/light.frag"); // 假设你的屏幕 Shader 文件名为 screen.vert 和 screen.frag
+
+  std::vector<GLenum> attachments = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2};
+  createFramebuffer(attachments, DepthStencilAttachmentType::None);
+
+  lightBindingPoint_ = 0;
+
+  objectLightUBO_.create(sizeof(PointLightDataForUBO), GL_DYNAMIC_DRAW);
+  objectLightUBO_.bindToBindingPoint(lightBindingPoint_);
+
+  // 获取 Shader 中 Uniform Block 的索引
+  GLuint lightBlockIndex = glGetUniformBlockIndex(shader_.ID, "PointLightBlock");
+  if (lightBlockIndex == GL_INVALID_INDEX)
+  {
+    std::cerr << "Error: Uniform block 'PointLightBlock' not found in screen shader!" << std::endl;
+    return;
+  }
+
+  // 将 Uniform Block 绑定到相同的绑定点
+  glUniformBlockBinding(shader_.ID, lightBlockIndex, lightBindingPoint_);
+
+  objectLightUBO_.unbind(); // 解绑 UBO 是一个好习惯
+  unbindFramebuffer();
+
+  initScreenQuad();
 }
 
-void LightPass::Initialize(int width, int height)
-{
-    createFramebuffer();
-    bindFramebuffer();
+// void LightPass::Initialize(int width, int height)
+// {
+//   createFramebuffer();
+//   bindFramebuffer();
 
-    // 主颜色附件
-    outputTexture_ = createColorAttachment(width, height, GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE, GL_COLOR_ATTACHMENT0);
+//   // 主颜色附件
+//   outputTexture_ = createColorAttachment(width, height, GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE, GL_COLOR_ATTACHMENT0);
 
-    // 创建 debug 深度纹理，使用浮点格式来存储深度信息，方便渲染为颜色输出
-    // debugCurrentDepthTexture_
-    glGenTextures(1, &debugCurrentDepthTexture_);
-    glBindTexture(GL_TEXTURE_2D, debugCurrentDepthTexture_);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, width, height, 0, GL_RED, GL_FLOAT, nullptr);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, debugCurrentDepthTexture_, 0);
+//   // 创建 debug 深度纹理，使用浮点格式来存储深度信息，方便渲染为颜色输出
+//   // debugCurrentDepthTexture_
+//   glGenTextures(1, &debugCurrentDepthTexture_);
+//   glBindTexture(GL_TEXTURE_2D, debugCurrentDepthTexture_);
+//   glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, width, height, 0, GL_RED, GL_FLOAT, nullptr);
+//   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+//   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+//   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+//   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+//   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, debugCurrentDepthTexture_, 0);
 
-    // debugClosestDepthTexture_
-    glGenTextures(1, &debugClosestDepthTexture_);
-    glBindTexture(GL_TEXTURE_2D, debugClosestDepthTexture_);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, width, height, 0, GL_RED, GL_FLOAT, nullptr);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, debugClosestDepthTexture_, 0);
+//   // debugClosestDepthTexture_
+//   glGenTextures(1, &debugClosestDepthTexture_);
+//   glBindTexture(GL_TEXTURE_2D, debugClosestDepthTexture_);
+//   glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, width, height, 0, GL_RED, GL_FLOAT, nullptr);
+//   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+//   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+//   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+//   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+//   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, debugClosestDepthTexture_, 0);
 
-    // 通知 OpenGL 我们使用哪些颜色附件渲染
-    std::vector<GLenum> attachments = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2};
-    glDrawBuffers(static_cast<GLsizei>(attachments.size()), attachments.data());
+//   // 通知 OpenGL 我们使用哪些颜色附件渲染
+//   std::vector<GLenum> attachments = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2};
+//   glDrawBuffers(static_cast<GLsizei>(attachments.size()), attachments.data());
 
-    auto err = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-    if (err != GL_FRAMEBUFFER_COMPLETE)
-    {
-        std::cerr << "ERROR::FRAMEBUFFER::Framebuffer is not complete!" << std::endl;
-    }
+//   auto err = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+//   if (err != GL_FRAMEBUFFER_COMPLETE)
+//   {
+//     std::cerr << "ERROR::FRAMEBUFFER::Framebuffer is not complete!" << std::endl;
+//   }
 
-    lightBindingPoint_ = 0;
+//   lightBindingPoint_ = 0;
 
-    objectLightUBO_.create(sizeof(PointLightDataForUBO), GL_DYNAMIC_DRAW);
-    objectLightUBO_.bindToBindingPoint(lightBindingPoint_);
+//   objectLightUBO_.create(sizeof(PointLightDataForUBO), GL_DYNAMIC_DRAW);
+//   objectLightUBO_.bindToBindingPoint(lightBindingPoint_);
 
-    // 获取 Shader 中 Uniform Block 的索引
-    GLuint lightBlockIndex = glGetUniformBlockIndex(shader_.ID, "PointLightBlock");
-    if (lightBlockIndex == GL_INVALID_INDEX)
-    {
-        std::cerr << "Error: Uniform block 'PointLightBlock' not found in screen shader!" << std::endl;
-        return;
-    }
+//   // 获取 Shader 中 Uniform Block 的索引
+//   GLuint lightBlockIndex = glGetUniformBlockIndex(shader_.ID, "PointLightBlock");
+//   if (lightBlockIndex == GL_INVALID_INDEX)
+//   {
+//     std::cerr << "Error: Uniform block 'PointLightBlock' not found in screen shader!" << std::endl;
+//     return;
+//   }
 
-    // 将 Uniform Block 绑定到相同的绑定点
-    glUniformBlockBinding(shader_.ID, lightBlockIndex, lightBindingPoint_);
+//   // 将 Uniform Block 绑定到相同的绑定点
+//   glUniformBlockBinding(shader_.ID, lightBlockIndex, lightBindingPoint_);
 
-    objectLightUBO_.unbind(); // 解绑 UBO 是一个好习惯
-    unbindFramebuffer();
+//   objectLightUBO_.unbind(); // 解绑 UBO 是一个好习惯
+//   unbindFramebuffer();
 
-    initScreenQuad();
-}
-
+//   initScreenQuad();
+// }
 
 // void LightPass::Initialize(int width, int height)
 // {
@@ -182,9 +206,8 @@ void LightPass::Render(const GLuint &positionTextureID,
   }
 
   shader_.setVec3("cameraPos", camera.Position);
-  //这里应该使用shadowmap_camera的farClip,因为都一样，这里暂时省事这样写
+  // 这里应该使用shadowmap_camera的farClip,因为都一样，这里暂时省事这样写
   shader_.setFloat("shadowCameraFarClip", shadowCamera.farClip);
-  
 
   // 绑定要显示的纹理
   glActiveTexture(GL_TEXTURE0);
@@ -213,7 +236,7 @@ void LightPass::Render(const GLuint &positionTextureID,
 
   glActiveTexture(GL_TEXTURE6);
   glBindTexture(GL_TEXTURE_CUBE_MAP, shadowMapTextureID); // 假设 shadowMapTexture 是阴影贴图的纹理 ID
-  shader_.setInt("shadowMapTexture", 6);                 // 假设阴影贴图绑定到纹理单元 6
+  shader_.setInt("shadowMapTexture", 6);                  // 假设阴影贴图绑定到纹理单元 6
 
   // 渲染屏幕四边形
   renderQuad();

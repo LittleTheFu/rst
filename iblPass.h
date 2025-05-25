@@ -13,10 +13,10 @@
 class IBLPass : public RenderPass
 {
 public:
-    IBLPass(const std::string &name = "IBLPass");
+    IBLPass(int width, int height);
     ~IBLPass() override = default;
 
-    void Initialize(int width, int height) override;
+    // void Initialize(int width, int height) override;
     void Render(SceneData &sceneData, Camera &camera) override;
     void Render(const GLuint &positionTextureID,
                 const GLuint &normalTextureID,

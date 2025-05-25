@@ -38,10 +38,10 @@ Framebuffer::Framebuffer(int width, int height,
     glBindFramebuffer(GL_FRAMEBUFFER, id_);
 
     // 创建颜色附件
-    createColorAttachments(colorAttachmentFormats_);
+    createColorAttachments();
 
     // 创建深度/模板附件
-    createDepthStencilAttachment(dsType_);
+    createDepthStencilAttachment();
 
     // 检查帧缓冲是否完整
     GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
@@ -73,9 +73,9 @@ void Framebuffer::unbind() const
 }
 
 // --- Create Color Attachments ---
-void Framebuffer::createColorAttachments(const std::vector<GLenum> &formats)
+void Framebuffer::createColorAttachments()
 {
-    // 释放旧的颜色附件 (如果存在，通常在 resize 或构造函数内部重复调用时)
+    // // 释放旧的颜色附件 (如果存在，通常在 resize 或构造函数内部重复调用时)
     for (GLuint textureID : colorAttachments_)
     {
         if (glIsTexture(textureID))
@@ -85,19 +85,19 @@ void Framebuffer::createColorAttachments(const std::vector<GLenum> &formats)
     }
     colorAttachments_.clear(); // 清空 vector，准备重新填充
 
-    colorAttachments_.resize(formats.size()); // 调整 vector 大小以容纳新的附件ID
+    colorAttachments_.resize(colorAttachmentFormats_.size()); // 调整 vector 大小以容纳新的附件ID
 
     // 如果没有颜色附件，禁用颜色写入和读取
-    if (formats.empty())
+    if (colorAttachmentFormats_.empty())
     {
         glDrawBuffer(GL_NONE);
         glReadBuffer(GL_NONE);
         return;
     }
 
-    std::vector<GLenum> drawBuffers(formats.size()); // 用于 glDrawBuffers 调用
+    std::vector<GLenum> drawBuffers(colorAttachmentFormats_.size()); // 用于 glDrawBuffers 调用
 
-    for (size_t i = 0; i < formats.size(); ++i)
+    for (size_t i = 0; i < colorAttachmentFormats_.size(); ++i)
     {
         GLuint textureID = 0;
         glGenTextures(1, &textureID);
@@ -110,7 +110,7 @@ void Framebuffer::createColorAttachments(const std::vector<GLenum> &formats)
         // 使用来自 formats 列表的对应格式
         // 对于大多数内部格式，GL_RGBA 和 GL_UNSIGNED_BYTE 的数据格式和类型是通用的，
         // 但对于某些特定格式（如浮点格式），可能需要调整。这里为了简化假设通用。
-        glTexImage2D(GL_TEXTURE_2D, 0, formats[i], width_, height_, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+        glTexImage2D(GL_TEXTURE_2D, 0, colorAttachmentFormats_[i], width_, height_, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -121,11 +121,11 @@ void Framebuffer::createColorAttachments(const std::vector<GLenum> &formats)
         colorAttachments_[i] = textureID;
         drawBuffers[i] = GL_COLOR_ATTACHMENT0 + i;
     }
-    glDrawBuffers(static_cast<GLsizei>(formats.size()), drawBuffers.data()); // 设置多重渲染目标
+    glDrawBuffers(static_cast<GLsizei>(colorAttachmentFormats_.size()), drawBuffers.data()); // 设置多重渲染目标
 }
 
 // --- Create Depth/Stencil Attachment ---
-void Framebuffer::createDepthStencilAttachment(DepthStencilAttachmentType dsType)
+void Framebuffer::createDepthStencilAttachment()
 {
     // 1. 先解绑旧的深度/模板附件 (防御性清理，确保不会残留旧附件)
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, 0, 0);
@@ -147,7 +147,7 @@ void Framebuffer::createDepthStencilAttachment(DepthStencilAttachmentType dsType
     }
 
     // 3. 根据传入的 dsType 类型创建新的附件
-    if (dsType == DepthStencilAttachmentType::Texture)
+    if (dsType_ == DepthStencilAttachmentType::Texture)
     {
         glGenTextures(1, &depthStencilAttachment_);
         if (depthStencilAttachment_ == 0)
@@ -164,7 +164,7 @@ void Framebuffer::createDepthStencilAttachment(DepthStencilAttachmentType dsType
         glBindTexture(GL_TEXTURE_2D, 0); // 解绑纹理
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, depthStencilAttachment_, 0);
     }
-    else if (dsType == DepthStencilAttachmentType::Renderbuffer)
+    else if (dsType_ == DepthStencilAttachmentType::Renderbuffer)
     {
         glGenRenderbuffers(1, &depthStencilAttachment_);
         if (depthStencilAttachment_ == 0)
@@ -204,12 +204,12 @@ void Framebuffer::resize(int width, int height)
     // 5. 重新创建颜色附件
     // createColorAttachments 内部会处理旧资源的释放和新资源的创建
     // 我们保存了 colorAttachmentFormats_，可以直接传入
-    createColorAttachments(colorAttachmentFormats_);
+    createColorAttachments();
 
     // 6. 重新创建深度/模板附件
     // createDepthStencilAttachment 内部会处理旧资源的释放和新资源的创建
     // 我们保存了 dsType_，可以直接传入
-    createDepthStencilAttachment(dsType_);
+    createDepthStencilAttachment();
 
     // 7. 重新检查帧缓冲的完整性
     GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);

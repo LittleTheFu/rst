@@ -22,24 +22,24 @@ void Scene::init()
     sceneData_.shadowMapHeight = 1024; // 阴影贴图的宽度和高度;
 
     // 2. 初始化渲染 Pass
-    gBufferPass_ = std::make_unique<GBufferPass>();
-    gBufferPass_->Initialize(sceneData_.screenWidth, sceneData_.screenHeight);
+    gBufferPass_ = std::make_unique<GBufferPass>(sceneData_.screenWidth, sceneData_.screenHeight);
+    // gBufferPass_->Initialize(sceneData_.screenWidth, sceneData_.screenHeight);
 
-    lightPass_ = std::make_unique<LightPass>();
-    lightPass_->Initialize(sceneData_.screenWidth, sceneData_.screenHeight);
+    lightPass_ = std::make_unique<LightPass>(sceneData_.screenWidth, sceneData_.screenHeight);
+    // lightPass_->Initialize(sceneData_.screenWidth, sceneData_.screenHeight);
 
-    shadowPass_ = std::make_unique<ShadowPass>();
-    shadowPass_->Initialize(sceneData_.shadowMapWidth, sceneData_.shadowMapHeight);
+    shadowPass_ = std::make_unique<ShadowPass>(sceneData_.shadowMapWidth, sceneData_.shadowMapHeight);
+    // shadowPass_->Initialize(sceneData_.shadowMapWidth, sceneData_.shadowMapHeight);
 
-    skyPass_ = std::make_unique<SkyPass>();
-    skyPass_->Initialize(sceneData_.screenWidth, sceneData_.screenHeight);
+    skyPass_ = std::make_unique<SkyPass>(sceneData_.screenWidth, sceneData_.screenHeight);
+    // skyPass_->Initialize(sceneData_.screenWidth, sceneData_.screenHeight);
 
-    screenPass_ = std::make_unique<ScreenPass>();
-    screenPass_->Initialize(sceneData_.screenWidth, sceneData_.screenHeight);
+    screenPass_ = std::make_unique<ScreenPass>(sceneData_.screenWidth, sceneData_.screenHeight);
+    // screenPass_->Initialize(sceneData_.screenWidth, sceneData_.screenHeight);
 
     // 新增：初始化 IBL Pass
-    iblPass_ = std::make_unique<IBLPass>();
-    iblPass_->Initialize(sceneData_.screenWidth, sceneData_.screenHeight);
+    iblPass_ = std::make_unique<IBLPass>(sceneData_.screenWidth, sceneData_.screenHeight);
+    // iblPass_->Initialize(sceneData_.screenWidth, sceneData_.screenHeight);
 
     // 3. 初始化相机
     camera_.Position = Eigen::Vector3f(0.0f, 2.0f, 18.0f);
