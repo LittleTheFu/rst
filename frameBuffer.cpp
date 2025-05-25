@@ -26,10 +26,6 @@ Framebuffer::Framebuffer(int width, int height, int numColorAttachments, GLenum 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-Framebuffer::~Framebuffer() {
-    release();
-}
-
 void Framebuffer::bind() const {
     glBindFramebuffer(GL_FRAMEBUFFER, id_);
     glViewport(0, 0, width_, height_); // 可选：绑定时设置视口

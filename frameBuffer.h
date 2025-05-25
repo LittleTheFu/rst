@@ -8,7 +8,6 @@
 class Framebuffer : public GLResource {
 public:
     Framebuffer(int width, int height, int numColorAttachments, GLenum colorFormat, bool depthStencil);
-    ~Framebuffer() override;
 
     void bind() const override;
     void unbind() const override;

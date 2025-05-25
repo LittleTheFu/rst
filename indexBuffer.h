@@ -8,7 +8,6 @@
 class IndexBuffer : public GLResource {
 public:
     IndexBuffer(const unsigned int* data, size_t count, GLenum usage);
-    ~IndexBuffer() override;
 
     void bind() const override;
     void unbind() const override;

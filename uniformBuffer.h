@@ -10,7 +10,6 @@ class UniformBuffer : public GLResource
 {
 public:
     UniformBuffer();
-    ~UniformBuffer() override;
 
     void create(size_t size, GLenum usage);
     void bind(GLuint bindingPoint) const override;

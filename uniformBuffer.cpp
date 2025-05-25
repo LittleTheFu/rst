@@ -2,13 +2,8 @@
 #include <glad/glad.h>
 #include <iostream>
 
-UniformBuffer::UniformBuffer() : GLResource()
+UniformBuffer::UniformBuffer()
 {
-}
-
-UniformBuffer::~UniformBuffer()
-{
-    // release() 会在基类的析构函数中被调用
 }
 
 void UniformBuffer::create(size_t size, GLenum usage)

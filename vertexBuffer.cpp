@@ -9,10 +9,6 @@ VertexBuffer::VertexBuffer(const void* data, size_t size, GLenum usage) {
     // glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-VertexBuffer::~VertexBuffer() {
-    release();
-}
-
 void VertexBuffer::bind() const {
     glBindBuffer(GL_ARRAY_BUFFER, id_);
 }

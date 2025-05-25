@@ -8,7 +8,6 @@
 class VertexBuffer : public GLResource {
 public:
     VertexBuffer(const void* data, size_t size, GLenum usage);
-    ~VertexBuffer() override;
 
     void bind() const override;
     void unbind() const override;

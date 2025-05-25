@@ -8,7 +8,6 @@
 class VertexArray : public GLResource {
 public:
     VertexArray();
-    ~VertexArray() override;
 
     void bind() const override;
     void unbind() const override;

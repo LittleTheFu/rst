@@ -8,7 +8,6 @@
 class TextureBuffer : public GLResource {
 public:
     TextureBuffer();
-    ~TextureBuffer() override;
 
     void bind() const override; // 正确：与基类签名一致
     void unbind() const override;

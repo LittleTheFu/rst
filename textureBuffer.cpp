@@ -7,11 +7,6 @@ TextureBuffer::TextureBuffer() : bufferId_(0), internalFormat_(GL_NONE)
     glGenTextures(1, &id_);
 }
 
-TextureBuffer::~TextureBuffer()
-{
-    release();
-}
-
 void TextureBuffer::bind() const
 {
     glBindTexture(GL_TEXTURE_BUFFER, id_);

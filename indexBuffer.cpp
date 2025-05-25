@@ -10,10 +10,6 @@ IndexBuffer::IndexBuffer(const unsigned int* data, size_t count, GLenum usage)
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
-IndexBuffer::~IndexBuffer() {
-    release();
-}
-
 void IndexBuffer::bind() const {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, id_);
 }
