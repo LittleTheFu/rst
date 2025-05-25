@@ -67,16 +67,7 @@ protected:
     void enableState(GLenum state);
 
     // 禁用 OpenGL 状态
-    void disableState(GLenum state);
-
-    // 获取 Shader 程序 ID
-    GLuint getShaderProgram() const;
-
-    // 设置 Shader 的 Uniform 变量 (提供一些常用的重载)
-    void setUniformInt(const std::string &name, int value);
-    void setUniformFloat(const std::string &name, float value);
-    void setUniformVec3(const std::string &name, const Eigen::Vector3f &value);
-    void setUniformMat4(const std::string &name, const Eigen::Matrix4f &value);
+    void disableState(GLenum state); // 禁用指定的 OpenGL 状态
 };
 
 #endif // RENDERPASS_H

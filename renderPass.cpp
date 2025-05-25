@@ -119,28 +119,3 @@ void RenderPass::disableState(GLenum state)
 {
     glDisable(state);
 }
-
-GLuint RenderPass::getShaderProgram() const
-{
-    return 0;
-}
-
-void RenderPass::setUniformInt(const std::string& name, int value)
-{
-    // shader_.setInt(name, value);
-}
-
-void RenderPass::setUniformFloat(const std::string& name, float value)
-{
-    // shader_.setFloat(name, value);
-}
-
-void RenderPass::setUniformVec3(const std::string& name, const Eigen::Vector3f& value)
-{
-    // shader_.setVec3(name, value);
-}
-
-void RenderPass::setUniformMat4(const std::string& name, const Eigen::Matrix4f& value)
-{
-    // shader_.setMat4(name, value);
-}
