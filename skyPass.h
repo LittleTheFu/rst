@@ -6,6 +6,8 @@
 #include "shader.h"
 #include "camera.h"         // 包含 camera 头文件
 #include "TextureCubeMap.h" // 包含 TextureCubeMap 类
+#include <memory>           // 包含智能指针相关的头文件
+
 
 class SkyPass : public RenderPass
 {
