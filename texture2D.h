@@ -1,44 +1,22 @@
-#ifndef TEXTURE_2D_H
-#define TEXTURE_2D_H
+// Texture2D.h
+#include "Texture.h"
 
-#include <string>
-#include <glad/glad.h>
-#include <gli/gli.hpp> // 包含 gli 库
-
-class Texture2D
-{
-public:
-    Texture2D();
-    ~Texture2D();
-
-    // 加载 DDS 格式的 2D 纹理 (例如 BRDF LUT)
-    // gli::load 会自动处理 HDR (浮点) 数据和 mipmap
-    bool loadDDS(const std::string& path);
-
-    // 绑定纹理到指定的纹理单元
-    void use(unsigned int slot = 0) const;
-
-    // 获取 OpenGL 纹理 ID
-    GLuint getID() const { return id_; }
-
-    // 获取纹理宽度
-    int getWidth() const { return width_; }
-
-    // 获取纹理高度
-    int getHeight() const { return height_; }
-
-    // 获取 mipmap 级别数量
-    int getMipLevels() const { return mipLevels_; }
-
+class Texture2D : public Texture {
 private:
-    GLuint id_;           // OpenGL 纹理 ID
-    int width_;           // 纹理宽度 (mip level 0)
-    int height_;          // 纹理高度 (mip level 0)
-    int mipLevels_;       // 包含的 mipmap 级别数量
+    int mipLevels_;
 
-    // 禁用拷贝构造函数和赋值运算符，防止不安全的拷贝
-    Texture2D(const Texture2D&) = delete;
-    Texture2D& operator=(const Texture2D&) = delete;
+public:
+    // 构造函数，初始化并分配存储
+    Texture2D(int width, int height, GLenum internalFormat, int mipLevels = 1);
+
+    // 重写基类的纯虚函数
+    void allocateStorage(int mipLevels) override;
+    void setParameters() override;
+
+    // 特定方法：上传数据 (仍然需要 format 和 type)
+    void uploadData(const void* data, GLenum format, GLenum type, int level = 0);
+
+    // 获取尺寸
+    int getWidth() const { return width_; }
+    int getHeight() const { return height_; }
 };
-
-#endif // TEXTURE_2D_H

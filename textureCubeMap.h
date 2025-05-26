@@ -1,30 +1,20 @@
-#ifndef TEXTURE_CUBE_MAP_H
-#define TEXTURE_CUBE_MAP_H
+// TextureCubeMap.h
+#include "Texture.h"
 
-#include <string>
-#include <glad/glad.h>
-// #include <glm/glm.hpp> // 这一行可以删除，因为它不再需要了
-#include <gli/gli.hpp> // 这一行必须保留！
-
-class TextureCubeMap
-{
-public:
-    TextureCubeMap();
-    ~TextureCubeMap();
-
-    bool loadDDS(const std::string& path);
-    void use(unsigned int slot = 0) const;
-    GLuint getID() const { return id_; }
-    int getSideLength() const { return sideLength_; }
-    int getMipLevels() const { return mipLevels_; }
-
+class TextureCubeMap : public Texture {
 private:
-    GLuint id_;
-    int sideLength_;
     int mipLevels_;
 
-    TextureCubeMap(const TextureCubeMap&) = delete;
-    TextureCubeMap& operator=(const TextureCubeMap&) = delete;
+public:
+    TextureCubeMap(int resolution, GLenum internalFormat, int mipLevels = 1);
+
+    void allocateStorage(int mipLevels) override;
+    void setParameters() override;
+
+    // 特定方法：上传特定面的数据
+    void uploadFaceData(GLenum faceTarget, const void* data, GLenum format, GLenum type, int level = 0);
+
+    // 获取分辨率 (宽高等于分辨率)
+    int getResolution() const { return width_; } // resolution_ 在基类中可以用 width_ 表示
 };
 
-#endif // TEXTURE_CUBE_MAP_H

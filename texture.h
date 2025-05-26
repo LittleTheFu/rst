@@ -1,32 +1,35 @@
-#ifndef TEXTURE_H
-#define TEXTURE_H
+// Texture.h (抽象基类)
 
-#include <string>
-#include <glad/glad.h>
-// #include <gli/gli.hpp> // 用于加载 HDR 纹理
+#include "GLObject.h" // 假设你的 GLObject 基类在这里
 
-class Texture {
-public:
-    Texture();
-    Texture(const std::string& path);
-    ~Texture();
+class Texture : public GLObject {
+protected:
+    GLuint id_ = 0;
+    GLenum target_; // GL_TEXTURE_2D, GL_TEXTURE_CUBE_MAP, GL_TEXTURE_3D
 
-    bool load(const std::string& path);
-    void use(unsigned int slot = 0) const; // 激活并绑定纹理
-    GLuint getID() const { return id_; }
-    int getWidth() const { return width_; }
-    int getHeight() const { return height_; }
-
-private:
-    GLuint id_;
-    int width_;
-    int height_;
-    int nrChannels_;
-    GLenum format_;
+    // 纹理的通用属性
     GLenum internalFormat_;
-    unsigned char* data_;
+    int width_ = 0;
+    int height_ = 0;
+    int depth_ = 0; // for 3D textures, resolution for cubemaps
 
-    bool loadTextureFromFile(const std::string& path);
+public:
+    Texture(GLenum target, GLenum internalFormat, int width, int height, int depth = 1);
+    virtual ~Texture() = default;
+
+    // 纹理存储分配 (纯虚函数，子类实现 DSA 版本)
+    virtual void allocateStorage(int mipLevels) = 0;
+
+    // 纹理参数设置 (纯虚函数，子类实现 DSA 版本)
+    virtual void setParameters() = 0;
+
+    // 激活纹理单元以供着色器采样 (这个仍然需要，因为着色器通过纹理单元访问)
+    void activate(GLenum textureUnit) const;
+
+    // 获取纹理 ID
+    GLuint id() const { return id_; }
+
+protected:
+    // GLObject 的资源释放
+    void deleteGlResource() override;
 };
-
-#endif
