@@ -1,23 +1,13 @@
 #include "IBLPass.h"
 #include <iostream>
 #include <vector>
+#include "debug_utils.h"
 
 IBLPass::IBLPass(int width, int height,
-                 GLuint positionTextureID,
-                 GLuint normalTextureID,
-                 GLuint albedoTextureID,
-                 GLuint roughnessTextureID,
-                 GLuint metallicTextureID,
-                 GLuint aoTextureID,
-                 const Camera& camera)
+            std::shared_ptr<TextureCubeMap> irradianceMap,
+            std::shared_ptr<TextureCubeMap> prefilterMap,
+            std::shared_ptr<Texture2D> brdfLUT)
     : RenderPass("IBLPass", width, height), // 调用基类构造函数
-      gPositionTextureID_(positionTextureID),
-      gNormalTextureID_(normalTextureID),
-      gAlbedoTextureID_(albedoTextureID),
-      gRoughnessTextureID_(roughnessTextureID),
-      gMetallicTextureID_(metallicTextureID),
-      gAOTextureID_(aoTextureID),
-      camera_(camera) // 初始化 Camera 引用
 {
     shader_.load("shader/ibl.vert", "shader/ibl.frag"); // IBL 着色器路径
 
@@ -45,72 +35,77 @@ IBLPass::IBLPass(int width, int height,
 // 移除不再需要的 Render(SceneData&, Camera&) 方法
 
 // 实现基类的纯虚函数 Render()，不带参数
-void IBLPass::Render() {
-    // 绑定 IBL Pass 的输出 Framebuffer
-    activateFramebuffer(); // 使用基类的辅助方法
-    setViewport(width_, height_); // 确保视口与 FBO 尺寸匹配
+void IBLPass::Render(GLuint gPositionID, GLuint gNormalID, GLuint gAlbedoID,
+                     GLuint gRoughnessID, GLuint gMetallicID, GLuint gAOID,
+                     const Camera& camera)
+{
+    if (!irradianceMap_ || !prefilterMap_ || !brdfLUT_) {
+        std::cerr << "ERROR::IBLPASS::IBL textures not set!" << std::endl;
+        return;
+    }
 
-    glDisable(GL_DEPTH_TEST); // IBL 通常在全屏四边形上进行，不需要深度测试
+    // 1. 绑定 IBL Pass 的 Framebuffer
+    activateFramebuffer();
+    setViewport(width_, height_);
+
+    // 2. 清除颜色缓冲 (IBL 贡献会叠加到前一个 Pass 的结果上，通常会清除)
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-    clearBuffers(GL_COLOR_BUFFER_BIT); // 清除颜色缓冲
+    clearBuffers(GL_COLOR_BUFFER_BIT);
 
+    // 3. 禁用深度测试
+    disableState(GL_DEPTH_TEST);
+
+    // 4. 绑定 IBL Shader
     shader_.use();
 
-    // 绑定 G-Buffer 纹理 (直接使用成员变量)
+    // 5. 绑定 G-Buffer 纹理
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, gPositionTextureID_);
+    glBindTexture(GL_TEXTURE_2D, gPositionID);
     shader_.setInt("gPosition", 0);
 
     glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, gNormalTextureID_);
+    glBindTexture(GL_TEXTURE_2D, gNormalID);
     shader_.setInt("gNormal", 1);
 
     glActiveTexture(GL_TEXTURE2);
-    glBindTexture(GL_TEXTURE_2D, gAlbedoTextureID_);
+    glBindTexture(GL_TEXTURE_2D, gAlbedoID);
     shader_.setInt("gAlbedo", 2);
 
     glActiveTexture(GL_TEXTURE3);
-    glBindTexture(GL_TEXTURE_2D, gRoughnessTextureID_);
+    glBindTexture(GL_TEXTURE_2D, gRoughnessID);
     shader_.setInt("gRoughness", 3);
 
     glActiveTexture(GL_TEXTURE4);
-    glBindTexture(GL_TEXTURE_2D, gMetallicTextureID_);
+    glBindTexture(GL_TEXTURE_2D, gMetallicID);
     shader_.setInt("gMetallic", 4);
 
     glActiveTexture(GL_TEXTURE5);
-    glBindTexture(GL_TEXTURE_2D, gAOTextureID_);
+    glBindTexture(GL_TEXTURE_2D, gAOID);
     shader_.setInt("gAO", 5);
 
-    // 绑定 IBL 预计算纹理 (使用 TextureCubeMap/Texture2D 实例的 activate() 方法)
-    if (irradianceMap_) {
-        irradianceMap_->activate(GL_TEXTURE6); // 辐照度图绑定到纹理单元 6
-        shader_.setInt("irradianceMap", 6);
-    } else {
-        std::cerr << "Warning: Irradiance Map not set for IBLPass!" << std::endl;
-    }
+    // 6. 绑定 IBL 预计算纹理
+    irradianceMap_->activate(GL_TEXTURE6);
+    shader_.setInt("irradianceMap", 6);
 
-    if (prefilterMap_) {
-        prefilterMap_->activate(GL_TEXTURE7); // 预过滤环境贴图绑定到纹理单元 7
-        shader_.setInt("prefilterMap", 7);
-        shader_.setFloat("maxReflectionLOD", static_cast<float>(prefilterMap_->getMipLevels() - 1)); // 根据实际 mip 级别设置
-    } else {
-        std::cerr << "Warning: Prefilter Map not set for IBLPass!" << std::endl;
-        shader_.setFloat("maxReflectionLOD", 4.0f); // 使用默认值，或根据需求调整
-    }
+    prefilterMap_->activate(GL_TEXTURE7);
+    shader_.setInt("prefilterMap", 7);
 
-    if (brdfLUT_) {
-        brdfLUT_->activate(GL_TEXTURE8); // BRDF LUT 绑定到纹理单元 8
-        shader_.setInt("brdfLUT", 8);
-    } else {
-        std::cerr << "Warning: BRDF LUT not set for IBLPass!" << std::endl;
-    }
+    brdfLUT_->activate(GL_TEXTURE8);
+    shader_.setInt("brdfLUT", 8);
 
-    shader_.setVec3("camPos", camera_.Position); // 使用成员 Camera 的位置
+    // 7. 设置 Uniform 变量
+    shader_.setVec3("viewPos", camera.Position);
 
-    renderQuad();
+    // 8. 渲染全屏四边形
+    renderQuad(); // 假设你有一个 renderQuad() 辅助函数来绘制全屏四边形
 
-    glEnable(GL_DEPTH_TEST); // 恢复深度测试
-    deactivateFramebuffer(); // 使用基类的辅助方法
+    // 9. 解绑纹理
+    // ...
+
+    // 10. 解绑 IBL Pass 的 Framebuffer
+    deactivateFramebuffer();
+
+    GL_CHECK_ERROR();
 }
 
 void IBLPass::Resize(int width, int height)

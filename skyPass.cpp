@@ -50,9 +50,8 @@ float skyboxVertices[] = {
     -1.0f, -1.0f,  1.0f
 };
 
-SkyPass::SkyPass(int width, int height, const Camera& camera, std::shared_ptr<TextureCubeMap> skyboxTexture)
+SkyPass::SkyPass(int width, int height, std::shared_ptr<TextureCubeMap> skyboxTexture)
     : RenderPass("SkyPass", width, height), // 调用基类构造函数
-      camera_(camera), // 初始化 Camera 引用
       skyboxTexture_(skyboxTexture) // 初始化天空盒纹理智能指针
 {
     shader_.load("shader/skybox.vert", "shader/skybox.frag"); // 假设天空盒 Shader 文件名为 skybox.vert 和 skybox.frag

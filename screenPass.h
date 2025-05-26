@@ -11,15 +11,12 @@ class ScreenPass : public RenderPass
 {
 public:
     // 通过构造函数注入要显示的纹理 ID
-    ScreenPass(int width, int height,
-               GLuint lightTextureID,
-               GLuint iblTextureID,
-               GLuint lightDepthTextureID);
+    ScreenPass(int width, int height);
 
     ~ScreenPass() override = default;
 
     // 实现基类的纯虚函数，不带参数
-    void Render() override;
+    void Render(GLuint directLightTextureID, GLuint iblTextureID, GLuint depthTextureID);
 
     // 维持 Resize 方法
     void Resize(int width, int height) override;

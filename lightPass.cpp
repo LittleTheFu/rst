@@ -3,29 +3,8 @@
 #include <vector> // 确保包含 vector
 #include "pointLightDataForUBO.h" // 确保包含 PointLightDataForUBO
 
-LightPass::LightPass(int width, int height,
-                     const Texture2D& positionTexture,
-                     const Texture2D& normalTexture,
-                     const Texture2D& albedoTexture,
-                     const Texture2D& roughnessTexture,
-                     const Texture2D& metallicTexture,
-                     const Texture2D& aoTexture,
-                     const std::shared_ptr<PointLight>& light,
-                     const Camera& camera,
-                     const TextureCubeMap& shadowMapTexture,
-                     const Camera& shadowCamera)
-    : RenderPass("LightPass", width, height),
-      // 初始化成员引用
-      positionTexture_(positionTexture),
-      normalTexture_(normalTexture),
-      albedoTexture_(albedoTexture),
-      roughnessTexture_(roughnessTexture),
-      metallicTexture_(metallicTexture),
-      aoTexture_(aoTexture),
-      light_(light),
-      camera_(camera),
-      shadowMapTexture_(shadowMapTexture),
-      shadowCamera_(shadowCamera)
+LightPass::LightPass(int width, int height)
+    : RenderPass("LightPass", width, height)
 {
     shader_.load("shader/light.vert", "shader/light.frag");
 
@@ -85,66 +64,78 @@ LightPass::~LightPass() {
     // objectLightUBO_ 的析构函数应该会处理其资源的释放
 }
 
-void LightPass::Render() {
-    // 绑定 LightPass 的 Framebuffer 作为渲染目标
+void LightPass::Render(GLuint gPositionID, GLuint gNormalID, GLuint gAlbedoID,
+                       GLuint gRoughnessID, GLuint gMetallicID, GLuint gAOID,
+                       const PointLight& light, const Camera& camera,
+                       GLuint shadowMapID, const std::vector<glm::mat4>& lightSpaceMatrices)
+{
+    // 1. 绑定 Light Pass 的 Framebuffer
     activateFramebuffer();
-
-    // 清除颜色缓冲（LightPass 不再需要清除深度，因为它是后处理 Pass）
-    // LightPass 通常只绘制一个全屏四边形，不涉及深度测试，因此通常禁用深度测试
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f); // 清除为黑色或其他背景色
-    disableState(GL_DEPTH_TEST); // 禁用深度测试
-    glClear(GL_COLOR_BUFFER_BIT); // 只清除颜色缓冲
-
-    // 设置视口
     setViewport(width_, height_);
 
-    // 使用 LightPass 着色器
+    // 2. 清除颜色缓冲（深度缓冲通常由 G-Buffer 决定或不在此清除）
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    clearBuffers(GL_COLOR_BUFFER_BIT);
+
+    // 3. 禁用深度测试（因为我们已经有了 G-Buffer 的深度，并且在这里渲染全屏四边形）
+    disableState(GL_DEPTH_TEST);
+
+    // 4. 绑定 Light Shader
     shader_.use();
 
-    // 更新光源 UBO
-    if (light_ != nullptr)
-    {
-        PointLightDataForUBO lightData;
-        lightData.position = light_->position;
-        lightData.color = light_->color;
-        lightData.intensity = light_->intensity;
+    // 5. 绑定 G-Buffer 纹理
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, gPositionID);
+    shader_.setInt("gPosition", 0);
 
-        objectLightUBO_.bindToBindingPoint(lightBindingPoint_);
-        objectLightUBO_.updateData(0, sizeof(PointLightDataForUBO), &lightData);
-        objectLightUBO_.unbind();
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, gNormalID);
+    shader_.setInt("gNormal", 1);
+
+    glActiveTexture(GL_TEXTURE2);
+    glBindTexture(GL_TEXTURE_2D, gAlbedoID);
+    shader_.setInt("gAlbedo", 2);
+
+    glActiveTexture(GL_TEXTURE3);
+    glBindTexture(GL_TEXTURE_2D, gRoughnessID);
+    shader_.setInt("gRoughness", 3);
+
+    glActiveTexture(GL_TEXTURE4);
+    glBindTexture(GL_TEXTURE_2D, gMetallicID);
+    shader_.setInt("gMetallic", 4);
+
+    glActiveTexture(GL_TEXTURE5);
+    glBindTexture(GL_TEXTURE_2D, gAOID);
+    shader_.setInt("gAO", 5);
+
+    // 6. 绑定阴影贴图 (立方体贴图)
+    glActiveTexture(GL_TEXTURE6);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, shadowMapID);
+    shader_.setInt("shadowMap", 6);
+
+    // 7. 设置 Uniform 变量
+    shader_.setVec3("viewPos", camera.Position);
+    shader_.setVec3("light.position", light.position);
+    shader_.setVec3("light.color", light.color);
+    shader_.setFloat("light.intensity", light.intensity);
+    shader_.setFloat("far_plane", 100.0f); // 应该与 ShadowPass 中的 far_plane 一致
+
+    // 传入光照空间矩阵
+    for (unsigned int i = 0; i < lightSpaceMatrices.size(); ++i)
+    {
+        shader_.setMat4("lightSpaceMatrices[" + std::to_string(i) + "]", lightSpaceMatrices[i]);
     }
 
-    shader_.setVec3("cameraPos", camera_.Position);
-    shader_.setFloat("shadowCameraFarClip", shadowCamera_.farClip); // 使用成员 shadowCamera_
+    // 8. 渲染全屏四边形
+    renderQuad(); // 假设你有一个 renderQuad() 辅助函数来绘制全屏四边形
 
-    // 绑定 G-Buffer 纹理（现在使用 Texture 对象的方法）
-    positionTexture_.activate(GL_TEXTURE0);
-    shader_.setInt("positionTexture", 0);
+    // 9. 解绑纹理
+    // ... 实际应用中可以省略解绑，因为下一个绘制命令会重新绑定 ...
 
-    normalTexture_.activate(GL_TEXTURE1);
-    shader_.setInt("normalTexture", 1);
-
-    albedoTexture_.activate(GL_TEXTURE2);
-    shader_.setInt("albedoTexture", 2);
-
-    roughnessTexture_.activate(GL_TEXTURE3);
-    shader_.setInt("roughnessTexture", 3);
-
-    metallicTexture_.activate(GL_TEXTURE4);
-    shader_.setInt("metallicTexture", 4);
-
-    aoTexture_.activate(GL_TEXTURE5);
-    shader_.setInt("aoTexture", 5);
-
-    shadowMapTexture_.activate(GL_TEXTURE6); // 激活并绑定阴影贴图
-    shader_.setInt("shadowMapTexture", 6);
-
-    // 渲染屏幕四边形
-    renderQuad();
-
-    // 恢复状态和解绑 Framebuffer
-    enableState(GL_DEPTH_TEST); // 恢复深度测试状态，以防后续 Pass 需要
+    // 10. 解绑 Light Pass 的 Framebuffer
     deactivateFramebuffer();
+
+    GL_CHECK_ERROR();
 }
 
 void LightPass::Resize(int width, int height) {

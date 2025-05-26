@@ -23,10 +23,6 @@ public:
     // 虚析构函数，确保派生类正确析构
     virtual ~RenderPass() = default;
 
-    // 执行渲染 Pass 的纯虚函数。
-    // 具体渲染所需的输入数据将通过派生类的构造函数或 setter 注入，作为其成员持有。
-    virtual void Render() = 0;
-
     // 处理窗口大小改变。默认实现会更新 Pass 的尺寸，
     // 但附件的 Resize 逻辑需要由派生类负责实现。
     virtual void Resize(int width, int height);

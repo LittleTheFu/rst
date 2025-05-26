@@ -14,18 +14,16 @@ class IBLPass : public RenderPass
 public:
     // 通过构造函数注入 G-Buffer 纹理 ID 和 Camera
     IBLPass(int width, int height,
-            GLuint positionTextureID,
-            GLuint normalTextureID,
-            GLuint albedoTextureID,
-            GLuint roughnessTextureID,
-            GLuint metallicTextureID,
-            GLuint aoTextureID,
-            const Camera& camera); // 接收 Camera 的引用
+            std::shared_ptr<TextureCubeMap> irradianceMap,
+            std::shared_ptr<TextureCubeMap> prefilterMap,
+            std::shared_ptr<Texture2D> brdfLUT); // 接收 Camera 的引用
 
     ~IBLPass() override = default;
 
     // 实现基类的纯虚函数，不带参数
-    void Render() override;
+    void Render(GLuint gPositionID, GLuint gNormalID, GLuint gAlbedoID,
+                GLuint gRoughnessID, GLuint gMetallicID, GLuint gAOID,
+                const Camera& camera);
 
     // Resize 方法保持不变
     void Resize(int width, int height) override;

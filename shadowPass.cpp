@@ -1,6 +1,7 @@
 #include "shadowPass.h"
 #include <iostream>
 #include <vector> // 确保包含 vector
+#include "debug_utils.h"
 
 // 辅助函数：初始化 ShadowPass 内部的 Framebuffer 和纹理
 // 这里只负责创建 FBO 和 CubeMap 纹理对象，不进行附件操作
@@ -39,75 +40,54 @@ ShadowPass::ShadowPass(int width, int height, SceneData& sceneData, Camera& ligh
 // 析构函数保持默认，unique_ptr 会自动清理资源
 // ShadowPass::~ShadowPass() = default;
 
-void ShadowPass::Render()
+void ShadowPass::Render(const std::vector<const Mesh*>& meshes, const PointLight& light, const std::vector<glm::mat4>& lightSpaceMatrices)
 {
-    // 绑定 ShadowPass 的 Framebuffer 作为渲染目标
-    activateFramebuffer();
-
-    // 启用深度测试，通常是 GL_LESS
-    enableState(GL_DEPTH_TEST);
-    glDepthFunc(GL_LESS);
-    glDepthMask(GL_TRUE); // 确保深度写入是开启的
-
-    // 设置视口为阴影贴图的尺寸
-    setViewport(width_, height_);
-
-    // 使用深度着色器
-    shader_.use();
-
-    // 获取光源位置和投影矩阵
-    Eigen::Vector3f lightPos = lightCamera_.Position; // 假设 lightCamera_ 的 Position 就是光源位置
-    Eigen::Matrix4f projectionMatrix = lightCamera_.GetProjectionMatrix(); // 获取光源的投影矩阵
-
-    // 准备立方体六个面的视图方向
-    Eigen::Vector3f targets[6] = {
-        lightPos + Eigen::Vector3f(1, 0, 0),    // +X
-        lightPos + Eigen::Vector3f(-1, 0, 0),   // -X
-        lightPos + Eigen::Vector3f(0, 1, 0),    // +Y
-        lightPos + Eigen::Vector3f(0, -1, 0),   // -Y
-        lightPos + Eigen::Vector3f(0, 0, 1),    // +Z
-        lightPos + Eigen::Vector3f(0, 0, -1)    // -Z
-    };
-
-    Eigen::Vector3f ups[6] = {
-        Eigen::Vector3f(0, -1, 0), // +X
-        Eigen::Vector3f(0, -1, 0), // -X
-        Eigen::Vector3f(0, 0, 1),  // +Y
-        Eigen::Vector3f(0, 0, -1), // -Y
-        Eigen::Vector3f(0, -1, 0), // +Z
-        Eigen::Vector3f(0, -1, 0)  // -Z
-    };
-
-    shader_.setFloat("farClip", lightCamera_.farClip); // 传递光源的远裁剪面
-    shader_.setVec3("lightPos", lightPos);
-
-    for (int face = 0; face < 6; ++face)
-    {
-        glClear(GL_DEPTH_BUFFER_BIT); // 清除当前面的深度缓冲
-
-        // 关键一步：使用 Framebuffer 的新接口来附加当前面
-        frameBuffer_->attachDepthCubeMapFace(shadowMapTexture_->id(), GL_TEXTURE_CUBE_MAP_POSITIVE_X + face, 0);
-
-        // 重新检查 FBO 完整性（此调用在生产代码中可能移除以提高性能，因为每次都检查开销较大）
-        frameBuffer_->checkCompleteness();
-
-        // 绑定光源相机的视图矩阵到当前面
-        Eigen::Matrix4f viewMat = Camera::LookAt(lightPos, targets[face], ups[face]); // 假设 Camera 有一个静态 LookAt 方法
-        Eigen::Matrix4f lightSpaceMatrix = projectionMatrix * viewMat;
-        shader_.setMat4("lightSpaceMatrix", lightSpaceMatrix); // 或者直接传递 view/projection，取决于你的着色器
-
-        // 渲染场景中的所有对象
-        for (const auto &object : sceneData_.objects)
-        {
-            shader_.setMat4("model", object->getModelMatrix());
-            object->render(shader_);
-        }
+    // 如果没有可用的阴影贴图或网格，直接返回
+    if (shadowMapTexture_ == 0 || meshes.empty()) {
+        return;
     }
 
-    // 恢复状态和解绑 Framebuffer
-    disableState(GL_DEPTH_TEST); // 恢复深度测试状态
-    glDepthMask(GL_FALSE);      // 恢复深度写入为禁用（除非后续 Pass 明确需要）
+    // 1. 绑定阴影 Pass 的 Framebuffer (立方体贴图的各个面)
+    activateFramebuffer();
+    setViewport(width_, height_);
+
+    // 2. 清除深度缓冲
+    // 对于立方体阴影贴图，需要为每个面渲染前清除
+    glClear(GL_DEPTH_BUFFER_BIT);
+
+    // 3. 启用深度测试和裁剪（确保只渲染正面，避免阴影痤疮）
+    enableState(GL_DEPTH_TEST);
+    glCullFace(GL_FRONT); // 渲染阴影时通常剔除前面，以减少阴影痤疮
+
+    // 4. 绑定 Shadow Shader
+    shader_.use();
+
+    // 5. 设置 Uniform 变量
+    shader_.setVec3("lightPos", light.position); // 光源位置
+    shader_.setFloat("far_plane", 100.0f); // 阴影贴图的远裁剪面距离
+
+    // 传入所有 6 个光照空间矩阵（用于点光源立方体阴影）
+    for (unsigned int i = 0; i < lightSpaceMatrices.size(); ++i)
+    {
+        shader_.setMat4("lightSpaceMatrices[" + std::to_string(i) + "]", lightSpaceMatrices[i]);
+    }
+
+    // 6. 渲染所有可投射阴影的网格
+    for (const auto& mesh : meshes)
+    {
+        if (mesh == nullptr) continue; // 避免空指针
+
+        shader_.setMat4("model", mesh->getModelMatrix());
+        mesh->draw(shader_); // 绘制网格，只关心深度
+    }
+
+    // 7. 恢复 OpenGL 状态
+    glCullFace(GL_BACK); // 恢复背面剔除
+
+    // 8. 解绑阴影 Pass 的 Framebuffer
     deactivateFramebuffer();
+
+    GL_CHECK_ERROR();
 }
 
 void ShadowPass::Resize(int width, int height) {

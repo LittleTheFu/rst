@@ -13,23 +13,14 @@ class LightPass : public RenderPass
 {
 public:
     // 构造函数：注入所有 LightPass 所需的输入数据
-    LightPass(int width, int height,
-              const Texture2D& positionTexture,
-              const Texture2D& normalTexture,
-              const Texture2D& albedoTexture,
-              const Texture2D& roughnessTexture,
-              const Texture2D& metallicTexture,
-              const Texture2D& aoTexture,
-              const std::shared_ptr<PointLight>& light, // shared_ptr 保证生命周期
-              const Camera& camera,
-              const TextureCubeMap& shadowMapTexture, // 假设阴影贴图是 CubeMap
-              const Camera& shadowCamera); // 阴影相机用于获取 lightSpaceMatrix 相关信息
+    LightPass(int width, int height); // 阴影相机用于获取 lightSpaceMatrix 相关信息
 
     ~LightPass() override; // 析构函数，可能需要清理资源
 
-    // 重写基类的 Render 方法，现在不带参数。
-    // 所有依赖都通过构造函数注入并作为成员持有。
-    void Render() override;
+    void Render(GLuint gPositionID, GLuint gNormalID, GLuint gAlbedoID,
+                GLuint gRoughnessID, GLuint gMetallicID, GLuint gAOID,
+                const PointLight& light, const Camera& camera,
+                GLuint shadowMapID, const std::vector<glm::mat4>& lightSpaceMatrices);
 
     // 重写 Resize 方法，处理内部纹理和 Framebuffer 的重新分配
     void Resize(int width, int height) override;

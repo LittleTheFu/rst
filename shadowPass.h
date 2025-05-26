@@ -15,9 +15,9 @@ public:
     ShadowPass(int width, int height, SceneData& sceneData, Camera& lightCamera);
     ~ShadowPass() override; // 析构函数，可能需要清理资源
 
-    // 重写基类的 Render 方法，现在不带参数。
-    // ShadowPass 将使用其内部持有的 sceneData_ 和 lightCamera_ 来渲染。
-    void Render() override;
+    // Render 方法现在明确接收其动态输入：要渲染的网格、光源和光照空间矩阵
+    void Render(const std::vector<const Mesh*>& meshes, const PointLight& light, const std::vector<glm::mat4>& lightSpaceMatrices);
+
 
     // 重写 Resize 方法，处理内部纹理和 Framebuffer 的重新分配
     void Resize(int width, int height) override;

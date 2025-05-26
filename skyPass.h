@@ -13,7 +13,7 @@ class SkyPass : public RenderPass
 {
 public:
     // 构造函数：注入 Camera 引用和天空盒纹理
-    SkyPass(int width, int height, const Camera& camera, std::shared_ptr<TextureCubeMap> skyboxTexture);
+    SkyPass(int width, int height, std::shared_ptr<TextureCubeMap> skyboxTexture);
     ~SkyPass() override = default; // 析构函数（使用默认行为）
 
     // 实现基类的纯虚函数，不带参数

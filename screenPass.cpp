@@ -4,14 +4,8 @@
 // #include "pointLightDataForUBO.h" // 移除，假设不使用
 #include "debug_utils.h" // 确保包含调试工具
 
-ScreenPass::ScreenPass(int width, int height,
-                       GLuint lightTextureID,
-                       GLuint iblTextureID,
-                       GLuint lightDepthTextureID)
+ScreenPass::ScreenPass(int width, int height)
     : RenderPass("ScreenPass", width, height), // 调用基类构造函数
-      lightTextureID_(lightTextureID),
-      iblTextureID_(iblTextureID),
-      lightDepthTextureID_(lightDepthTextureID)
 {
     shader_.load("shader/screen.vert", "shader/screen.frag"); // 假设你的屏幕 Shader 文件名为 screen.vert 和 screen.frag
 
@@ -24,41 +18,42 @@ ScreenPass::ScreenPass(int width, int height,
 // 移除 Render(SceneData&, Camera&) 方法
 
 // 实现基类的纯虚函数 Render()，不带参数
-void ScreenPass::Render()
+void ScreenPass::Render(GLuint directLightTextureID, GLuint iblTextureID, GLuint depthTextureID)
 {
-    // ScreenPass 直接渲染到默认帧缓冲
-    // 不需要调用 activateFramebuffer()，因为它会绑定默认帧缓冲 (0)
-    // 或者，如果你想明确地绑定默认帧缓冲，可以调用 deactivateFramebuffer()
-    // deactivateFramebuffer(); // 确保渲染到默认 FBO (即绑定 0)
-
-    // 设置视口 (在 Resize 中已经做了，但为了确保，可以在这里再次设置)
+    // ScreenPass 通常直接渲染到默认帧缓冲 (屏幕)
+    glBindFramebuffer(GL_FRAMEBUFFER, 0); // 绑定默认帧缓冲
     setViewport(width_, height_);
 
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f); // 渲染到屏幕时的背景色
-    // 清除默认 Framebuffer 的颜色和深度缓冲
-    clearBuffers(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    // 清除屏幕
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    // 使用屏幕 Shader
+    // 禁用深度测试
+    disableState(GL_DEPTH_TEST);
+
+    // 绑定 Screen Shader
     shader_.use();
 
-    // 绑定要显示的纹理 (直接使用成员变量)
+    // 绑定输入纹理
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, lightTextureID_);
-    shader_.setInt("lightTexture", 0);
+    glBindTexture(GL_TEXTURE_2D, directLightTextureID);
+    shader_.setInt("directLightTexture", 0);
 
     glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, iblTextureID_);
+    glBindTexture(GL_TEXTURE_2D, iblTextureID);
     shader_.setInt("iblTexture", 1);
 
     glActiveTexture(GL_TEXTURE2);
-    glBindTexture(GL_TEXTURE_2D, lightDepthTextureID_);
-    shader_.setInt("lightDepthTexture", 2);
+    glBindTexture(GL_TEXTURE_2D, depthTextureID); // 如果需要深度用于调试或其他后处理
+    shader_.setInt("depthTexture", 2);
 
-    // 渲染屏幕四边形
-    renderQuad();
+    // 设置其他 Uniform 变量 (例如调试选项)
+    // shader_.setFloat("somePostProcessParam", 0.5f);
 
-    // 不需要解绑默认 Framebuffer，因为它是默认目标
-    // deactivateFramebuffer(); // 再次调用也无害，但无必要
+    // 渲染全屏四边形
+    renderQuad(); // 假设你有一个 renderQuad() 辅助函数来绘制全屏四边形
+
+    GL_CHECK_ERROR();
 }
 
 void ScreenPass::Resize(int width, int height)
