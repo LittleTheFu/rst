@@ -1,4 +1,4 @@
-#include "RenderPass.h"
+#include "renderPass.h"
 #include <iostream>
 #include <stdexcept> // For std::runtime_error
 
