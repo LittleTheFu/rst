@@ -6,7 +6,7 @@ IBLPass::IBLPass(int width, int height)
 {
     shader_.load("ibl.vert", "ibl.frag"); // IBL 着色器
 
-    std::vector<GLenum> attachments = {GL_COLOR_ATTACHMENT0};
+    std::vector<GLenum> attachments = {GL_RGBA16F};
     createFramebuffer(attachments, DepthStencilAttachmentType::None); // 无深度和模板附件
 
     initScreenQuad();

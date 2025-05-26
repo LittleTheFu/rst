@@ -8,7 +8,7 @@ LightPass::LightPass(int width, int height)
 {
   shader_.load("shader/light.vert", "shader/light.frag"); // 假设你的屏幕 Shader 文件名为 screen.vert 和 screen.frag
 
-  std::vector<GLenum> attachments = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2};
+  std::vector<GLenum> attachments = {GL_RGBA8, GL_R32F, GL_R32F};
   createFramebuffer(attachments, DepthStencilAttachmentType::None);
 
   lightBindingPoint_ = 0;

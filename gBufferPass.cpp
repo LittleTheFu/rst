@@ -7,12 +7,12 @@ GBufferPass::GBufferPass(int width, int height)
     shader_.load("shader/gPass.vert", "shader/gPass.frag");
 
     std::vector<GLenum> attachments = {
-        GL_COLOR_ATTACHMENT0,
-        GL_COLOR_ATTACHMENT1,
-        GL_COLOR_ATTACHMENT2,
-        GL_COLOR_ATTACHMENT3,
-        GL_COLOR_ATTACHMENT4,
-        GL_COLOR_ATTACHMENT5,
+        GL_RGBA32F, // 位置,
+        GL_RGBA16F, // 法线,
+        GL_RGBA8,   // 反照率 (RGB), 镜面反射强度 (A)
+        GL_RGBA8,   // 粗糙度,
+        GL_RGBA8,   // 金属度,
+        GL_RGBA8,   // 环境光遮蔽,
     };
 
     createFramebuffer(attachments, DepthStencilAttachmentType::Texture);

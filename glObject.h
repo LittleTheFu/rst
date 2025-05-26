@@ -32,7 +32,7 @@ protected:
 
     // 纯虚函数：由派生类实现具体的 OpenGL 资源删除逻辑。
     // 声明保持不变。
-    virtual void deleteGlResource() = 0;
+    virtual void deleteGlResource();
 };
 
 #endif // GL_OBJECT_H

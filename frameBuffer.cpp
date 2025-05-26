@@ -1,8 +1,9 @@
-#include "framebuffer.h"
+#include "Framebuffer.h"
 #include <glad/glad.h>
 #include <stdexcept>
 #include <algorithm> // for std::max
 #include <iostream>  // For debugging, if needed
+#include "debug_utils.h"
 
 // --- Constructor ---
 Framebuffer::Framebuffer(int width, int height,
@@ -11,7 +12,7 @@ Framebuffer::Framebuffer(int width, int height,
     : width_(width),
       height_(height),
       colorAttachmentFormats_(colorFormats), // 初始化颜色格式列表成员
-      dsType_(dsType)                        // 初始化深度/模板类型成员
+      dsType_(dsType)                         // 初始化深度/模板类型成员
 {
     // 参数基本验证
     if (width_ <= 0 || height_ <= 0)
@@ -19,164 +20,48 @@ Framebuffer::Framebuffer(int width, int height,
         THROW_GL_EXCEPTION("Framebuffer dimensions must be positive.");
     }
 
-    
+    // 1. 使用 DSA 方式创建 Framebuffer 对象
+    glCreateFramebuffers(1, &id_); // 直接创建 FBO，ID 存储在基类的 id_ 中
+    if (id_ == 0)
+    {
+        THROW_GL_EXCEPTION("Failed to create Framebuffer ID (DSA).");
+    }
+
+    // 2. 检查最大颜色附件数量 (这部分与DSA无关，保持不变)
     GLint maxColorAttachments;
     glGetIntegerv(GL_MAX_COLOR_ATTACHMENTS, &maxColorAttachments);
     if (static_cast<GLint>(colorAttachmentFormats_.size()) > maxColorAttachments)
     {
-        THROW_GL_EXCEPTION("Number of color attachments exceeds GL_MAX_COLOR_ATTACHMENTS (" + std::to_string(maxColorAttachments) + ").");
+    THROW_GL_EXCEPTION("Number of color attachments exceeds GL_MAX_COLOR_ATTACHMENTS (" + std::to_string(maxColorAttachments) + ").");
     }
 
-    glGenFramebuffers(1, &id_);
-    if (id_ == 0)
-    {
-        THROW_GL_EXCEPTION("Failed to generate Framebuffer ID.");
-    }
-
-    // 将 FBO 绑定到 GL_FRAMEBUFFER 目标，所有后续的帧缓冲命令都会影响到这个 FBO
-    // (理想情况下，这里会使用 FBOBindGuard 来保证异常安全解绑)
-    glBindFramebuffer(GL_FRAMEBUFFER, id_);
-
-    // 创建颜色附件
+    // --- 创建附件（全部使用 DSA 方式）---
     createColorAttachments();
-
-    // 创建深度/模板附件
+    GL_CHECK_ERROR();
+    
     createDepthStencilAttachment();
+    GL_CHECK_ERROR();
 
-    // 检查帧缓冲是否完整
-    GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+    // 检查帧缓冲是否完整 (DSA: glCheckNamedFramebufferStatus)
+    GLenum status = glCheckNamedFramebufferStatus(id_, GL_FRAMEBUFFER);
     if (status != GL_FRAMEBUFFER_COMPLETE)
     {
         THROW_GL_ERROR_EXCEPTION("Framebuffer is not complete!", status);
     }
 
-    // 解绑帧缓冲，绑定回默认帧缓冲
-    this->unbind();
+    // 构造函数结束时，FBO 处于未绑定状态，这是 DSA 的自然结果。
 }
 
-// --- Destructor ---
-Framebuffer::~Framebuffer()
-{
-    // 资源释放由 release() 负责，在 GLResource 析构函数中调用
-}
-
-// --- Bind ---
-void Framebuffer::bind() const
+// --- Bind (用于将FBO设置为渲染目标) ---
+void Framebuffer::activate() const
 {
     glBindFramebuffer(GL_FRAMEBUFFER, id_);
 }
 
-// --- Unbind ---
-void Framebuffer::unbind() const
+// --- Unbind (用于将渲染目标切换回默认FBO) ---
+void Framebuffer::deactivate() const
 {
     glBindFramebuffer(GL_FRAMEBUFFER, 0); // 绑定到默认帧缓冲
-}
-
-// --- Create Color Attachments ---
-void Framebuffer::createColorAttachments()
-{
-    // // 释放旧的颜色附件 (如果存在，通常在 resize 或构造函数内部重复调用时)
-    for (GLuint textureID : colorAttachments_)
-    {
-        if (glIsTexture(textureID))
-        { // 检查ID是否仍是有效的纹理，防止重复删除或删除0
-            glDeleteTextures(1, &textureID);
-        }
-    }
-    colorAttachments_.clear(); // 清空 vector，准备重新填充
-
-    colorAttachments_.resize(colorAttachmentFormats_.size()); // 调整 vector 大小以容纳新的附件ID
-
-    // 如果没有颜色附件，禁用颜色写入和读取
-    if (colorAttachmentFormats_.empty())
-    {
-        glDrawBuffer(GL_NONE);
-        glReadBuffer(GL_NONE);
-        return;
-    }
-
-    std::vector<GLenum> drawBuffers(colorAttachmentFormats_.size()); // 用于 glDrawBuffers 调用
-
-    for (size_t i = 0; i < colorAttachmentFormats_.size(); ++i)
-    {
-        GLuint textureID = 0;
-        glGenTextures(1, &textureID);
-        if (textureID == 0)
-        {
-            THROW_GL_EXCEPTION("Failed to generate texture ID for color attachment " + std::to_string(i) + ".");
-        }
-
-        glBindTexture(GL_TEXTURE_2D, textureID);
-        // 使用来自 formats 列表的对应格式
-        // 对于大多数内部格式，GL_RGBA 和 GL_UNSIGNED_BYTE 的数据格式和类型是通用的，
-        // 但对于某些特定格式（如浮点格式），可能需要调整。这里为了简化假设通用。
-        glTexImage2D(GL_TEXTURE_2D, 0, colorAttachmentFormats_[i], width_, height_, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        glBindTexture(GL_TEXTURE_2D, 0); // 解绑纹理
-
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, textureID, 0);
-        colorAttachments_[i] = textureID;
-        drawBuffers[i] = GL_COLOR_ATTACHMENT0 + i;
-    }
-    glDrawBuffers(static_cast<GLsizei>(colorAttachmentFormats_.size()), drawBuffers.data()); // 设置多重渲染目标
-}
-
-// --- Create Depth/Stencil Attachment ---
-void Framebuffer::createDepthStencilAttachment()
-{
-    // 1. 先解绑旧的深度/模板附件 (防御性清理，确保不会残留旧附件)
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, 0, 0);
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, 0);
-
-    // 2. 删除旧的附件ID (如果存在)
-    if (depthStencilAttachment_ != 0)
-    {
-        // 根据存储的类型删除，避免删除错误类型的ID
-        if (dsType_ == DepthStencilAttachmentType::Texture && glIsTexture(depthStencilAttachment_))
-        {
-            glDeleteTextures(1, &depthStencilAttachment_);
-        }
-        else if (dsType_ == DepthStencilAttachmentType::Renderbuffer && glIsRenderbuffer(depthStencilAttachment_))
-        {
-            glDeleteRenderbuffers(1, &depthStencilAttachment_);
-        }
-        depthStencilAttachment_ = 0; // 重置为0
-    }
-
-    // 3. 根据传入的 dsType 类型创建新的附件
-    if (dsType_ == DepthStencilAttachmentType::Texture)
-    {
-        glGenTextures(1, &depthStencilAttachment_);
-        if (depthStencilAttachment_ == 0)
-        {
-            THROW_GL_EXCEPTION("Failed to generate texture ID for depth/stencil attachment.");
-        }
-        glBindTexture(GL_TEXTURE_2D, depthStencilAttachment_);
-        // 常见的深度模板格式
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH24_STENCIL8, width_, height_, 0, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, nullptr);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        glBindTexture(GL_TEXTURE_2D, 0); // 解绑纹理
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, depthStencilAttachment_, 0);
-    }
-    else if (dsType_ == DepthStencilAttachmentType::Renderbuffer)
-    {
-        glGenRenderbuffers(1, &depthStencilAttachment_);
-        if (depthStencilAttachment_ == 0)
-        {
-            THROW_GL_EXCEPTION("Failed to generate renderbuffer ID for depth/stencil attachment.");
-        }
-        glBindRenderbuffer(GL_RENDERBUFFER, depthStencilAttachment_);
-        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width_, height_);
-        glBindRenderbuffer(GL_RENDERBUFFER, 0); // 解绑渲染缓冲区
-        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, depthStencilAttachment_);
-    }
-    // 如果 dsType 是 DepthStencilAttachmentType::None，则 depthStencilAttachment_ 保持为 0，不创建任何附件。
 }
 
 // --- Resize ---
@@ -198,69 +83,129 @@ void Framebuffer::resize(int width, int height)
     width_ = width;
     height_ = height;
 
-    // 4. 绑定 FBO，以便在其上进行操作
-    this->bind(); // 使用类的 bind() 接口
+    // 4. 释放旧的颜色和深度/模板附件 (DSA: 附件删除不依赖 FBO 绑定状态)
+    releaseAttachments();
 
-    // 5. 重新创建颜色附件
-    // createColorAttachments 内部会处理旧资源的释放和新资源的创建
-    // 我们保存了 colorAttachmentFormats_，可以直接传入
+    // 5. 重新创建颜色附件 (DSA)
     createColorAttachments();
 
-    // 6. 重新创建深度/模板附件
-    // createDepthStencilAttachment 内部会处理旧资源的释放和新资源的创建
-    // 我们保存了 dsType_，可以直接传入
+    // 6. 重新创建深度/模板附件 (DSA)
     createDepthStencilAttachment();
 
-    // 7. 重新检查帧缓冲的完整性
-    GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+    // 7. 重新检查帧缓冲的完整性 (DSA)
+    GLenum status = glCheckNamedFramebufferStatus(id_, GL_FRAMEBUFFER);
     if (status != GL_FRAMEBUFFER_COMPLETE)
     {
         THROW_GL_ERROR_EXCEPTION("Framebuffer is not complete after resize!", status);
     }
-
-    // 8. 解绑 FBO
-    this->unbind(); // 使用类的 unbind() 接口
 }
 
-// --- Release ---
-void Framebuffer::release()
+// --- Create Color Attachments (完全 DSA 化) ---
+void Framebuffer::createColorAttachments()
 {
-    // 确保 FBO 及其附件不会在被删除时处于绑定状态
-    GLint currentFBO;
-    glGetIntegerv(GL_FRAMEBUFFER_BINDING, &currentFBO);
-    if (currentFBO == (GLint)id_)
-    { // 将 id_ 转换为 GLint 进行比较
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    colorAttachments_.resize(colorAttachmentFormats_.size());
+
+    // 如果没有颜色附件，禁用颜色写入和读取（这些是全局状态，非 DSA）
+    if (colorAttachmentFormats_.empty())
+    {
+        glDrawBuffer(GL_NONE);
+        glReadBuffer(GL_NONE);
+        return;
     }
 
-    // 释放颜色附件纹理
-    for (GLuint textureID : colorAttachments_)
+    std::vector<GLenum> drawBuffers(colorAttachmentFormats_.size());
+
+    for (size_t i = 0; i < colorAttachmentFormats_.size(); ++i)
     {
-        if (glIsTexture(textureID))
+        GLuint textureID = 0;
+        // 1. 使用 DSA 方式创建纹理
+        glCreateTextures(GL_TEXTURE_2D, 1, &textureID);
+        if (textureID == 0)
         {
+            THROW_GL_EXCEPTION("Failed to create texture ID for color attachment " + std::to_string(i) + " (DSA).");
+        }
+
+        // 2. 使用 DSA 方式为纹理分配存储空间和设置参数
+        glTextureStorage2D(textureID, 1, colorAttachmentFormats_[i], width_, height_);
+        glTextureParameteri(textureID, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTextureParameteri(textureID, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTextureParameteri(textureID, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTextureParameteri(textureID, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+        // 3. 使用 DSA 方式将纹理附加到 FBO
+        glNamedFramebufferTexture(id_, static_cast<GLenum>(GL_COLOR_ATTACHMENT0 + i), textureID, 0);
+        
+        colorAttachments_[i] = textureID;
+        // 修正：显式转换加法结果
+        drawBuffers[i] = static_cast<GLenum>(GL_COLOR_ATTACHMENT0 + i);
+    }
+    // 4. 使用 DSA 方式设置 FBO 的多重渲染目标
+    glNamedFramebufferDrawBuffers(id_, static_cast<GLsizei>(colorAttachmentFormats_.size()), drawBuffers.data());
+}
+
+// --- Create Depth/Stencil Attachment (完全 DSA 化) ---
+void Framebuffer::createDepthStencilAttachment()
+{
+    if (dsType_ == DepthStencilAttachmentType::Texture)
+    {
+        glCreateTextures(GL_TEXTURE_2D, 1, &depthStencilAttachment_);
+        if (depthStencilAttachment_ == 0)
+        {
+            THROW_GL_EXCEPTION("Failed to create texture ID for depth/stencil attachment (DSA).");
+        }
+        glTextureStorage2D(depthStencilAttachment_, 1, GL_DEPTH24_STENCIL8, width_, height_);
+        glTextureParameteri(depthStencilAttachment_, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTextureParameteri(depthStencilAttachment_, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTextureParameteri(depthStencilAttachment_, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTextureParameteri(depthStencilAttachment_, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+        glNamedFramebufferTexture(id_, GL_DEPTH_STENCIL_ATTACHMENT, depthStencilAttachment_, 0);
+    }
+    else if (dsType_ == DepthStencilAttachmentType::Renderbuffer)
+    {
+        glCreateRenderbuffers(1, &depthStencilAttachment_);
+        if (depthStencilAttachment_ == 0)
+        {
+            THROW_GL_EXCEPTION("Failed to create renderbuffer ID for depth/stencil attachment (DSA).");
+        }
+        glNamedRenderbufferStorage(depthStencilAttachment_, GL_DEPTH24_STENCIL8, width_, height_);
+
+        glNamedFramebufferRenderbuffer(id_, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, depthStencilAttachment_);
+    }
+    // 如果 dsType 是 DepthStencilAttachmentType::None，则 depthStencilAttachment_ 保持为 0，不创建任何附件。
+}
+
+// --- Auxiliary function: releaseAttachments ---
+void Framebuffer::releaseAttachments() {
+    // 释放颜色附件纹理
+    for (GLuint textureID : colorAttachments_) {
+        if (glIsTexture(textureID)) {
             glDeleteTextures(1, &textureID);
         }
     }
-    colorAttachments_.clear(); // 清空 vector
+    colorAttachments_.clear();
 
     // 释放深度/模板附件
-    if (depthStencilAttachment_ != 0)
-    {
-        if (dsType_ == DepthStencilAttachmentType::Texture && glIsTexture(depthStencilAttachment_))
-        {
+    if (depthStencilAttachment_ != 0) {
+        if (dsType_ == DepthStencilAttachmentType::Texture) {
             glDeleteTextures(1, &depthStencilAttachment_);
-        }
-        else if (dsType_ == DepthStencilAttachmentType::Renderbuffer && glIsRenderbuffer(depthStencilAttachment_))
-        {
+        } else if (dsType_ == DepthStencilAttachmentType::Renderbuffer) {
             glDeleteRenderbuffers(1, &depthStencilAttachment_);
         }
     }
-    depthStencilAttachment_ = 0; // 重置为0
+    depthStencilAttachment_ = 0;
+}
+
+// --- deleteGlResource (实现 GLObject 的纯虚函数) ---
+void Framebuffer::deleteGlResource()
+{
+    // 释放所有附件（纹理和渲染缓冲）
+    releaseAttachments();
 
     // 释放 FBO 本身
     if (id_ != 0)
     {
         glDeleteFramebuffers(1, &id_);
-        id_ = 0;
+        id_ = 0; // 删除后将 ID 归零，防止二次删除
     }
 }

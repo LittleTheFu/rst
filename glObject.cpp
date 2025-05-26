@@ -21,3 +21,9 @@ GLObject::~GLObject() {
 GLuint GLObject::id() const {
     return id_;
 }
+
+void GLObject::deleteGlResource() {
+    // 这个函数体通常是空的，或者可以包含一个调试断言/日志，
+    // 以防万一在不应该被调用的情况下被调用（这通常是设计错误）。
+    // 例如：assert(false && "Pure virtual deleteGlResource called from base class!");
+}

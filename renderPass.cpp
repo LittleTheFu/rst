@@ -70,7 +70,7 @@ void RenderPass::bindFramebuffer(bool read, bool draw)
 {
     if (frameBuffer_)
     {
-        frameBuffer_->bind();
+        frameBuffer_->activate();
     }
 }
 
@@ -78,7 +78,7 @@ void RenderPass::unbindFramebuffer()
 {
     if (frameBuffer_)
     {
-        frameBuffer_->unbind();
+        frameBuffer_->deactivate();
     }
 }
 
