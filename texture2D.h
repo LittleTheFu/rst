@@ -1,4 +1,6 @@
-// Texture2D.h
+#ifndef _RENDER_TEXTURE_2D_H_
+#define _RENDER_TEXTURE_2D_H_
+
 #include "Texture.h"
 
 class Texture2D : public Texture {
@@ -20,3 +22,5 @@ public:
     int getWidth() const { return width_; }
     int getHeight() const { return height_; }
 };
+
+#endif

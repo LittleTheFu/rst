@@ -1,10 +1,10 @@
-// Texture.h (抽象基类)
+#ifndef _RENDER_TEXTURE_H_
+#define _RENDER_TEXTURE_H_
 
 #include "GLObject.h" // 假设你的 GLObject 基类在这里
 
 class Texture : public GLObject {
 protected:
-    GLuint id_ = 0;
     GLenum target_; // GL_TEXTURE_2D, GL_TEXTURE_CUBE_MAP, GL_TEXTURE_3D
 
     // 纹理的通用属性
@@ -26,10 +26,10 @@ public:
     // 激活纹理单元以供着色器采样 (这个仍然需要，因为着色器通过纹理单元访问)
     void activate(GLenum textureUnit) const;
 
-    // 获取纹理 ID
-    GLuint id() const { return id_; }
 
 protected:
     // GLObject 的资源释放
     void deleteGlResource() override;
 };
+
+#endif // TEXTURE_H

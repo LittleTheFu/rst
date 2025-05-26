@@ -1,4 +1,6 @@
-// TextureCubeMap.h
+#ifndef _RENDER_TEXTURE_CUBE_MAP_H_
+#define _RENDER_TEXTURE_CUBE_MAP_H_
+
 #include "Texture.h"
 
 class TextureCubeMap : public Texture {
@@ -18,3 +20,4 @@ public:
     int getResolution() const { return width_; } // resolution_ 在基类中可以用 width_ 表示
 };
 
+#endif // _RENDER_TEXTURE_CUBE_MAP_H_
