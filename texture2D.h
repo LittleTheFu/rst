@@ -3,6 +3,8 @@
 
 #include "Texture.h"
 #include <string> // For std::string
+#include <memory> // For std::unique_ptr
+#include <gli/gli.hpp> // For gli::load_dds function
 
 class Texture2D : public Texture {
 private:

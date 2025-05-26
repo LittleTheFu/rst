@@ -95,7 +95,7 @@ std::unique_ptr<Texture2D> Texture2D::loadDDS(const std::string& filePath) {
         if (gli::is_compressed(gli_texture.format())) {
             // Compressed data upload
             GLsizei size = static_cast<GLsizei>(gli_texture.size(level));
-            glCompressedTextureSubImage2D(texture->id_, level, 0, 0, level_width, level_height, internalFormat, size, gli_texture.data(0, 0, level));
+            glCompressedTextureSubImage2D(texture->id(), level, 0, 0, level_width, level_height, internalFormat, size, gli_texture.data(0, 0, level));
             GL_CHECK_ERROR();
         } else {
             // Uncompressed data upload

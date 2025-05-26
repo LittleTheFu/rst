@@ -3,41 +3,40 @@
 
 #include "RenderPass.h"
 #include "Shader.h"
-#include "camera.h"
-#include "shader.h"
+#include "camera.h" // 确保包含 camera 头文件
 
-// 包含新的 TextureCubeMap 类
-#include "TextureCubeMap.h" 
-// 如果你为2D浮点纹理（如BRDF LUT）创建了新的Texture2D类，也需要包含
+// 包含新的 Texture2D 和 TextureCubeMap 类
+#include "Texture2D.h"
+#include "TextureCubeMap.h"
 
 class IBLPass : public RenderPass
 {
 public:
-    IBLPass(int width, int height);
+    // 通过构造函数注入 G-Buffer 纹理 ID 和 Camera
+    IBLPass(int width, int height,
+            GLuint positionTextureID,
+            GLuint normalTextureID,
+            GLuint albedoTextureID,
+            GLuint roughnessTextureID,
+            GLuint metallicTextureID,
+            GLuint aoTextureID,
+            const Camera& camera); // 接收 Camera 的引用
+
     ~IBLPass() override = default;
 
-    // void Initialize(int width, int height) override;
-    void Render(SceneData &sceneData, Camera &camera) override;
-    void Render(const GLuint &positionTextureID,
-                const GLuint &normalTextureID,
-                const GLuint &albedoTextureID,
-                const GLuint &roughnessTextureID,
-                const GLuint &metallicTextureID,
-                const GLuint &aoTextureID,
-                const Camera& camera);
+    // 实现基类的纯虚函数，不带参数
+    void Render() override;
 
+    // Resize 方法保持不变
     void Resize(int width, int height) override;
 
+    // 获取输出纹理 ID
     GLuint getOutputTexture() const { return outputTexture_; }
 
     // 修改 set 方法，接收 TextureCubeMap 的共享指针，以便管理生命周期
     void setIrradianceMap(std::shared_ptr<TextureCubeMap> texture) { irradianceMap_ = texture; }
     void setPrefilterMap(std::shared_ptr<TextureCubeMap> texture) { prefilterMap_ = texture; }
-    
-    // BRDF LUT 仍然是 2D 纹理，如果它不是由 TextureCubeMap 管理，保持 GLuint
-    // 但如果你的 brdfLUT 也是通过 gli 加载的 DDS 2D 纹理，你可能需要一个 Texture2D 类
-    // 假设你有一个通用的 2D Texture 类，或者直接传递 GLuint
-    void setBrdfLUT(GLuint textureID) { brdfLUT_ = textureID; } 
+    void setBrdfLUT(std::shared_ptr<Texture2D> texture) { brdfLUT_ = texture; }
 
 private:
     Shader shader_;
@@ -48,16 +47,25 @@ private:
     void initScreenQuad();
     void renderQuad();
 
-    GLuint outputTexture_;
+    GLuint outputTexture_; // IBLPass 自身的输出纹理 ID (由其 FBO 管理)
+
+    // 通过构造函数注入并作为成员持有的 G-Buffer 纹理 ID
+    GLuint gPositionTextureID_;
+    GLuint gNormalTextureID_;
+    GLuint gAlbedoTextureID_;
+    GLuint gRoughnessTextureID_;
+    GLuint gMetallicTextureID_;
+    GLuint gAOTextureID_;
+
+    // 通过构造函数注入并作为成员持有的 Camera
+    const Camera& camera_; // 存储 Camera 的引用
 
     // IBL 所需的预计算纹理对象
-    // 现在使用 std::shared_ptr 来持有 TextureCubeMap 实例
     std::shared_ptr<TextureCubeMap> irradianceMap_; // 辐照度图 (HDR立方体贴图)
     std::shared_ptr<TextureCubeMap> prefilterMap_;  // 预过滤环境贴图 (HDR立方体贴图，带mipmaps)
-    
-    GLuint brdfLUT_ = 0;       // BRDF积分贴图 (2D纹理，假设仍为 GLuint)
+    std::shared_ptr<Texture2D> brdfLUT_;           // BRDF积分贴图 (2D纹理)
 
-    const float MAX_REFLECTION_LOD = 4.0f; // 根据你的prefilterMap实际mip级别设置
+    // MAX_REFLECTION_LOD 将从 prefilterMap_ 的实际 mip 级别中获取
 };
 
 #endif // IBL_PASS_H

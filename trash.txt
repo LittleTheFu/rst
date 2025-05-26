@@ -39,3 +39,8 @@ gBufferFBO->checkCompleteness();
 // glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 // ... 渲染几何体到 G-Buffer ...
 // gBufferFBO->deactivate();
+
+
+好的，我们来改造 TextureCubeMap，使其能够加载 DDS 格式的立方体贴图。
+
+你提供的 TextureCubeMap 代码已经使用了 DSA (Direct State Access) 方法，这很好。但有一个细节需要调整：uploadFaceData 方法中，如果你想使用 DSA 方式上传单个立方体贴图面的数据，glTextureSubImage2D 无法直接指定立方体贴图的某个面而不需要绑定。对于 DSA，更合适的方法是使用 glTextureSubImage3D 并将立方体贴图的每个面视为一个 3D 纹理的层（z-offset）。
