@@ -26,7 +26,7 @@ void Scene::init()
     lightPass_ = std::make_unique<LightPass>(sceneData_.screenWidth, sceneData_.screenHeight);
 
     shadowPass_ = std::make_unique<ShadowPass>(sceneData_.shadowMapWidth, sceneData_.shadowMapHeight);
-    skyPass_ = std::make_unique<SkyPass>(sceneData_.screenWidth, sceneData_.screenHeight);
+    // skyPass_ = std::make_unique<SkyPass>(sceneData_.screenWidth, sceneData_.screenHeight);
 
     iblPass_ = std::make_unique<IBLPass>(sceneData_.screenWidth, sceneData_.screenHeight);
     screenPass_ = std::make_unique<ScreenPass>(sceneData_.screenWidth, sceneData_.screenHeight);
