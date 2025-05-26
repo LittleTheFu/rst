@@ -22,6 +22,7 @@ find_package(OpenGL REQUIRED)
 add_executable(OpenGL_GLAD_SDL2 
     main.cpp 
     third/glad/src/glad.c
+    glObject.cpp
     window.cpp
     vertex.cpp
     frameBuffer.cpp
