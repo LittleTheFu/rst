@@ -123,3 +123,19 @@ void Framebuffer::checkCompleteness() const {
     // 这需要获取附件的尺寸信息，可能需要更复杂的逻辑或传入纹理对象而非仅仅 ID
     GL_CHECK_ERROR();
 }
+
+// Framebuffer.cpp (添加新方法的实现)
+
+
+void Framebuffer::attachDepthCubeMapFace(GLuint textureID, GLenum cubeMapFaceTarget, int mipLevel) {
+    if (id_ == 0) {
+        throw std::runtime_error("Error: Framebuffer ID is 0. Framebuffer not properly created.");
+    }
+    // 确保 FBO 已绑定
+    activate(); // 或者在调用 attachDepthCubeMapFace 之前，确保 FBO 已被绑定
+
+    // 使用 glFramebufferTexture2D 附加立方体贴图的特定面到深度附件
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, cubeMapFaceTarget, textureID, mipLevel);
+    // 这里不检查完整性，留给客户端在所有附件设置完毕后进行一次性检查
+    // 也不解绑，因为客户端可能继续添加其他附件或进行渲染
+}

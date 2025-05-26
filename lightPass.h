@@ -1,34 +1,45 @@
 #ifndef LIGHT_PASS_H
 #define LIGHT_PASS_H
 
-#include "RenderPass.h"
-#include "Shader.h"
-#include "pointLight.h"
-#include "uniformBuffer.h"
-#include "camera.h"
+#include "RenderPass.h"    // 基类
+#include "Shader.h"        // 着色器
+#include "pointLight.h"    // 点光源
+#include "uniformBuffer.h" // UBO
+#include "camera.h"        // 相机
+#include "Texture2D.h"     // G-Buffer 纹理输入和 LightPass 输出
+#include "TextureCubeMap.h" // 阴影贴图可能需要 TextureCubeMap
 
 class LightPass : public RenderPass
 {
 public:
-    LightPass(int width, int height);
-    ~LightPass() override = default;
+    // 构造函数：注入所有 LightPass 所需的输入数据
+    LightPass(int width, int height,
+              const Texture2D& positionTexture,
+              const Texture2D& normalTexture,
+              const Texture2D& albedoTexture,
+              const Texture2D& roughnessTexture,
+              const Texture2D& metallicTexture,
+              const Texture2D& aoTexture,
+              const std::shared_ptr<PointLight>& light, // shared_ptr 保证生命周期
+              const Camera& camera,
+              const TextureCubeMap& shadowMapTexture, // 假设阴影贴图是 CubeMap
+              const Camera& shadowCamera); // 阴影相机用于获取 lightSpaceMatrix 相关信息
 
-    // void Initialize(int width, int height) override;
-    void Render(SceneData &sceneData, Camera &camera) override;
-    void Render(const GLuint &textureID); // 用于直接渲染纹理的便捷方法
-    void Render(const GLuint &positionTextureID,
-                const GLuint &normalTextureID,
-                const GLuint &albedoTextureID,
-                const GLuint &roughnessTextureID,
-                const GLuint &metallicTextureID,
-                const GLuint &aoTextureID,
-                const std::shared_ptr<PointLight> &light,
-                const Camera& camera,
-                const GLuint &shadowMapTexture,
-                const Camera& shadowCamera);
+    ~LightPass() override; // 析构函数，可能需要清理资源
+
+    // 重写基类的 Render 方法，现在不带参数。
+    // 所有依赖都通过构造函数注入并作为成员持有。
+    void Render() override;
+
+    // 重写 Resize 方法，处理内部纹理和 Framebuffer 的重新分配
     void Resize(int width, int height) override;
-    
-    GLuint getOutputTexture() const { return outputTexture_; }
+
+    // 提供类型安全的输出纹理 Getter
+    const Texture2D& getOutputTexture() const { return *outputTexture_; }
+
+    // (可选) 如果你仍然需要调试纹理的 getter，可以提供
+    // const Texture2D& getDebugCurrentDepthTexture() const { return *debugCurrentDepthTexture_; }
+    // const Texture2D& getDebugClosestDepthTexture() const { return *debugClosestDepthTexture_; }
 
 private:
     Shader shader_;
@@ -36,17 +47,30 @@ private:
     GLuint quadVAO_ = 0;
     GLuint quadVBO_ = 0;
 
-    void initScreenQuad();
-    void renderQuad();
+    void initScreenQuad(); // 初始化屏幕四边形
+    void renderQuad();     // 渲染屏幕四边形
 
     UniformBuffer objectLightUBO_;
     GLuint lightBindingPoint_;
 
-    GLuint outputTexture_;
+    // LightPass 的输出纹理
+    std::unique_ptr<Texture2D> outputTexture_;
 
-    GLuint debugCurrentDepthTexture_;
-    GLuint debugClosestDepthTexture_;
+    // 调试纹理（现在封装为 Texture2D 对象）
+    std::unique_ptr<Texture2D> debugCurrentDepthTexture_;
+    std::unique_ptr<Texture2D> debugClosestDepthTexture_;
 
+    // 成员引用或智能指针，用于持有输入数据
+    const Texture2D& positionTexture_;
+    const Texture2D& normalTexture_;
+    const Texture2D& albedoTexture_;
+    const Texture2D& roughnessTexture_;
+    const Texture2D& metallicTexture_;
+    const Texture2D& aoTexture_;
+    const std::shared_ptr<PointLight>& light_; // 使用 shared_ptr 引用
+    const Camera& camera_;
+    const TextureCubeMap& shadowMapTexture_; // 假设阴影贴图是 CubeMap
+    const Camera& shadowCamera_;
 };
 
-#endif
+#endif // LIGHT_PASS_H
