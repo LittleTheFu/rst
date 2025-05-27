@@ -34,10 +34,10 @@ Texture2D::Texture2D(int width, int height, GLenum internalFormat, int mipLevels
 
 void Texture2D::allocateStorage(int mipLevels)
 {
-    if(id_ == 17)
-    {
-        std::cerr << "ERROR: Texture ID " << id_ << " is NOT a valid OpenGL texture object before allocateStorage!" << std::endl;
-    }
+    // if(id_ == 17)
+    // {
+    //     std::cerr << "ERROR: Texture ID " << id_ << " is NOT a valid OpenGL texture object before allocateStorage!" << std::endl;
+    // }
 
     if (id_ == 0)
     {
@@ -51,22 +51,22 @@ void Texture2D::allocateStorage(int mipLevels)
         THROW_GL_EXCEPTION("Invalid OpenGL Texture ID before allocating storage.");
     }
 
-    // --- 在这里添加以下打印语句 ---
-    std::cout << "DEBUG: Calling glTextureStorage2D with:" << std::endl;
-    std::cout << "  Texture ID (id_) = " << id_ << std::endl;
-    std::cout << "  Mip Levels (mipLevels) = " << mipLevels << std::endl;
-    // 使用 std::hex 打印 GLenum，因为它通常是十六进制值
-    std::cout << "  Internal Format (internalFormat_) = 0x" << std::hex << internalFormat_ << std::dec << std::endl;
-    // 打印一些常见格式的十六进制值作为参考，以便你能对照
-    std::cout << "    (e.g., GL_RGBA8 is 0x" << std::hex << GL_RGBA8 << std::dec << ")" << std::endl;
-    std::cout << "  Width (width_) = " << width_ << std::endl;
-    std::cout << "  Height (height_) = " << height_ << std::endl;
-    // --- 打印结束 ---
+    // // --- 在这里添加以下打印语句 ---
+    // std::cout << "DEBUG: Calling glTextureStorage2D with:" << std::endl;
+    // std::cout << "  Texture ID (id_) = " << id_ << std::endl;
+    // std::cout << "  Mip Levels (mipLevels) = " << mipLevels << std::endl;
+    // // 使用 std::hex 打印 GLenum，因为它通常是十六进制值
+    // std::cout << "  Internal Format (internalFormat_) = 0x" << std::hex << internalFormat_ << std::dec << std::endl;
+    // // 打印一些常见格式的十六进制值作为参考，以便你能对照
+    // std::cout << "    (e.g., GL_RGBA8 is 0x" << std::hex << GL_RGBA8 << std::dec << ")" << std::endl;
+    // std::cout << "  Width (width_) = " << width_ << std::endl;
+    // std::cout << "  Height (height_) = " << height_ << std::endl;
+    // // --- 打印结束 ---
 
-     // --- 在这里添加以下打印语句 ---
-    std::cout << "  纹理目标 (target_) = 0x" << std::hex << target_ << std::dec << std::endl;
-    std::cout << "    (例如，GL_TEXTURE_2D 的值是 0x" << std::hex << GL_TEXTURE_2D << std::dec << ")" << std::endl;
-    // --- 打印结束 ---
+    //  // --- 在这里添加以下打印语句 ---
+    // std::cout << "  纹理目标 (target_) = 0x" << std::hex << target_ << std::dec << std::endl;
+    // std::cout << "    (例如，GL_TEXTURE_2D 的值是 0x" << std::hex << GL_TEXTURE_2D << std::dec << ")" << std::endl;
+    // // --- 打印结束 ---
 
     glTextureStorage2D(id_, mipLevels, internalFormat_, width_, height_); // DSA: 直接操作纹理ID
     GL_CHECK_ERROR();
