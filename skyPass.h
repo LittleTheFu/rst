@@ -17,7 +17,7 @@ public:
     ~SkyPass() override = default; // 析构函数（使用默认行为）
 
     // 实现基类的纯虚函数，不带参数
-    void Render() override;
+    void Render();
 
     // 重写基类的 Resize 方法
     void Resize(int width, int height) override;

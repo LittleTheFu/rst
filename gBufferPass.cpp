@@ -63,7 +63,7 @@ void GBufferPass::Render(const std::vector<const Mesh*>& meshes, const Camera& c
                 shader_.setInt("material.aoMap", 4);
             }
         }
-        mesh->draw(shader_); // 绘制网格
+        mesh->render(shader_); // 绘制网格
     }
 
     // 7. 解绑 G-Buffer Pass 的 Framebuffer

@@ -44,7 +44,7 @@ void Material::setCubemap(const std::shared_ptr<Cubemap> &cubemap)
 void Material::bindTextures(Shader& shader) {
     unsigned int textureUnit = 0;
     if (albedoMap_) {
-        albedoMap_->use(textureUnit);
+        albedoMap_->activate(textureUnit);
         shader.setInt("albedoMap", textureUnit++);
         shader.setBool("hasAlbedoMap", true);
     } else {
@@ -52,7 +52,7 @@ void Material::bindTextures(Shader& shader) {
     }
 
     if (normalMap_) {
-        normalMap_->use(textureUnit);
+        normalMap_->activate(textureUnit);
         shader.setInt("normalMap", textureUnit++);
         shader.setBool("hasNormalMap", true);
     } else {
@@ -60,7 +60,7 @@ void Material::bindTextures(Shader& shader) {
     }
 
     if (roughnessMap_) {
-        roughnessMap_->use(textureUnit);
+        roughnessMap_->activate(textureUnit);
         shader.setInt("roughnessMap", textureUnit++);
         shader.setBool("hasRoughnessMap", true);
     } else {
@@ -68,7 +68,7 @@ void Material::bindTextures(Shader& shader) {
     }
 
     if (metallicMap_) {
-        metallicMap_->use(textureUnit);
+        metallicMap_->activate(textureUnit);
         shader.setInt("metallicMap", textureUnit++);
         shader.setBool("hasMetallicMap", true);
     } else {
@@ -76,7 +76,7 @@ void Material::bindTextures(Shader& shader) {
     }
 
     if (aoMap_) {
-        aoMap_->use(textureUnit);
+        aoMap_->activate(textureUnit);
         shader.setInt("aoMap", textureUnit++);
         shader.setBool("hasAoMap", true);
     } else {

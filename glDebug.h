@@ -34,24 +34,24 @@ inline const char *GLErrorToString(GLenum error)
     }
 }
 
-#define GL_CHECK_ERROR()                                                                \
-    do                                                                                  \
-    {                                                                                   \
-        GLenum err;                                                                     \
-        while ((err = glGetError()) != GL_NO_ERROR)                                     \
-        {                                                                               \
-            std::cerr << "OpenGL Error (GL_CHECK_ERROR): "                              \
-                      << GLErrorToString(err) << " (" << err << ")"                     \
-                      << " at " << __FILE__ << ":" << __LINE__ << std::endl;            \
-            /* 如果你希望在发现任何 GL 错误时立即抛出异常，可以在这里添加 */            \
-            /* throw GLException("Uncaught OpenGL error.", err, __FILE__, __LINE__); */ \
-        }                                                                               \
-    } while (0)
-#else
-#define GL_CHECK_ERROR() \
-    do                   \
-    {                    \
-    } while (0) // 在发布模式下禁用
-#endif
+// #define GL_CHECK_ERROR()                                                                \
+//     do                                                                                  \
+//     {                                                                                   \
+//         GLenum err;                                                                     \
+//         while ((err = glGetError()) != GL_NO_ERROR)                                     \
+//         {                                                                               \
+//             std::cerr << "OpenGL Error (GL_CHECK_ERROR): "                              \
+//                       << GLErrorToString(err) << " (" << err << ")"                     \
+//                       << " at " << __FILE__ << ":" << __LINE__ << std::endl;            \
+//             /* 如果你希望在发现任何 GL 错误时立即抛出异常，可以在这里添加 */            \
+//             /* throw GLException("Uncaught OpenGL error.", err, __FILE__, __LINE__); */ \
+//         }                                                                               \
+//     } while (0)
+// #else
+// #define GL_CHECK_ERROR() \
+//     do                   \
+//     {                    \
+//     } while (0) // 在发布模式下禁用
+// #endif
 
 #endif // _GL_DEBUG_H_

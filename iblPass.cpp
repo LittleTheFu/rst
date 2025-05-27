@@ -4,10 +4,13 @@
 #include "debug_utils.h"
 
 IBLPass::IBLPass(int width, int height,
-            std::shared_ptr<TextureCubeMap> irradianceMap,
-            std::shared_ptr<TextureCubeMap> prefilterMap,
-            std::shared_ptr<Texture2D> brdfLUT)
-    : RenderPass("IBLPass", width, height), // 调用基类构造函数
+                 std::shared_ptr<TextureCubeMap> irradianceMap,
+                 std::shared_ptr<TextureCubeMap> prefilterMap,
+                 std::shared_ptr<Texture2D> brdfLUT)
+    : RenderPass("IBLPass", width, height),
+      irradianceMap_(irradianceMap),
+      prefilterMap_(prefilterMap),
+      brdfLUT_(brdfLUT)
 {
     shader_.load("shader/ibl.vert", "shader/ibl.frag"); // IBL 着色器路径
 
@@ -37,9 +40,10 @@ IBLPass::IBLPass(int width, int height,
 // 实现基类的纯虚函数 Render()，不带参数
 void IBLPass::Render(GLuint gPositionID, GLuint gNormalID, GLuint gAlbedoID,
                      GLuint gRoughnessID, GLuint gMetallicID, GLuint gAOID,
-                     const Camera& camera)
+                     const Camera &camera)
 {
-    if (!irradianceMap_ || !prefilterMap_ || !brdfLUT_) {
+    if (!irradianceMap_ || !prefilterMap_ || !brdfLUT_)
+    {
         std::cerr << "ERROR::IBLPASS::IBL textures not set!" << std::endl;
         return;
     }
@@ -111,7 +115,8 @@ void IBLPass::Render(GLuint gPositionID, GLuint gNormalID, GLuint gAlbedoID,
 void IBLPass::Resize(int width, int height)
 {
     // 如果尺寸没有变化，则无需重新创建
-    if (width == width_ && height == height_) {
+    if (width == width_ && height == height_)
+    {
         return;
     }
 
@@ -150,8 +155,7 @@ void IBLPass::initScreenQuad()
 
         -1.0f, 1.0f, 0.0f, 1.0f,
         1.0f, -1.0f, 1.0f, 0.0f,
-        1.0f, 1.0f, 1.0f, 1.0f
-    };
+        1.0f, 1.0f, 1.0f, 1.0f};
 
     glGenVertexArrays(1, &quadVAO_);
     glGenBuffers(1, &quadVBO_);

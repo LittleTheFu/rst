@@ -2,6 +2,7 @@
 #include <iostream>
 #include <vector> // 确保包含 vector
 #include "pointLightDataForUBO.h" // 确保包含 PointLightDataForUBO
+#include "debug_utils.h"
 
 LightPass::LightPass(int width, int height)
     : RenderPass("LightPass", width, height)
