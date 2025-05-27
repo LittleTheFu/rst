@@ -12,8 +12,8 @@ public:
     // 构造函数：注入 SceneData 和代表光源视角的 Camera
     // 注意：这里的 camera 参数是用于生成阴影贴图的“光源相机”，
     // 它的位置和视锥体将决定阴影的范围和质量。
-    ShadowPass(int width, int height, SceneData& sceneData, Camera& lightCamera);
-    ~ShadowPass() override; // 析构函数，可能需要清理资源
+    ShadowPass(int width, int height);
+    ~ShadowPass() override = default; // 析构函数，可能需要清理资源
 
     // Render 方法现在明确接收其动态输入：要渲染的网格、光源和光照空间矩阵
     void Render(const std::vector<const Mesh*>& meshes, const PointLight& light, const std::vector<Eigen::Matrix4f>& lightSpaceMatrices);
@@ -24,6 +24,8 @@ public:
 
     // 提供类型安全的阴影贴图 Getter
     const TextureCubeMap& getShadowMapTexture() const { return *shadowMapTexture_; }
+    
+    GLuint getShadowMapTextureID() const { return shadowMapTexture_->id(); }
 
 private:
     Shader shader_;
@@ -32,8 +34,8 @@ private:
     std::unique_ptr<TextureCubeMap> shadowMapTexture_;
 
     // 对 SceneData 和光源相机的引用，通过构造函数注入
-    SceneData& sceneData_;
-    Camera& lightCamera_; // 代表光源视角的相机
+    // SceneData& sceneData_;
+    // Camera& lightCamera_; // 代表光源视角的相机
 
     // 辅助函数：初始化 ShadowPass 内部的 Framebuffer 和纹理
     void initializeFramebufferAndTextures();

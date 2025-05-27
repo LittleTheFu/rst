@@ -87,7 +87,7 @@ void Mesh::setupMesh() {
     glBindVertexArray(0);
 }
 
-void Mesh::render(Shader& shader) {
+void Mesh::render(Shader& shader) const {
     shader.use();
 
     // 设置模型矩阵 Uniform

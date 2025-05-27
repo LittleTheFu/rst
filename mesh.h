@@ -20,7 +20,7 @@ public:
     Mesh(const std::string& filePath, std::shared_ptr<Material> material = nullptr); // 构造函数接受 Material
     ~Mesh();
 
-    void render(Shader& shader) override; // 实现 Renderable 接口
+    void render(Shader& shader) const override; // 实现 Renderable 接口
     Eigen::Matrix4f getModelMatrix() const override; // 实现 Transformable 接口
     void setModelMatrix(const Eigen::Matrix4f& modelMatrix) override; // 实现 Transformable 接口
 

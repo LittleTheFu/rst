@@ -47,17 +47,6 @@ private:
 
     GLuint outputTexture_; // IBLPass 自身的输出纹理 ID (由其 FBO 管理)
 
-    // 通过构造函数注入并作为成员持有的 G-Buffer 纹理 ID
-    GLuint gPositionTextureID_;
-    GLuint gNormalTextureID_;
-    GLuint gAlbedoTextureID_;
-    GLuint gRoughnessTextureID_;
-    GLuint gMetallicTextureID_;
-    GLuint gAOTextureID_;
-
-    // 通过构造函数注入并作为成员持有的 Camera
-    const Camera& camera_; // 存储 Camera 的引用
-
     // IBL 所需的预计算纹理对象
     std::shared_ptr<TextureCubeMap> irradianceMap_; // 辐照度图 (HDR立方体贴图)
     std::shared_ptr<TextureCubeMap> prefilterMap_;  // 预过滤环境贴图 (HDR立方体贴图，带mipmaps)

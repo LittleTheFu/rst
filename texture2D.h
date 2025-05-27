@@ -7,7 +7,8 @@
 #include <gli/gli.hpp> // For gli::load_dds function
 
 class Texture2D : public Texture {
-private:
+// private:
+public:
     int mipLevels_; // Store the actual number of mip levels allocated/used
 
     // Private constructor for use by static factory methods (like loadDDS)

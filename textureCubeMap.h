@@ -7,7 +7,8 @@
 #include <gli/gli.hpp> // For gli::load_dds_cube
 
 class TextureCubeMap : public Texture {
-private:
+// private:
+public:
     int mipLevels_;
 
     // 私有构造函数，供静态工厂方法（如 loadDDS）使用

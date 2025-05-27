@@ -26,10 +26,8 @@ void ShadowPass::initializeFramebufferAndTextures() {
 }
 
 
-ShadowPass::ShadowPass(int width, int height, SceneData& sceneData, Camera& lightCamera)
-    : RenderPass("ShadowPass", width, height),
-      sceneData_(sceneData),
-      lightCamera_(lightCamera)
+ShadowPass::ShadowPass(int width, int height)
+    : RenderPass("ShadowPass", width, height)
 {
     shader_.load("shader/depth.vert", "shader/depth.frag");
 
@@ -78,7 +76,7 @@ void ShadowPass::Render(const std::vector<const Mesh*>& meshes, const PointLight
         if (mesh == nullptr) continue; // 避免空指针
 
         shader_.setMat4("model", mesh->getModelMatrix());
-        mesh->draw(shader_); // 绘制网格，只关心深度
+        mesh->render(shader_); // 绘制网格，只关心深度
     }
 
     // 7. 恢复 OpenGL 状态

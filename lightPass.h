@@ -28,6 +28,8 @@ public:
     // 提供类型安全的输出纹理 Getter
     const Texture2D& getOutputTexture() const { return *outputTexture_; }
 
+    GLuint getOutputTextureID() const { return outputTexture_->id(); }
+
     // (可选) 如果你仍然需要调试纹理的 getter，可以提供
     // const Texture2D& getDebugCurrentDepthTexture() const { return *debugCurrentDepthTexture_; }
     // const Texture2D& getDebugClosestDepthTexture() const { return *debugClosestDepthTexture_; }
@@ -50,18 +52,6 @@ private:
     // 调试纹理（现在封装为 Texture2D 对象）
     std::unique_ptr<Texture2D> debugCurrentDepthTexture_;
     std::unique_ptr<Texture2D> debugClosestDepthTexture_;
-
-    // 成员引用或智能指针，用于持有输入数据
-    // const Texture2D& positionTexture_;
-    // const Texture2D& normalTexture_;
-    // const Texture2D& albedoTexture_;
-    // const Texture2D& roughnessTexture_;
-    // const Texture2D& metallicTexture_;
-    // const Texture2D& aoTexture_;
-    // const std::shared_ptr<PointLight>& light_; // 使用 shared_ptr 引用
-    // const Camera& camera_;
-    // const TextureCubeMap& shadowMapTexture_; // 假设阴影贴图是 CubeMap
-    // const Camera& shadowCamera_;
 };
 
 #endif // LIGHT_PASS_H

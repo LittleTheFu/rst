@@ -27,18 +27,18 @@ void Scene::init()
     shadow_camera_.setFOV(90.0f);        // 90度FOV用于点光源的立方体阴影贴图
 
     // 5. 加载 IBL 纹理 (在创建 IBLPass 和 SkyPass 之前加载)
-    irradianceMapTex_ = std::make_shared<TextureCubeMap>();
-    if (!irradianceMapTex_->loadDDS("ibl/house/houseDiffuseHDR.dds")) {
+    auto irradianceMapTex_ = TextureCubeMap::loadDDS("ibl/house/houseDiffuseHDR.dds");
+    if (!irradianceMapTex_) {
         std::cerr << "ERROR::SCENE::Failed to load irradiance map! Check path and DDS format." << std::endl;
     }
 
-    prefilterMapTex_ = std::make_shared<TextureCubeMap>();
-    if (!prefilterMapTex_->loadDDS("ibl/house/houseSpecularHDR.dds")) {
+    auto prefilterMapTex_ = TextureCubeMap::loadDDS("ibl/house/houseSpecularHDR.dds");
+    if (!prefilterMapTex_) {
         std::cerr << "ERROR::SCENE::Failed to load prefilter map! Check path and DDS format." << std::endl;
     }
 
-    brdfLUTTex_ = std::make_shared<Texture2D>();
-    if (!brdfLUTTex_->loadDDS("ibl/house/houseBrdf.dds")) {
+    auto brdfLUTTex_ = Texture2D::loadDDS("ibl/house/houseBrdf.dds");
+    if (!brdfLUTTex_) {
         std::cerr << "ERROR::SCENE::Failed to load BRDF LUT! Check path and DDS format." << std::endl;
     }
 
@@ -60,11 +60,11 @@ void Scene::init()
 
     // 7. 初始化网格和材质
     // 加载LDR纹理
-    std::shared_ptr<Texture> albedoTexture = std::make_shared<Texture>("gold/albedo.png");
-    std::shared_ptr<Texture> normalTexture = std::make_shared<Texture>("gold/normal.png");
-    std::shared_ptr<Texture> roughnessTexture = std::make_shared<Texture>("gold/roughness.png");
-    std::shared_ptr<Texture> metallicTexture = std::make_shared<Texture>("gold/metallic.png");
-    std::shared_ptr<Texture> aoTexture = std::make_shared<Texture>("gold/ao.png");
+    auto albedoTexture = Texture2D::loadDDS("gold/albedo.png");
+    auto normalTexture = Texture2D::loadDDS("gold/normal.png");
+    auto roughnessTexture = Texture2D::loadDDS("gold/roughness.png");
+    auto metallicTexture = Texture2D::loadDDS("gold/metallic.png");
+    auto aoTexture = Texture2D::loadDDS("gold/ao.png");
 
     // 创建材质
     std::shared_ptr<Material> material_teapot = std::make_shared<Material>("teapot_mtrl");
@@ -128,7 +128,9 @@ void Scene::run()
     // --- 渲染管线执行 ---
 
     // 1. 渲染阴影贴图 (Shadow Pass)
-    shadowPass_->Render(rawMeshes, *mainLight_, shadow_camera_.GetLightSpaceMatrices());
+    auto shadow_matrix = shadow_camera_.GetProjectionMatrix() * shadow_camera_.GetViewMatrix();
+    std::vector<Eigen::Matrix4f> lightSpaceMatrices = {shadow_matrix};
+    shadowPass_->Render(rawMeshes, *mainLight_, lightSpaceMatrices);
     GL_CHECK_ERROR();
 
     // 2. 渲染 G-Buffer (GBufferPass)
@@ -144,8 +146,8 @@ void Scene::run()
                        gBufferPass_->getColorAttachment(5), // gAO
                        *mainLight_,
                        camera_,
-                       shadowPass_->getShadowTexture(),
-                       shadow_camera_.GetLightSpaceMatrices());
+                       shadowPass_->getShadowMapTextureID(),
+                       lightSpaceMatrices);
     GL_CHECK_ERROR();
 
     // 4. 渲染 IBLPass (环境光照贡献)
@@ -166,7 +168,7 @@ void Scene::run()
     // GL_CHECK_ERROR();
 
     // 6. 最终的屏幕合成 Pass (ScreenPass)
-    screenPass_->Render(lightPass_->getColorAttachment(0), // 直接光照结果
+    screenPass_->Render(lightPass_->getOutputTextureID(), // 直接光照结果
                         iblPass_->getOutputTexture(),       // IBL 环境光照结果
                         gBufferPass_->getDepthAttachment()); // G-Buffer 深度 (可能用于调试或后处理)
     GL_CHECK_ERROR();
@@ -202,5 +204,5 @@ void Scene::resize(int width, int height)
 
     // 更新主相机的投影矩阵，以适应新的屏幕宽高比
     camera_.setAspectRatio(static_cast<float>(width) / height);
-    camera_.updateProjectionMatrix();
+    // camera_.updateProjectionMatrix();
 }
