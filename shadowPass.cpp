@@ -12,12 +12,12 @@ void ShadowPass::initializeFramebufferAndTextures() {
 
     // 2. 创建一个立方体深度纹理（作为 Shadow Pass 的输出）
     // internalFormat 通常为 GL_DEPTH_COMPONENT 或 GL_DEPTH_COMPONENT24/32F
-    shadowMapTexture_ = std::make_unique<TextureCubeMap>(width_, height_, GL_DEPTH_COMPONENT);
+    shadowMapTexture_ = std::make_unique<TextureCubeMap>(width_, GL_DEPTH_COMPONENT32F, 1); // 1 个 mip level
 
     // 3. 激活 FBO，并告诉 OpenGL 不渲染到任何颜色附件
     frameBuffer_->activate();
-    GLenum drawBuffers[] = { GL_NONE }; // 重要：只渲染深度，不渲染颜色
-    frameBuffer_->setDrawBuffers(std::vector<GLenum>(drawBuffers, drawBuffers + 1));
+    std::vector<GLenum> drawBuffersVec = { GL_NONE };
+    frameBuffer_->setDrawBuffers(drawBuffersVec);
 
     // 4. 检查 FBO 的完整性
     // 注意：一个只有深度附件（或者没有附件但GL_NONE被设置为draw buffer）的FBO是完整的

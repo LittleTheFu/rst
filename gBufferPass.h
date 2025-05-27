@@ -6,6 +6,8 @@
 #include "camera.h"
 #include "mesh.h" // 确保包含 Mesh 头文件
 #include <vector>
+#include <memory> // 包含 shared_ptr 和 unique_ptr 的头文件
+#include "texture2D.h"
 
 class GBufferPass : public RenderPass
 {
@@ -27,13 +29,21 @@ private:
     Shader shader_;
 
     // G-Buffer 纹理的 IDs
-    GLuint gPosition_ = 0; // 存储世界空间位置
-    GLuint gNormal_ = 0;   // 存储世界空间法线
-    GLuint gAlbedo_ = 0;   // 存储反照率颜色和 AO
-    GLuint gRoughness_ = 0; // 存储粗糙度
-    GLuint gMetallic_ = 0; // 存储金属度
-    GLuint gAO_ = 0;       // 存储环境光遮蔽 (AO)
-    GLuint depthTexture_ = 0; // 存储深度信息（作为纹理）
+    std::unique_ptr<Texture2D> gPosition_; // 存储世界空间位置
+    std::unique_ptr<Texture2D> gNormal_;   // 存储世界空间法线
+    std::unique_ptr<Texture2D> gAlbedo_;   // 存储反照率颜色和 AO
+    std::unique_ptr<Texture2D> gRoughness_; // 存储粗糙度
+    std::unique_ptr<Texture2D> gMetallic_; // 存储金属度
+    std::unique_ptr<Texture2D> gAO_;       // 存储环境光遮蔽 (AO)
+    std::unique_ptr<Texture2D> depthTexture_; // 存储深度信息（作为纹理）
+    
+    // GLuint gPosition_ = 0; // 存储世界空间位置
+    // GLuint gNormal_ = 0;   // 存储世界空间法线
+    // GLuint gAlbedo_ = 0;   // 存储反照率颜色和 AO
+    // GLuint gRoughness_ = 0; // 存储粗糙度
+    // GLuint gMetallic_ = 0; // 存储金属度
+    // GLuint gAO_ = 0;       // 存储环境光遮蔽 (AO)
+    // GLuint depthTexture_ = 0; // 存储深度信息（作为纹理）
 
     void initGBuffer(); // 初始化 G-Buffer FBO 和纹理附件
 

@@ -5,7 +5,7 @@
 GBufferPass::GBufferPass(int width, int height)
     : RenderPass("GBufferPass", width, height)
 {
-    shader_.load("shader/gbuffer.vert", "shader/gbuffer.frag");
+    shader_.load("shader/gPass.vert", "shader/gPass.frag");
     initGBuffer(); // 初始化 G-Buffer FBO 和纹理
 }
 
@@ -75,30 +75,40 @@ void GBufferPass::Render(const std::vector<const Mesh*>& meshes, const Camera& c
 
 void GBufferPass::initGBuffer()
 {
+    gPosition_ = std::make_unique<Texture2D>(width_, height_, GL_RGBA32F); // 位置
+    gNormal_ = std::make_unique<Texture2D>(width_, height_, GL_RGBA32F);   // 法线
+    gAlbedo_ = std::make_unique<Texture2D>(width_, height_, GL_RGBA8); // 反照率 + AO
+    gRoughness_ = std::make_unique<Texture2D>(width_, height_, GL_R8); // 粗糙度
+    gMetallic_ = std::make_unique<Texture2D>(width_, height_, GL_R8);  // 金属度
+    gAO_ = std::make_unique<Texture2D>(width_, height_, GL_R8);       // AO
+
+    // 创建深度纹理
+    depthTexture_ = std::make_unique<Texture2D>(width_, height_, GL_DEPTH_COMPONENT24);
+
     // 创建 Framebuffer 对象
     frameBuffer_ = std::make_unique<Framebuffer>(width_, height_);
 
     // 创建 G-Buffer 纹理附件
     // 位置 (RGBA32F)
-    frameBuffer_->attachColorTexture(gPosition_, GL_COLOR_ATTACHMENT0);
+    frameBuffer_->attachColorTexture(gPosition_->id(), GL_COLOR_ATTACHMENT0);
     // 法线 (RGBA32F)
-    frameBuffer_->attachColorTexture(gNormal_, GL_COLOR_ATTACHMENT1);
+    frameBuffer_->attachColorTexture(gNormal_->id(), GL_COLOR_ATTACHMENT1);
     // 反照率 + AO (RGBA8) - AO 可存储在 Alpha 通道
-    frameBuffer_->attachColorTexture(gAlbedo_, GL_COLOR_ATTACHMENT2);
+    frameBuffer_->attachColorTexture(gAlbedo_->id(), GL_COLOR_ATTACHMENT2);
     // 粗糙度 (R8)
-    frameBuffer_->attachColorTexture(gRoughness_, GL_COLOR_ATTACHMENT3);
+    frameBuffer_->attachColorTexture(gRoughness_->id(), GL_COLOR_ATTACHMENT3);
     // 金属度 (R8)
-    frameBuffer_->attachColorTexture(gMetallic_, GL_COLOR_ATTACHMENT4);
+    frameBuffer_->attachColorTexture(gMetallic_->id(), GL_COLOR_ATTACHMENT4);
     // AO (R8) - 如果你之前在 albedo 的 alpha 通道存储了AO，这里可以不独立存储
     // 我这里独立存储AO，如果之前albedo的alpha通道用作别的或者不需要存储AO，可以移除
     // frameBuffer_->attachColorTexture(gAO_, GL_COLOR_ATTACHMENT5, 0, GL_R8, GL_RED, GL_UNSIGNED_BYTE);
     // 更新：根据gAlbedo注释，AO可能已经包含在albedo的alpha通道，或者是一个单独的AO贴图。
     // 如果是独立的AO贴图，且你想作为G-Buffer输出，可以像下面这样：
-    frameBuffer_->attachColorTexture(gAO_, GL_COLOR_ATTACHMENT5);
+    frameBuffer_->attachColorTexture(gAO_->id(), GL_COLOR_ATTACHMENT5);
 
 
     // 创建深度纹理附件
-    frameBuffer_->attachDepthTexture(depthTexture_, 0);
+    frameBuffer_->attachDepthTexture(depthTexture_->id(), 0);
 
     // 设置绘制缓冲区 (指定哪些颜色附件会被渲染)
     std::vector<GLenum> drawBuffers = {
@@ -117,12 +127,12 @@ GLuint GBufferPass::getColorAttachment(int index) const
 {
     switch (index)
     {
-    case 0: return gPosition_;
-    case 1: return gNormal_;
-    case 2: return gAlbedo_;
-    case 3: return gRoughness_;
-    case 4: return gMetallic_;
-    case 5: return gAO_;
+    case 0: return gPosition_->id();
+    case 1: return gNormal_->id();
+    case 2: return gAlbedo_->id();
+    case 3: return gRoughness_->id();
+    case 4: return gMetallic_->id();
+    case 5: return gAO_->id();
     default: return 0;
     }
 }
@@ -130,7 +140,7 @@ GLuint GBufferPass::getColorAttachment(int index) const
 // 获取深度纹理
 GLuint GBufferPass::getDepthAttachment() const
 {
-    return depthTexture_;
+    return depthTexture_->id();
 }
 
 // 重写 Resize 方法以重新创建 G-Buffer 纹理
@@ -148,13 +158,13 @@ void GBufferPass::Resize(int width, int height)
     deactivateFramebuffer();
 
     // 删除旧的纹理
-    glDeleteTextures(1, &gPosition_);
-    glDeleteTextures(1, &gNormal_);
-    glDeleteTextures(1, &gAlbedo_);
-    glDeleteTextures(1, &gRoughness_);
-    glDeleteTextures(1, &gMetallic_);
-    glDeleteTextures(1, &gAO_);
-    glDeleteTextures(1, &depthTexture_);
+    // glDeleteTextures(1, &gPosition_);
+    // glDeleteTextures(1, &gNormal_);
+    // glDeleteTextures(1, &gAlbedo_);
+    // glDeleteTextures(1, &gRoughness_);
+    // glDeleteTextures(1, &gMetallic_);
+    // glDeleteTextures(1, &gAO_);
+    // glDeleteTextures(1, &depthTexture_);
 
     // 重新创建 FBO 和附件
     initGBuffer();

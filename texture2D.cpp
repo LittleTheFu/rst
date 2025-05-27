@@ -14,6 +14,8 @@ Texture2D::Texture2D(GLenum target, GLenum internalFormat, int width, int height
     // Note: allocateStorage and setParameters are NOT called here.
     // They will be handled by the static factory method (e.g., loadDDS)
     // which has full information from the file.
+    glCreateTextures(GL_TEXTURE_2D, 1, &id_); // DSA: 直接操作纹理ID
+    GL_CHECK_ERROR();
 }
 
 // Public constructor for general purpose (raw data upload or generation)
@@ -75,7 +77,7 @@ std::unique_ptr<Texture2D> Texture2D::loadDDS(const std::string& filePath) {
     gli::gl GLI_GL_Translator(gli::gl::PROFILE_GL33);
     gli::gl::format GLFormat = GLI_GL_Translator.translate(gli_texture.format(), gli::swizzles());
     GLenum internalFormat = static_cast<GLenum>(GLFormat.Internal);
-    
+
     // GLenum internalFormat = gli::gl::internal_format(gli_texture.format());
     int width = extent.x;
     int height = extent.y;
