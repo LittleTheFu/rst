@@ -71,7 +71,12 @@ std::unique_ptr<Texture2D> Texture2D::loadDDS(const std::string& filePath) {
 
     // Get texture properties from gli
     gli::texture::extent_type extent = gli_texture.extent(0); // Get dimensions of the base mip level
-    GLenum internalFormat = gli::gl::internal_format(gli_texture.format());
+
+    gli::gl GLI_GL_Translator(gli::gl::PROFILE_GL33);
+    gli::gl::format GLFormat = GLI_GL_Translator.translate(gli_texture.format(), gli::swizzles());
+    GLenum internalFormat = static_cast<GLenum>(GLFormat.Internal);
+    
+    // GLenum internalFormat = gli::gl::internal_format(gli_texture.format());
     int width = extent.x;
     int height = extent.y;
     int mipLevels = static_cast<int>(gli_texture.levels());

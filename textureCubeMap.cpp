@@ -79,7 +79,10 @@ std::unique_ptr<TextureCubeMap> TextureCubeMap::loadDDS(const std::string& fileP
 
     // 从 gli 获取纹理属性
     gli::texture::extent_type extent = gli_texture.extent(0); // 获取基准 mip level 的尺寸
-    GLenum internalFormat = gli::gl::internal_format(gli_texture.format());
+    gli::gl GLI_GL_Translator(gli::gl::PROFILE_GL33);
+    gli::gl::format GLFormat = GLI_GL_Translator.translate(gli_texture.format(), gli::swizzles());
+    GLenum internalFormat = static_cast<GLenum>(GLFormat.Internal);
+
     int resolution = extent.x; // 立方体贴图是正方形的
     int mipLevels = static_cast<int>(gli_texture.levels());
 
@@ -111,7 +114,7 @@ std::unique_ptr<TextureCubeMap> TextureCubeMap::loadDDS(const std::string& fileP
                 // 使用 glCompressedTextureSubImage3D 上传压缩数据到特定面
                 glCompressedTextureSubImage3D(texture->id(), level, 0, 0, face, // xoffset, yoffset, zoffset (face index)
                                               level_resolution, level_resolution, 1, // width, height, depth (1 for a single face)
-                                              internalFormat, size, gli_texture.data(face, 0, level));
+                                              internalFormat, size, gli_texture.data(0, face, level));
                 GL_CHECK_ERROR();
             } else {
                 // 未压缩数据上传
