@@ -32,7 +32,7 @@ add_executable(OpenGL_GLAD_SDL2
     uniformBuffer.cpp
     glResource.cpp
     lightPass.cpp
-    cubeMap.cpp
+    textureCubeMap.cpp
     material.cpp
     mesh.cpp
     shadowPass.cpp

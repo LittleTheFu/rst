@@ -27,17 +27,17 @@ void Scene::init()
     shadow_camera_.setFOV(90.0f);        // 90度FOV用于点光源的立方体阴影贴图
 
     // 5. 加载 IBL 纹理 (在创建 IBLPass 和 SkyPass 之前加载)
-    auto irradianceMapTex_ = TextureCubeMap::loadDDS("ibl/house/houseDiffuseHDR.dds");
+    std::shared_ptr<TextureCubeMap> irradianceMapTex_ = TextureCubeMap::loadDDS("ibl/house/houseDiffuseHDR.dds");
     if (!irradianceMapTex_) {
         std::cerr << "ERROR::SCENE::Failed to load irradiance map! Check path and DDS format." << std::endl;
     }
 
-    auto prefilterMapTex_ = TextureCubeMap::loadDDS("ibl/house/houseSpecularHDR.dds");
+    std::shared_ptr<TextureCubeMap> prefilterMapTex_ = TextureCubeMap::loadDDS("ibl/house/houseSpecularHDR.dds");
     if (!prefilterMapTex_) {
         std::cerr << "ERROR::SCENE::Failed to load prefilter map! Check path and DDS format." << std::endl;
     }
 
-    auto brdfLUTTex_ = Texture2D::loadDDS("ibl/house/houseBrdf.dds");
+    std::shared_ptr<Texture2D> brdfLUTTex_ = Texture2D::loadDDS("ibl/house/houseBrdf.dds");
     if (!brdfLUTTex_) {
         std::cerr << "ERROR::SCENE::Failed to load BRDF LUT! Check path and DDS format." << std::endl;
     }
@@ -60,11 +60,11 @@ void Scene::init()
 
     // 7. 初始化网格和材质
     // 加载LDR纹理
-    auto albedoTexture = Texture2D::loadDDS("gold/albedo.png");
-    auto normalTexture = Texture2D::loadDDS("gold/normal.png");
-    auto roughnessTexture = Texture2D::loadDDS("gold/roughness.png");
-    auto metallicTexture = Texture2D::loadDDS("gold/metallic.png");
-    auto aoTexture = Texture2D::loadDDS("gold/ao.png");
+    std::shared_ptr<Texture2D> albedoTexture = std::move(Texture2D::loadDDS("gold/albedo.png"));
+    std::shared_ptr<Texture2D> normalTexture = Texture2D::loadDDS("gold/normal.png");
+    std::shared_ptr<Texture2D> roughnessTexture = Texture2D::loadDDS("gold/roughness.png");
+    std::shared_ptr<Texture2D> metallicTexture = Texture2D::loadDDS("gold/metallic.png");
+    std::shared_ptr<Texture2D> aoTexture = Texture2D::loadDDS("gold/ao.png");
 
     // 创建材质
     std::shared_ptr<Material> material_teapot = std::make_shared<Material>("teapot_mtrl");
