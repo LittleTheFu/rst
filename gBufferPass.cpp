@@ -76,11 +76,32 @@ void GBufferPass::Render(const std::vector<const Mesh*>& meshes, const Camera& c
 void GBufferPass::initGBuffer()
 {
     gPosition_ = std::make_unique<Texture2D>(width_, height_, GL_RGBA32F); // 位置
+    // gPosition_->allocateStorage(1);
+    // gPosition_->setParameters();
+
     gNormal_ = std::make_unique<Texture2D>(width_, height_, GL_RGBA32F);   // 法线
+    // gNormal_->allocateStorage(1);
+    // gNormal_->setParameters();
+
     gAlbedo_ = std::make_unique<Texture2D>(width_, height_, GL_RGBA8); // 反照率 + AO
+    // gAlbedo_->allocateStorage(1);
+    // gAlbedo_->setParameters();
+
     gRoughness_ = std::make_unique<Texture2D>(width_, height_, GL_R8); // 粗糙度
+    // gRoughness_->allocateStorage(1);
+    // gRoughness_->setParameters();
+
+    gMetallic_ = std::make_unique<Texture2D>(width_, height_, GL_R8); // 金属度
+    // gMetallic_->allocateStorage(1);
+    // gMetallic_->setParameters();
+
     gMetallic_ = std::make_unique<Texture2D>(width_, height_, GL_R8);  // 金属度
+    // gMetallic_->allocateStorage(1);
+    // gMetallic_->setParameters();
+
     gAO_ = std::make_unique<Texture2D>(width_, height_, GL_R8);       // AO
+    // gAO_->allocateStorage(1);
+    // gAO_->setParameters();
 
     // 创建深度纹理
     depthTexture_ = std::make_unique<Texture2D>(width_, height_, GL_DEPTH_COMPONENT24);

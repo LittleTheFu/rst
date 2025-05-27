@@ -29,7 +29,7 @@ public:
 
 
     // 重写基类的纯虚函数
-    void allocateStorage(int mipLevels) override;
+    void allocateStorage(int mipLevels = 1) override;
     void setParameters() override; // This method can be generalized or specific to raw data textures
 
     // 特定方法：上传数据 (仍然需要 format 和 type)

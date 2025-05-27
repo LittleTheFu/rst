@@ -58,6 +58,7 @@ void Scene::init()
 
     screenPass_ = std::make_unique<ScreenPass>(sceneData_.screenWidth, sceneData_.screenHeight);
 
+    // auto test = Texture2D::loadFromFile("gold/albedo.png");
     // 7. 初始化网格和材质
     // 加载LDR纹理
     std::shared_ptr<Texture2D> albedoTexture = std::move(Texture2D::loadFromFile("gold/albedo.png"));

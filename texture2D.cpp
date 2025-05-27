@@ -15,8 +15,8 @@ Texture2D::Texture2D(GLenum target, GLenum internalFormat, int width, int height
     // Note: allocateStorage and setParameters are NOT called here.
     // They will be handled by the static factory method (e.g., loadDDS)
     // which has full information from the file.
-    glCreateTextures(GL_TEXTURE_2D, 1, &id_); // DSA: 直接操作纹理ID
-    GL_CHECK_ERROR();
+    // glCreateTextures(GL_TEXTURE_2D, 1, &id_); // DSA: 直接操作纹理ID
+    // GL_CHECK_ERROR();
 }
 
 // Public constructor for general purpose (raw data upload or generation)
@@ -24,6 +24,9 @@ Texture2D::Texture2D(int width, int height, GLenum internalFormat, int mipLevels
     : Texture(GL_TEXTURE_2D, internalFormat, width, height, 1), // depth is 1 for 2D
       mipLevels_(mipLevels)
 {
+    // glCreateTextures(GL_TEXTURE_2D, 1, &id_); // DSA: 直接操作纹理ID
+    // GL_CHECK_ERROR();
+
     // This constructor allocates storage and sets parameters immediately.
     allocateStorage(mipLevels_);
     setParameters();
@@ -31,10 +34,40 @@ Texture2D::Texture2D(int width, int height, GLenum internalFormat, int mipLevels
 
 void Texture2D::allocateStorage(int mipLevels)
 {
+    if(id_ == 17)
+    {
+        std::cerr << "ERROR: Texture ID " << id_ << " is NOT a valid OpenGL texture object before allocateStorage!" << std::endl;
+    }
+
     if (id_ == 0)
     {
         THROW_GL_EXCEPTION("Texture ID is 0. Cannot allocate storage.");
     }
+
+    if (!glIsTexture(id_))
+    {
+        std::cerr << "ERROR: Texture ID " << id_ << " is NOT a valid OpenGL texture object before allocateStorage!" << std::endl;
+        // 你甚至可以在这里抛出异常或断言，以阻止程序继续
+        THROW_GL_EXCEPTION("Invalid OpenGL Texture ID before allocating storage.");
+    }
+
+    // --- 在这里添加以下打印语句 ---
+    std::cout << "DEBUG: Calling glTextureStorage2D with:" << std::endl;
+    std::cout << "  Texture ID (id_) = " << id_ << std::endl;
+    std::cout << "  Mip Levels (mipLevels) = " << mipLevels << std::endl;
+    // 使用 std::hex 打印 GLenum，因为它通常是十六进制值
+    std::cout << "  Internal Format (internalFormat_) = 0x" << std::hex << internalFormat_ << std::dec << std::endl;
+    // 打印一些常见格式的十六进制值作为参考，以便你能对照
+    std::cout << "    (e.g., GL_RGBA8 is 0x" << std::hex << GL_RGBA8 << std::dec << ")" << std::endl;
+    std::cout << "  Width (width_) = " << width_ << std::endl;
+    std::cout << "  Height (height_) = " << height_ << std::endl;
+    // --- 打印结束 ---
+
+     // --- 在这里添加以下打印语句 ---
+    std::cout << "  纹理目标 (target_) = 0x" << std::hex << target_ << std::dec << std::endl;
+    std::cout << "    (例如，GL_TEXTURE_2D 的值是 0x" << std::hex << GL_TEXTURE_2D << std::dec << ")" << std::endl;
+    // --- 打印结束 ---
+
     glTextureStorage2D(id_, mipLevels, internalFormat_, width_, height_); // DSA: 直接操作纹理ID
     GL_CHECK_ERROR();
 }
@@ -146,6 +179,7 @@ std::unique_ptr<Texture2D> Texture2D::loadFromFile(const std::string &filePath, 
 
     // 确定 OpenGL 内部格式 (假设我们总是将其视为 RGBA8)
     GLenum internalFormat = GL_RGBA8;
+    // GLenum internalFormat = GL_RGBA8;
     // GLenum format = GL_RGBA; // external format for upload
     // GLenum type = GL_UNSIGNED_BYTE; // data type for upload
 
@@ -160,10 +194,10 @@ std::unique_ptr<Texture2D> Texture2D::loadFromFile(const std::string &filePath, 
     // 创建 Texture2D 对象 (使用私有构造函数)
     // 确保 Texture::Texture 构造函数中 glCreateTextures 的 target 是 GL_TEXTURE_2D
     std::unique_ptr<Texture2D> texture = std::make_unique<Texture2D>(
-        internalFormat, width, height, mipLevels);
+        width, height, internalFormat, mipLevels);
 
     // 分配存储空间
-    texture->allocateStorage(mipLevels);
+    // texture->allocateStorage(mipLevels);
 
     // 上传基础 mip 级别的数据
     texture->uploadData(data, GL_RGBA, GL_UNSIGNED_BYTE, 0);
@@ -176,7 +210,7 @@ std::unique_ptr<Texture2D> Texture2D::loadFromFile(const std::string &filePath, 
     }
 
     // 设置纹理参数 (包括 mipmap 过滤模式)
-    texture->setParameters(); // setParameters 内部会根据 mipLevels_ 判断过滤模式
+    // texture->setParameters(); // setParameters 内部会根据 mipLevels_ 判断过滤模式
 
     // 释放 stbi_load 分配的内存
     stbi_image_free(data);
