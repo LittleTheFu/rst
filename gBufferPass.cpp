@@ -33,6 +33,7 @@ void GBufferPass::Render(const std::vector<const Mesh*>& meshes, const Camera& c
 
     // 6. 渲染场景中的所有网格
     for (const auto& mesh : meshes)
+    // for (auto& mesh : meshes)
     {
         if (mesh == nullptr) continue;
 
@@ -79,25 +80,25 @@ void GBufferPass::initGBuffer()
 
     // 创建 G-Buffer 纹理附件
     // 位置 (RGBA32F)
-    frameBuffer_->attachColorTexture(gPosition_, GL_COLOR_ATTACHMENT0, 0, GL_RGBA32F, GL_RGBA, GL_FLOAT);
+    frameBuffer_->attachColorTexture(gPosition_, GL_COLOR_ATTACHMENT0);
     // 法线 (RGBA32F)
-    frameBuffer_->attachColorTexture(gNormal_, GL_COLOR_ATTACHMENT1, 0, GL_RGBA32F, GL_RGBA, GL_FLOAT);
+    frameBuffer_->attachColorTexture(gNormal_, GL_COLOR_ATTACHMENT1);
     // 反照率 + AO (RGBA8) - AO 可存储在 Alpha 通道
-    frameBuffer_->attachColorTexture(gAlbedo_, GL_COLOR_ATTACHMENT2, 0, GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE);
+    frameBuffer_->attachColorTexture(gAlbedo_, GL_COLOR_ATTACHMENT2);
     // 粗糙度 (R8)
-    frameBuffer_->attachColorTexture(gRoughness_, GL_COLOR_ATTACHMENT3, 0, GL_R8, GL_RED, GL_UNSIGNED_BYTE);
+    frameBuffer_->attachColorTexture(gRoughness_, GL_COLOR_ATTACHMENT3);
     // 金属度 (R8)
-    frameBuffer_->attachColorTexture(gMetallic_, GL_COLOR_ATTACHMENT4, 0, GL_R8, GL_RED, GL_UNSIGNED_BYTE);
+    frameBuffer_->attachColorTexture(gMetallic_, GL_COLOR_ATTACHMENT4);
     // AO (R8) - 如果你之前在 albedo 的 alpha 通道存储了AO，这里可以不独立存储
     // 我这里独立存储AO，如果之前albedo的alpha通道用作别的或者不需要存储AO，可以移除
     // frameBuffer_->attachColorTexture(gAO_, GL_COLOR_ATTACHMENT5, 0, GL_R8, GL_RED, GL_UNSIGNED_BYTE);
     // 更新：根据gAlbedo注释，AO可能已经包含在albedo的alpha通道，或者是一个单独的AO贴图。
     // 如果是独立的AO贴图，且你想作为G-Buffer输出，可以像下面这样：
-    frameBuffer_->attachColorTexture(gAO_, GL_COLOR_ATTACHMENT5, 0, GL_R8, GL_RED, GL_UNSIGNED_BYTE);
+    frameBuffer_->attachColorTexture(gAO_, GL_COLOR_ATTACHMENT5);
 
 
     // 创建深度纹理附件
-    frameBuffer_->attachDepthTexture(depthTexture_, GL_DEPTH_COMPONENT, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT);
+    frameBuffer_->attachDepthTexture(depthTexture_, 0);
 
     // 设置绘制缓冲区 (指定哪些颜色附件会被渲染)
     std::vector<GLenum> drawBuffers = {
