@@ -16,6 +16,9 @@ void ShadowPass::initializeFramebufferAndTextures() {
 
     // 3. 激活 FBO，并告诉 OpenGL 不渲染到任何颜色附件
     frameBuffer_->activate();
+    // 注意：我们不设置任何颜色附件，只设置深度附件
+    // 深度附件通常使用 GL_DEPTH_ATTACHMENT 作为 FBO 的附件类型
+    frameBuffer_->attachDepthTexture(shadowMapTexture_->id());
     std::vector<GLenum> drawBuffersVec = { GL_NONE };
     frameBuffer_->setDrawBuffers(drawBuffersVec);
 
