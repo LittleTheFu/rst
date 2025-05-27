@@ -60,11 +60,11 @@ void Scene::init()
 
     // 7. 初始化网格和材质
     // 加载LDR纹理
-    std::shared_ptr<Texture2D> albedoTexture = std::move(Texture2D::loadDDS("gold/albedo.png"));
-    std::shared_ptr<Texture2D> normalTexture = Texture2D::loadDDS("gold/normal.png");
-    std::shared_ptr<Texture2D> roughnessTexture = Texture2D::loadDDS("gold/roughness.png");
-    std::shared_ptr<Texture2D> metallicTexture = Texture2D::loadDDS("gold/metallic.png");
-    std::shared_ptr<Texture2D> aoTexture = Texture2D::loadDDS("gold/ao.png");
+    std::shared_ptr<Texture2D> albedoTexture = std::move(Texture2D::loadFromFile("gold/albedo.png"));
+    std::shared_ptr<Texture2D> normalTexture = std::move(Texture2D::loadFromFile("gold/normal.png"));
+    std::shared_ptr<Texture2D> roughnessTexture = std::move(Texture2D::loadFromFile("gold/roughness.png"));
+    std::shared_ptr<Texture2D> metallicTexture = std::move(Texture2D::loadFromFile("gold/metallic.png"));
+    std::shared_ptr<Texture2D> aoTexture = std::move(Texture2D::loadFromFile("gold/ao.png"));
 
     // 创建材质
     std::shared_ptr<Material> material_teapot = std::make_shared<Material>("teapot_mtrl");
