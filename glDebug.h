@@ -53,5 +53,6 @@ inline const char *GLErrorToString(GLenum error)
 //     {                    \
 //     } while (0) // 在发布模式下禁用
 // #endif
+#endif
 
 #endif // _GL_DEBUG_H_

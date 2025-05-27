@@ -40,7 +40,7 @@ ShadowPass::ShadowPass(int width, int height, SceneData& sceneData, Camera& ligh
 // 析构函数保持默认，unique_ptr 会自动清理资源
 // ShadowPass::~ShadowPass() = default;
 
-void ShadowPass::Render(const std::vector<const Mesh*>& meshes, const PointLight& light, const std::vector<glm::mat4>& lightSpaceMatrices)
+void ShadowPass::Render(const std::vector<const Mesh*>& meshes, const PointLight& light, const std::vector< Eigen::Matrix4f>& lightSpaceMatrices)
 {
     // 如果没有可用的阴影贴图或网格，直接返回
     if (shadowMapTexture_ == 0 || meshes.empty()) {

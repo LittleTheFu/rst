@@ -5,7 +5,7 @@
 #include "debug_utils.h" // 确保包含调试工具
 
 ScreenPass::ScreenPass(int width, int height)
-    : RenderPass("ScreenPass", width, height), // 调用基类构造函数
+    : RenderPass("ScreenPass", width, height) // 调用基类构造函数
 {
     shader_.load("shader/screen.vert", "shader/screen.frag"); // 假设你的屏幕 Shader 文件名为 screen.vert 和 screen.frag
 

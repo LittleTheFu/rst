@@ -68,7 +68,7 @@ LightPass::~LightPass() {
 void LightPass::Render(GLuint gPositionID, GLuint gNormalID, GLuint gAlbedoID,
                        GLuint gRoughnessID, GLuint gMetallicID, GLuint gAOID,
                        const PointLight& light, const Camera& camera,
-                       GLuint shadowMapID, const std::vector<glm::mat4>& lightSpaceMatrices)
+                       GLuint shadowMapID, const std::vector< Eigen::Matrix4f>& lightSpaceMatrices)
 {
     // 1. 绑定 Light Pass 的 Framebuffer
     activateFramebuffer();

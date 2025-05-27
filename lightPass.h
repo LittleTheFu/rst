@@ -20,7 +20,7 @@ public:
     void Render(GLuint gPositionID, GLuint gNormalID, GLuint gAlbedoID,
                 GLuint gRoughnessID, GLuint gMetallicID, GLuint gAOID,
                 const PointLight& light, const Camera& camera,
-                GLuint shadowMapID, const std::vector<glm::mat4>& lightSpaceMatrices);
+                GLuint shadowMapID, const std::vector< Eigen::Matrix4f>& lightSpaceMatrices);
 
     // 重写 Resize 方法，处理内部纹理和 Framebuffer 的重新分配
     void Resize(int width, int height) override;
@@ -52,16 +52,16 @@ private:
     std::unique_ptr<Texture2D> debugClosestDepthTexture_;
 
     // 成员引用或智能指针，用于持有输入数据
-    const Texture2D& positionTexture_;
-    const Texture2D& normalTexture_;
-    const Texture2D& albedoTexture_;
-    const Texture2D& roughnessTexture_;
-    const Texture2D& metallicTexture_;
-    const Texture2D& aoTexture_;
-    const std::shared_ptr<PointLight>& light_; // 使用 shared_ptr 引用
-    const Camera& camera_;
-    const TextureCubeMap& shadowMapTexture_; // 假设阴影贴图是 CubeMap
-    const Camera& shadowCamera_;
+    // const Texture2D& positionTexture_;
+    // const Texture2D& normalTexture_;
+    // const Texture2D& albedoTexture_;
+    // const Texture2D& roughnessTexture_;
+    // const Texture2D& metallicTexture_;
+    // const Texture2D& aoTexture_;
+    // const std::shared_ptr<PointLight>& light_; // 使用 shared_ptr 引用
+    // const Camera& camera_;
+    // const TextureCubeMap& shadowMapTexture_; // 假设阴影贴图是 CubeMap
+    // const Camera& shadowCamera_;
 };
 
 #endif // LIGHT_PASS_H

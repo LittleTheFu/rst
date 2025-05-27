@@ -16,7 +16,7 @@ public:
     ~ShadowPass() override; // 析构函数，可能需要清理资源
 
     // Render 方法现在明确接收其动态输入：要渲染的网格、光源和光照空间矩阵
-    void Render(const std::vector<const Mesh*>& meshes, const PointLight& light, const std::vector<glm::mat4>& lightSpaceMatrices);
+    void Render(const std::vector<const Mesh*>& meshes, const PointLight& light, const std::vector<Eigen::Matrix4f>& lightSpaceMatrices);
 
 
     // 重写 Resize 方法，处理内部纹理和 Framebuffer 的重新分配
