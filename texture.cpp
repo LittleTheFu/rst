@@ -30,7 +30,9 @@ void Texture::deleteGlResource() {
 // }
 
 void Texture::activate(GLenum textureUnit) const {
-    GLint unitIndex = textureUnit - GL_TEXTURE0;
-    glBindTextureUnit(unitIndex, id_);
+    // GLint unitIndex = textureUnit - GL_TEXTURE0;
+    // glBindTextureUnit(unitIndex, id_);
+
+    glBindTextureUnit(textureUnit, id_);
     GL_CHECK_ERROR();
 }

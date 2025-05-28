@@ -63,38 +63,45 @@ void IBLPass::Render(GLuint gPositionID, GLuint gNormalID, GLuint gAlbedoID,
     shader_.use();
 
     // 5. 绑定 G-Buffer 纹理
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, gPositionID);
+    // glActiveTexture(GL_TEXTURE0);
+    // glBindTexture(GL_TEXTURE_2D, gPositionID);
+    glBindTextureUnit(0, gPositionID);
     shader_.setInt("gPosition", 0);
 
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, gNormalID);
+    // glActiveTexture(GL_TEXTURE1);
+    // glBindTexture(GL_TEXTURE_2D, gNormalID);
+    glBindTextureUnit(1, gNormalID);
     shader_.setInt("gNormal", 1);
 
-    glActiveTexture(GL_TEXTURE2);
-    glBindTexture(GL_TEXTURE_2D, gAlbedoID);
+    // glActiveTexture(GL_TEXTURE2);
+    // glBindTexture(GL_TEXTURE_2D, gAlbedoID);
+    glBindTextureUnit(2, gAlbedoID);
     shader_.setInt("gAlbedo", 2);
 
-    glActiveTexture(GL_TEXTURE3);
-    glBindTexture(GL_TEXTURE_2D, gRoughnessID);
+    // glActiveTexture(GL_TEXTURE3);
+    // glBindTexture(GL_TEXTURE_2D, gRoughnessID);
+    glBindTextureUnit(3, gRoughnessID);
     shader_.setInt("gRoughness", 3);
 
-    glActiveTexture(GL_TEXTURE4);
-    glBindTexture(GL_TEXTURE_2D, gMetallicID);
+    // glActiveTexture(GL_TEXTURE4);
+    // glBindTexture(GL_TEXTURE_2D, gMetallicID);
+    glBindTextureUnit(4, gMetallicID);
     shader_.setInt("gMetallic", 4);
 
-    glActiveTexture(GL_TEXTURE5);
-    glBindTexture(GL_TEXTURE_2D, gAOID);
+    // glActiveTexture(GL_TEXTURE5);
+    // glBindTexture(GL_TEXTURE_2D, gAOID);
+    glBindTextureUnit(5, gAOID);
     shader_.setInt("gAO", 5);
 
     // 6. 绑定 IBL 预计算纹理
-    irradianceMap_->activate(GL_TEXTURE6);
+    // irradianceMap_->activate(GL_TEXTURE6);
+    irradianceMap_->activate(6);
     shader_.setInt("irradianceMap", 6);
 
-    prefilterMap_->activate(GL_TEXTURE7);
+    prefilterMap_->activate(7);
     shader_.setInt("prefilterMap", 7);
 
-    brdfLUT_->activate(GL_TEXTURE8);
+    brdfLUT_->activate(8);
     shader_.setInt("brdfLUT", 8);
 
     // 7. 设置 Uniform 变量

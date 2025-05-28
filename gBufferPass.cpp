@@ -44,23 +44,28 @@ void GBufferPass::Render(const std::vector<const Mesh*>& meshes, const Camera& c
         {
             auto material = mesh->getMaterial();
             if (material->getAlbedoMap()) {
-                material->getAlbedoMap()->activate(GL_TEXTURE0);
+                // material->getAlbedoMap()->activate(GL_TEXTURE0);
+                material->getAlbedoMap()->activate(0);
                 shader_.setInt("material.albedoMap", 0);
             }
             if (material->getNormalMap()) {
-                material->getNormalMap()->activate(GL_TEXTURE1);
+                // material->getNormalMap()->activate(GL_TEXTURE1);
+                material->getNormalMap()->activate(1);
                 shader_.setInt("material.normalMap", 1);
             }
             if (material->getRoughnessMap()) {
-                material->getRoughnessMap()->activate(GL_TEXTURE2);
+                // material->getRoughnessMap()->activate(GL_TEXTURE2);
+                material->getRoughnessMap()->activate(2);
                 shader_.setInt("material.roughnessMap", 2);
             }
             if (material->getMetallicMap()) {
-                material->getMetallicMap()->activate(GL_TEXTURE3);
+                // material->getMetallicMap()->activate(GL_TEXTURE3);
+                material->getMetallicMap()->activate(3);
                 shader_.setInt("material.metallicMap", 3);
             }
             if (material->getAmbientOcclusionMap()) {
-                material->getAmbientOcclusionMap()->activate(GL_TEXTURE4);
+                // material->getAmbientOcclusionMap()->activate(GL_TEXTURE4);
+                material->getAmbientOcclusionMap()->activate(4);
                 shader_.setInt("material.aoMap", 4);
             }
         }
