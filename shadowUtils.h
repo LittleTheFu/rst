@@ -3,38 +3,45 @@
 
 #include <Eigen/Dense>
 #include <vector>
-#include <cmath> // 用于 std::tan 和 M_PI
+#include <cmath> // For std::tan and M_PI
 
-namespace ShadowUtils {
+class ShadowUtils {
+public:
+    /**
+     * @brief Computes a generic LookAt view matrix.
+     * This function does not depend on any camera instance state; it's a pure mathematical tool.
+     * @param eye The position of the camera/observer.
+     * @param center The target position the observer is looking at.
+     * @param up The up direction vector in world space.
+     * @return The calculated view matrix.
+     */
+    static Eigen::Matrix4f CalculateLookAtMatrix(const Eigen::Vector3f& eye, const Eigen::Vector3f& center, const Eigen::Vector3f& up);
 
     /**
-     * @brief 计算一个通用的 LookAt 视图矩阵。
-     * 此函数不依赖于任何相机实例的状态，是一个纯粹的数学工具。
-     * @param eye 相机/观察点的位置。
-     * @param center 观察点看向的目标位置。
-     * @param up 世界空间的上方向向量。
-     * @return 计算出的视图矩阵。
+     * @brief Generates the six light space transformation matrices for a point light shadow map.
+     * These matrices are used to transform vertices from world space to the light's clip space
+     * for rendering to each face of a cubemap shadow map.
+     * @param lightPos The position of the light source in world space.
+     * @param nearPlane The near clip plane distance for the shadow map projection.
+     * @param farPlane The far clip plane distance for the shadow map projection.
+     * @param shadowMapWidth The width of the shadow map (used for aspect ratio calculation).
+     * @param shadowMapHeight The height of the shadow map (used for aspect ratio calculation).
+     * @return A vector containing the six light space transformation matrices.
      */
-    Eigen::Matrix4f CalculateLookAtMatrix(const Eigen::Vector3f& eye, const Eigen::Vector3f& center, const Eigen::Vector3f& up);
-
-    /**
-     * @brief 为点光源阴影贴图生成六个光照空间变换矩阵。
-     * 这些矩阵用于将场景中的顶点从世界空间转换到光源的剪裁空间，
-     * 以便渲染到立方体阴影贴图的每个面。
-     * @param lightPos 光源在世界空间中的位置。
-     * @param nearPlane 阴影贴图投影的近裁剪面距离。
-     * @param farPlane 阴影贴图投影的远裁剪面距离。
-     * @param shadowMapWidth 阴影贴图的宽度（用于计算宽高比）。
-     * @param shadowMapHeight 阴影贴图的高度（用于计算宽高比）。
-     * @return 包含六个光照空间变换矩阵的向量。
-     */
-    std::vector<Eigen::Matrix4f> CalculatePointLightSpaceMatrices(
+    static std::vector<Eigen::Matrix4f> CalculatePointLightSpaceMatrices(
         const Eigen::Vector3f& lightPos,
         float nearPlane,
         float farPlane,
         int shadowMapWidth,
         int shadowMapHeight);
 
-} // namespace ShadowUtils
+    // TODO: Add other shadow-related utility functions here if needed, e.g.:
+    // static Eigen::Matrix4f CalculateDirectionalLightSpaceMatrix(...);
+    // static void SetupShadowSamplerParameters(...);
+
+private:
+    // Private helper function for creating perspective projection matrix
+    static Eigen::Matrix4f CreatePerspectiveProjectionMatrix(float fovRadians, float aspectRatio, float nearPlane, float farPlane);
+};
 
 #endif // SHADOW_UTILS_H

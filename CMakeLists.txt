@@ -36,6 +36,7 @@ add_executable(OpenGL_GLAD_SDL2
     material.cpp
     mesh.cpp
     shadowPass.cpp
+    shadowUtils.cpp
     lightPass.cpp
     stb_image_wrapper.cpp
     skyPass.cpp
