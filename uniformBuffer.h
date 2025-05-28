@@ -14,10 +14,10 @@ public:
     void create(size_t size, GLenum usage);
 
     // 实现 GLResource::bind() 纯虚函数，用于通用绑定
-    void bind() const override;
+    void bind() const;
 
     // 实现 GLResource::unbind() 纯虚函数
-    void unbind() const override;
+    void unbind() const;
 
     // 新增方法：将UBO绑定到特定的着色器绑定点
     void bindToBindingPoint(GLuint bindingPoint) const;
