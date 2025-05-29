@@ -16,22 +16,27 @@ public:
     ~ShadowPass() override = default; // 析构函数，可能需要清理资源
 
     // Render 方法现在明确接收其动态输入：要渲染的网格、光源和光照空间矩阵
-    void Render(const std::vector<const Mesh*>& meshes, const PointLight& light, const std::vector<Eigen::Matrix4f>& lightSpaceMatrices);
+    void Render(const std::vector<const Mesh*>& meshes, const PointLight& light);
 
 
     // 重写 Resize 方法，处理内部纹理和 Framebuffer 的重新分配
     void Resize(int width, int height) override;
 
     // 提供类型安全的阴影贴图 Getter
-    const TextureCubeMap& getShadowMapTexture() const { return *shadowMapTexture_; }
-    
-    GLuint getShadowMapTextureID() const { return shadowMapTexture_->id(); }
+    // const TextureCubeMap& getShadowMapTexture() const { return *shadowMapDepthTestTexture_; }
+    // GLuint getShadowMapTextureID() const { return shadowMapDepthTestTexture_->id(); }
+
+    const TextureCubeMap& getShadowMapDepthOutputTexture() const { return *shadowMapDepthOutputTexture_; }
+    GLuint getShadowMapDepthOutputTextureID() const { return shadowMapDepthOutputTexture_->id(); }
 
 private:
     Shader shader_;
 
     // 阴影立方体贴图的封装对象
-    std::unique_ptr<TextureCubeMap> shadowMapTexture_;
+    std::unique_ptr<TextureCubeMap> shadowMapDepthTestTexture_;
+
+    std::unique_ptr<TextureCubeMap> shadowMapDepthOutputTexture_;
+    
 
     // 对 SceneData 和光源相机的引用，通过构造函数注入
     // SceneData& sceneData_;

@@ -12,14 +12,17 @@ void ShadowPass::initializeFramebufferAndTextures() {
 
     // 2. 创建一个立方体深度纹理（作为 Shadow Pass 的输出）
     // internalFormat 通常为 GL_DEPTH_COMPONENT 或 GL_DEPTH_COMPONENT24/32F
-    shadowMapTexture_ = std::make_unique<TextureCubeMap>(width_, GL_DEPTH_COMPONENT32F, 1); // 1 个 mip level
+    shadowMapDepthTestTexture_ = std::make_unique<TextureCubeMap>(width_, GL_DEPTH_COMPONENT32F, 1); // 1 个 mip level
+
+    shadowMapDepthOutputTexture_ = std::make_unique<TextureCubeMap>(width_, GL_R32F, 1); // 1 个 mip level
 
     // 3. 激活 FBO，并告诉 OpenGL 不渲染到任何颜色附件
     frameBuffer_->activate();
-    // 注意：我们不设置任何颜色附件，只设置深度附件
-    // 深度附件通常使用 GL_DEPTH_ATTACHMENT 作为 FBO 的附件类型
-    frameBuffer_->attachDepthTexture(shadowMapTexture_->id());
-    std::vector<GLenum> drawBuffersVec = { GL_NONE };
+
+    frameBuffer_->attachColorTexture(shadowMapDepthOutputTexture_->id(), GL_COLOR_ATTACHMENT0);
+    frameBuffer_->attachDepthTexture(shadowMapDepthTestTexture_->id());
+
+    std::vector<GLenum> drawBuffersVec = { GL_COLOR_ATTACHMENT0 };
     frameBuffer_->setDrawBuffers(drawBuffersVec);
 
     // 4. 检查 FBO 的完整性
@@ -41,10 +44,10 @@ ShadowPass::ShadowPass(int width, int height)
 // 析构函数保持默认，unique_ptr 会自动清理资源
 // ShadowPass::~ShadowPass() = default;
 
-void ShadowPass::Render(const std::vector<const Mesh*>& meshes, const PointLight& light, const std::vector< Eigen::Matrix4f>& lightSpaceMatrices)
+void ShadowPass::Render(const std::vector<const Mesh*>& meshes, const PointLight& light)
 {
     // 如果没有可用的阴影贴图或网格，直接返回
-    if (shadowMapTexture_ == 0 || meshes.empty()) {
+    if (shadowMapDepthTestTexture_ == 0 || meshes.empty()) {
         return;
     }
 

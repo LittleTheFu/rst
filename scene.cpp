@@ -147,8 +147,7 @@ void Scene::run()
                        gBufferPass_->getColorAttachment(5), // gAO
                        *mainLight_,
                        camera_,
-                       shadowPass_->getShadowMapTextureID(),
-                       lightSpaceMatrices);
+                       shadowPass_->getShadowMapDepthOutputTextureID());
     GL_CHECK_ERROR();
 
     // 4. 渲染 IBLPass (环境光照贡献)
