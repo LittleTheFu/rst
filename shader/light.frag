@@ -102,7 +102,7 @@ void main()
     } else {
         shadow = (currentDepth - bias > closestDepth) ? 1.0 : 0.0;
     }
-    shadow = 0;
+    // shadow = 0;
 
     // float diff = (currentDepth - bias) - closestDepth;
 
