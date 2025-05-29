@@ -79,7 +79,7 @@ void LightPass::Render(GLuint positionTextureID,
 
     // 2. 清除颜色缓冲（深度缓冲通常由 G-Buffer 决定或不在此清除）
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-    clearBuffers(GL_COLOR_BUFFER_BIT);
+    clearBuffers(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // 3. 禁用深度测试（因为我们已经有了 G-Buffer 的深度，并且在这里渲染全屏四边形）
     disableState(GL_DEPTH_TEST);

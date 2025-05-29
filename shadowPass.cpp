@@ -15,7 +15,10 @@ void ShadowPass::initializeFramebufferAndTextures()
     // 2. 创建一个立方体深度纹理（作为 Shadow Pass 的输出）
     // internalFormat 通常为 GL_DEPTH_COMPONENT 或 GL_DEPTH_COMPONENT24/32F
     shadowMapDepthTestTexture_ = std::make_unique<TextureCubeMap>(width_, GL_DEPTH_COMPONENT32F, 1); // 1 个 mip level
+    shadowMapDepthTestTexture_->setParameters(); // 设置纹理参数，包括 mipmap
+
     shadowMapDepthOutputTexture_ = std::make_unique<TextureCubeMap>(width_, GL_R32F, 1); // 1 个 mip level
+    shadowMapDepthOutputTexture_->setParameters(); // 设置纹理参数，包括 mipmap
 
     // 3. 激活 FBO，并告诉 OpenGL 不渲染到任何颜色附件
     frameBuffer_->activate();
@@ -74,11 +77,23 @@ void ShadowPass::Render(const std::vector<const Mesh *> &meshes, const PointLigh
         
     // 3. 启用深度测试和裁剪（确保只渲染正面，避免阴影痤疮）
     enableState(GL_DEPTH_TEST);
-    glCullFace(GL_FRONT); // 渲染阴影时通常剔除前面，以减少阴影痤疮
+    // glCullFace(GL_FRONT); // 渲染阴影时通常剔除前面，以减少阴影痤疮
 
 
     for (int face = 0; face < 6; ++face)
     {
+        // 绑定深度纹理的当前面作为深度附件
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, 
+                               GL_TEXTURE_CUBE_MAP_POSITIVE_X + face, 
+                               shadowMapDepthTestTexture_->id(), 0); // 0是mip level
+
+        // 绑定颜色纹理的当前面作为颜色附件
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+                               GL_TEXTURE_CUBE_MAP_POSITIVE_X + face,
+                               shadowMapDepthOutputTexture_->id(), 0); // 0是mip level
+        // ***************************************************************
+
+        frameBuffer_->checkCompleteness();
         // 2. 清除深度缓冲
         // 对于立方体阴影贴图，需要为每个面渲染前清除
         glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
@@ -98,7 +113,7 @@ void ShadowPass::Render(const std::vector<const Mesh *> &meshes, const PointLigh
     }
 
     // 7. 恢复 OpenGL 状态
-    glCullFace(GL_BACK); // 恢复背面剔除
+    // glCullFace(GL_BACK); // 恢复背面剔除
 
     // 8. 解绑阴影 Pass 的 Framebuffer
     deactivateFramebuffer();

@@ -79,12 +79,12 @@ std::vector<Eigen::Matrix4f> ShadowUtils::CalculatePointLightSpaceMatrices(
     };
 
     std::vector<Eigen::Vector3f> lookUps = {
-        Eigen::Vector3f(0.0f, 1.0f, 0.0f),   // +X face, Y is up
-        Eigen::Vector3f(0.0f, 1.0f, 0.0f),   // -X face, Y is up
+        Eigen::Vector3f(0.0f, -1.0f, 0.0f),   // +X face, Y is up
+        Eigen::Vector3f(0.0f, -1.0f, 0.0f),   // -X face, Y is up
         Eigen::Vector3f(0.0f, 0.0f, 1.0f),   // +Y face, looking up Y, Z is up (ensure orthogonal right-hand system)
         Eigen::Vector3f(0.0f, 0.0f, -1.0f),  // -Y face, looking down -Y, -Z is up
-        Eigen::Vector3f(0.0f, 1.0f, 0.0f),   // +Z face, Y is up
-        Eigen::Vector3f(0.0f, 1.0f, 0.0f)    // -Z face, Y is up
+        Eigen::Vector3f(0.0f, -1.0f, 0.0f),   // +Z face, Y is up
+        Eigen::Vector3f(0.0f, -1.0f, 0.0f)    // -Z face, Y is up
     };
 
     std::vector<Eigen::Matrix4f> lightSpaceMatrices;
