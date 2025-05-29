@@ -68,7 +68,7 @@ LightPass::~LightPass() {
 void LightPass::Render(GLuint gPositionID, GLuint gNormalID, GLuint gAlbedoID,
                        GLuint gRoughnessID, GLuint gMetallicID, GLuint gAOID,
                        const PointLight& light, const Camera& camera,
-                       GLuint shadowMapID, const std::vector< Eigen::Matrix4f>& lightSpaceMatrices)
+                       GLuint shadowMapID)
 {
     // 1. 绑定 Light Pass 的 Framebuffer
     activateFramebuffer();
@@ -121,11 +121,6 @@ void LightPass::Render(GLuint gPositionID, GLuint gNormalID, GLuint gAlbedoID,
     shader_.setFloat("light.intensity", light.intensity);
     shader_.setFloat("far_plane", 100.0f); // 应该与 ShadowPass 中的 far_plane 一致
 
-    // 传入光照空间矩阵
-    for (unsigned int i = 0; i < lightSpaceMatrices.size(); ++i)
-    {
-        shader_.setMat4("lightSpaceMatrices[" + std::to_string(i) + "]", lightSpaceMatrices[i]);
-    }
 
     // 8. 渲染全屏四边形
     renderQuad(); // 假设你有一个 renderQuad() 辅助函数来绘制全屏四边形

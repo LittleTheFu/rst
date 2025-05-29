@@ -48,7 +48,7 @@ ShadowPass::ShadowPass(int width, int height)
 void ShadowPass::Render(const std::vector<const Mesh *> &meshes, const PointLight &light)
 {
     // 如果没有可用的阴影贴图或网格，直接返回
-    if (shadowMapDepthTestTexture_ == 0 || shadowMapDepthOutputTexture_ || meshes.empty())
+    if (!shadowMapDepthTestTexture_ || !shadowMapDepthOutputTexture_ || meshes.empty())
     {
         return;
     }
@@ -71,17 +71,20 @@ void ShadowPass::Render(const std::vector<const Mesh *> &meshes, const PointLigh
             height_ // 阴影贴图的高度
         );
 
+        
+    // 3. 启用深度测试和裁剪（确保只渲染正面，避免阴影痤疮）
+    enableState(GL_DEPTH_TEST);
+    glCullFace(GL_FRONT); // 渲染阴影时通常剔除前面，以减少阴影痤疮
+
+
     for (int face = 0; face < 6; ++face)
     {
         // 2. 清除深度缓冲
         // 对于立方体阴影贴图，需要为每个面渲染前清除
         glClear(GL_DEPTH_BUFFER_BIT);
 
-        // 3. 启用深度测试和裁剪（确保只渲染正面，避免阴影痤疮）
-        enableState(GL_DEPTH_TEST);
-        glCullFace(GL_FRONT); // 渲染阴影时通常剔除前面，以减少阴影痤疮
 
-        shader_.setMat4("viewProjectMatrix", lightSpaceMatrices[i]);
+        shader_.setMat4("lightSpaceMatrix", lightSpaceMatrices[face]); // 设置当前面的视图投影矩阵
         
         // 6. 渲染所有可投射阴影的网格
         for (const auto &mesh : meshes)
