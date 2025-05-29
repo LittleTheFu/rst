@@ -56,16 +56,17 @@ void ShadowPass::Render(const std::vector<const Mesh *> &meshes, const PointLigh
     activateFramebuffer();
     setViewport(width_, height_);
 
+    float farPlane = 100.0f;
     shader_.use();
 
     shader_.setVec3("lightPos", light.position); // 光源位置
-    shader_.setFloat("farPlane", 100.0f);        // 阴影贴图的远裁剪面距离
+    shader_.setFloat("farPlane", farPlane);        // 阴影贴图的远裁剪面距离
 
     std::vector<Eigen::Matrix4f> lightSpaceMatrices =
         ShadowUtils::CalculatePointLightSpaceMatrices(
             light.position,
             0.1f,   // 阴影贴图的近裁剪面
-            100.0f, // 阴影贴图的远裁剪面
+            farPlane, // 阴影贴图的远裁剪面
             width_, // 阴影贴图的宽度
             height_ // 阴影贴图的高度
         );
