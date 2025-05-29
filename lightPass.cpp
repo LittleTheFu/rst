@@ -36,7 +36,7 @@ LightPass::LightPass(int width, int height)
     deactivateFramebuffer();
 
     // 初始化 Uniform Buffer Object
-    lightBindingPoint_ = 0; // 假设这是一个通用的绑定点
+    lightBindingPoint_ = shader_.getUniformBlockIndex("PointLightBlock");
     objectLightUBO_.create(sizeof(PointLightDataForUBO), GL_DYNAMIC_DRAW);
     objectLightUBO_.bindToBindingPoint(lightBindingPoint_);
 

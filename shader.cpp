@@ -1,4 +1,5 @@
 #include "Shader.h"
+#include <cassert>
 
 Shader::Shader() : ID(0)
 {
@@ -113,6 +114,20 @@ void Shader::setVec4(const std::string &name, const Eigen::Vector4f &value)
 void Shader::setMat4(const std::string &name, const Eigen::Matrix4f &value)
 {
     glUniformMatrix4fv(getUniformLocation(name), 1, GL_FALSE, value.data());
+}
+
+GLuint Shader::getUniformBlockIndex(const std::string &blockName) const
+{
+    GLuint index = glGetUniformBlockIndex(ID, blockName.c_str()); // 使用 id_
+    // 使用 assert 检查是否找到了 Uniform Block
+    assert(index != GL_INVALID_INDEX && ("Uniform Block '" + blockName + "' not found in shader program " + std::to_string(ID)).c_str());
+    return index;
+}
+
+// 设置 uniform block 的绑定点
+void Shader::setUniformBlockBinding(GLuint blockIndex, GLuint bindingPoint)
+{
+    glUniformBlockBinding(ID, blockIndex, bindingPoint);
 }
 
 GLint Shader::getUniformLocation(const std::string &name)

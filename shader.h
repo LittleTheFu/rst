@@ -26,6 +26,11 @@ public:
     void setVec4(const std::string &name, const Eigen::Vector4f &value);
     void setMat4(const std::string &name, const Eigen::Matrix4f &value);
 
+     GLuint getUniformBlockIndex(const std::string& blockName) const;
+
+    // 设置 uniform block 的绑定点
+    void setUniformBlockBinding(GLuint blockIndex, GLuint bindingPoint);
+
 private:
     std::unordered_map<std::string, GLint> uniformLocationCache_;
     GLint getUniformLocation(const std::string &name);
