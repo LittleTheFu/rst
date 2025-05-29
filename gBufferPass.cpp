@@ -38,37 +38,6 @@ void GBufferPass::Render(const std::vector<const Mesh*>& meshes, const Camera& c
         if (mesh == nullptr) continue;
 
         shader_.setMat4("model", mesh->getModelMatrix());
-
-        // 绑定材质纹理 (如果材质有纹理的话)
-        if (mesh->getMaterial())
-        {
-            auto material = mesh->getMaterial();
-            if (material->getAlbedoMap()) {
-                // material->getAlbedoMap()->activate(GL_TEXTURE0);
-                material->getAlbedoMap()->activate(0);
-                shader_.setInt("material.albedoMap", 0);
-            }
-            if (material->getNormalMap()) {
-                // material->getNormalMap()->activate(GL_TEXTURE1);
-                material->getNormalMap()->activate(1);
-                shader_.setInt("material.normalMap", 1);
-            }
-            if (material->getRoughnessMap()) {
-                // material->getRoughnessMap()->activate(GL_TEXTURE2);
-                material->getRoughnessMap()->activate(2);
-                shader_.setInt("material.roughnessMap", 2);
-            }
-            if (material->getMetallicMap()) {
-                // material->getMetallicMap()->activate(GL_TEXTURE3);
-                material->getMetallicMap()->activate(3);
-                shader_.setInt("material.metallicMap", 3);
-            }
-            if (material->getAmbientOcclusionMap()) {
-                // material->getAmbientOcclusionMap()->activate(GL_TEXTURE4);
-                material->getAmbientOcclusionMap()->activate(4);
-                shader_.setInt("material.aoMap", 4);
-            }
-        }
         mesh->render(shader_); // 绘制网格
     }
 
@@ -81,30 +50,37 @@ void GBufferPass::Render(const std::vector<const Mesh*>& meshes, const Camera& c
 void GBufferPass::initGBuffer()
 {
     positionTexture_ = std::make_unique<Texture2D>(width_, height_, GL_RGBA32F); // 位置
+    positionTexture_->setParameters();
     // gPosition_->allocateStorage(1);
     // gPosition_->setParameters();
 
     normalTexture_ = std::make_unique<Texture2D>(width_, height_, GL_RGBA32F);   // 法线
+    normalTexture_->setParameters();
     // gNormal_->allocateStorage(1);
     // gNormal_->setParameters();
 
     albedoTexture_ = std::make_unique<Texture2D>(width_, height_, GL_RGBA8); // 反照率 + AO
+    albedoTexture_->setParameters();
     // gAlbedo_->allocateStorage(1);
     // gAlbedo_->setParameters();
 
-    roughnessTexture_ = std::make_unique<Texture2D>(width_, height_, GL_R8); // 粗糙度
+    roughnessTexture_ = std::make_unique<Texture2D>(width_, height_, GL_RGBA8); // 粗糙度
+    roughnessTexture_->setParameters();
     // gRoughness_->allocateStorage(1);
     // gRoughness_->setParameters();
 
-    metallicTexture_ = std::make_unique<Texture2D>(width_, height_, GL_R8); // 金属度
+    metallicTexture_ = std::make_unique<Texture2D>(width_, height_, GL_RGBA8); // 金属度
+    metallicTexture_->setParameters();
     // gMetallic_->allocateStorage(1);
     // gMetallic_->setParameters();
 
-    metallicTexture_ = std::make_unique<Texture2D>(width_, height_, GL_R8);  // 金属度
+    metallicTexture_ = std::make_unique<Texture2D>(width_, height_, GL_RGBA8);  // 金属度
+    metallicTexture_->setParameters();
     // gMetallic_->allocateStorage(1);
     // gMetallic_->setParameters();
 
-    aoTexture_ = std::make_unique<Texture2D>(width_, height_, GL_R8);       // AO
+    aoTexture_ = std::make_unique<Texture2D>(width_, height_, GL_RGBA8);       // AO
+    aoTexture_->setParameters();
     // gAO_->allocateStorage(1);
     // gAO_->setParameters();
 

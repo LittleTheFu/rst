@@ -17,9 +17,14 @@ public:
 
     ~LightPass() override; // 析构函数，可能需要清理资源
 
-    void Render(GLuint gPositionID, GLuint gNormalID, GLuint gAlbedoID,
-                GLuint gRoughnessID, GLuint gMetallicID, GLuint gAOID,
-                const PointLight& light, const Camera& camera,
+    void Render(GLuint positionTextureID,
+                GLuint normalTextureID,
+                GLuint albedoTextureID,
+                GLuint roughnessTextureID,
+                GLuint metallicTextureID,
+                GLuint aoTextureID,
+                const PointLight &light,
+                const Camera &camera,
                 GLuint shadowMapID);
 
     // 重写 Resize 方法，处理内部纹理和 Framebuffer 的重新分配

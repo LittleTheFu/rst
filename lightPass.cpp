@@ -65,9 +65,14 @@ LightPass::~LightPass() {
     // objectLightUBO_ 的析构函数应该会处理其资源的释放
 }
 
-void LightPass::Render(GLuint gPositionID, GLuint gNormalID, GLuint gAlbedoID,
-                       GLuint gRoughnessID, GLuint gMetallicID, GLuint gAOID,
-                       const PointLight& light, const Camera& camera,
+void LightPass::Render(GLuint positionTextureID,
+                       GLuint normalTextureID,
+                       GLuint albedoTextureID,
+                       GLuint roughnessTextureID,
+                       GLuint metallicTextureID,
+                       GLuint aoTextureID,
+                       const PointLight &light,
+                       const Camera &camera,
                        GLuint shadowMapID)
 {
     // 1. 绑定 Light Pass 的 Framebuffer
@@ -85,41 +90,42 @@ void LightPass::Render(GLuint gPositionID, GLuint gNormalID, GLuint gAlbedoID,
     shader_.use();
 
     // 5. 绑定 G-Buffer 纹理
+    //warning: inconsistent with texture interface
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, gPositionID);
-    shader_.setInt("gPosition", 0);
+    glBindTexture(GL_TEXTURE_2D, positionTextureID);
+    shader_.setInt("positionTexture", 0);
 
     glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, gNormalID);
-    shader_.setInt("gNormal", 1);
+    glBindTexture(GL_TEXTURE_2D, normalTextureID);
+    shader_.setInt("normalTexture", 1);
 
     glActiveTexture(GL_TEXTURE2);
-    glBindTexture(GL_TEXTURE_2D, gAlbedoID);
-    shader_.setInt("gAlbedo", 2);
+    glBindTexture(GL_TEXTURE_2D, albedoTextureID);
+    shader_.setInt("albedoTexture", 2);
 
     glActiveTexture(GL_TEXTURE3);
-    glBindTexture(GL_TEXTURE_2D, gRoughnessID);
-    shader_.setInt("gRoughness", 3);
+    glBindTexture(GL_TEXTURE_2D, roughnessTextureID);
+    shader_.setInt("roughnessTexture", 3);
 
     glActiveTexture(GL_TEXTURE4);
-    glBindTexture(GL_TEXTURE_2D, gMetallicID);
-    shader_.setInt("gMetallic", 4);
+    glBindTexture(GL_TEXTURE_2D, metallicTextureID);
+    shader_.setInt("metallicTexture", 4);
 
     glActiveTexture(GL_TEXTURE5);
-    glBindTexture(GL_TEXTURE_2D, gAOID);
-    shader_.setInt("gAO", 5);
+    glBindTexture(GL_TEXTURE_2D, aoTextureID);
+    shader_.setInt("aoTexture", 5);
 
     // 6. 绑定阴影贴图 (立方体贴图)
     glActiveTexture(GL_TEXTURE6);
     glBindTexture(GL_TEXTURE_CUBE_MAP, shadowMapID);
-    shader_.setInt("shadowMap", 6);
+    shader_.setInt("shadowMapTexture", 6);
 
     // 7. 设置 Uniform 变量
     shader_.setVec3("viewPos", camera.Position);
     shader_.setVec3("light.position", light.position);
     shader_.setVec3("light.color", light.color);
     shader_.setFloat("light.intensity", light.intensity);
-    shader_.setFloat("far_plane", 100.0f); // 应该与 ShadowPass 中的 far_plane 一致
+    shader_.setFloat("shadowCameraFarClip", 100.0f); // 应该与 ShadowPass 中的 far_plane 一致
 
 
     // 8. 渲染全屏四边形
