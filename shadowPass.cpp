@@ -81,7 +81,7 @@ void ShadowPass::Render(const std::vector<const Mesh *> &meshes, const PointLigh
     {
         // 2. 清除深度缓冲
         // 对于立方体阴影贴图，需要为每个面渲染前清除
-        glClear(GL_DEPTH_BUFFER_BIT);
+        glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
 
         shader_.setMat4("lightSpaceMatrix", lightSpaceMatrices[face]); // 设置当前面的视图投影矩阵
