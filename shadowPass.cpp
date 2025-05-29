@@ -2,11 +2,13 @@
 #include <iostream>
 #include <vector> // 确保包含 vector
 #include "debug_utils.h"
+#include "shadowUtils.h"
 
 // 辅助函数：初始化 ShadowPass 内部的 Framebuffer 和纹理
 // 这里只负责创建 FBO 和 CubeMap 纹理对象，不进行附件操作
 // 附件操作将在 Render 循环中针对每个面动态进行
-void ShadowPass::initializeFramebufferAndTextures() {
+void ShadowPass::initializeFramebufferAndTextures()
+{
     // 1. 创建 Framebuffer 对象
     frameBuffer_ = std::make_unique<Framebuffer>(width_, height_);
 
@@ -22,7 +24,7 @@ void ShadowPass::initializeFramebufferAndTextures() {
     frameBuffer_->attachColorTexture(shadowMapDepthOutputTexture_->id(), GL_COLOR_ATTACHMENT0);
     frameBuffer_->attachDepthTexture(shadowMapDepthTestTexture_->id());
 
-    std::vector<GLenum> drawBuffersVec = { GL_COLOR_ATTACHMENT0 };
+    std::vector<GLenum> drawBuffersVec = {GL_COLOR_ATTACHMENT0};
     frameBuffer_->setDrawBuffers(drawBuffersVec);
 
     // 4. 检查 FBO 的完整性
@@ -30,7 +32,6 @@ void ShadowPass::initializeFramebufferAndTextures() {
     frameBuffer_->checkCompleteness();
     frameBuffer_->deactivate();
 }
-
 
 ShadowPass::ShadowPass(int width, int height)
     : RenderPass("ShadowPass", width, height)
@@ -44,10 +45,11 @@ ShadowPass::ShadowPass(int width, int height)
 // 析构函数保持默认，unique_ptr 会自动清理资源
 // ShadowPass::~ShadowPass() = default;
 
-void ShadowPass::Render(const std::vector<const Mesh*>& meshes, const PointLight& light)
+void ShadowPass::Render(const std::vector<const Mesh *> &meshes, const PointLight &light)
 {
     // 如果没有可用的阴影贴图或网格，直接返回
-    if (shadowMapDepthTestTexture_ == 0 || shadowMapDepthOutputTexture_ || meshes.empty()) {
+    if (shadowMapDepthTestTexture_ == 0 || shadowMapDepthOutputTexture_ || meshes.empty())
+    {
         return;
     }
 
@@ -55,29 +57,41 @@ void ShadowPass::Render(const std::vector<const Mesh*>& meshes, const PointLight
     activateFramebuffer();
     setViewport(width_, height_);
 
-    // 2. 清除深度缓冲
-    // 对于立方体阴影贴图，需要为每个面渲染前清除
-    glClear(GL_DEPTH_BUFFER_BIT);
-
-    // 3. 启用深度测试和裁剪（确保只渲染正面，避免阴影痤疮）
-    enableState(GL_DEPTH_TEST);
-    glCullFace(GL_FRONT); // 渲染阴影时通常剔除前面，以减少阴影痤疮
-
-    // 4. 绑定 Shadow Shader
     shader_.use();
 
-    // 5. 设置 Uniform 变量
     shader_.setVec3("lightPos", light.position); // 光源位置
-    shader_.setFloat("farPlane", 100.0f); // 阴影贴图的远裁剪面距离
+    shader_.setFloat("farPlane", 100.0f);        // 阴影贴图的远裁剪面距离
 
+    std::vector<Eigen::Matrix4f> lightSpaceMatrices =
+        ShadowUtils::CalculatePointLightSpaceMatrices(
+            light.position,
+            0.1f,   // 阴影贴图的近裁剪面
+            100.0f, // 阴影贴图的远裁剪面
+            width_, // 阴影贴图的宽度
+            height_ // 阴影贴图的高度
+        );
 
-    // 6. 渲染所有可投射阴影的网格
-    for (const auto& mesh : meshes)
+    for (int face = 0; face < 6; ++face)
     {
-        if (mesh == nullptr) continue; // 避免空指针
+        // 2. 清除深度缓冲
+        // 对于立方体阴影贴图，需要为每个面渲染前清除
+        glClear(GL_DEPTH_BUFFER_BIT);
 
-        shader_.setMat4("model", mesh->getModelMatrix());
-        mesh->render(shader_); // 绘制网格，只关心深度
+        // 3. 启用深度测试和裁剪（确保只渲染正面，避免阴影痤疮）
+        enableState(GL_DEPTH_TEST);
+        glCullFace(GL_FRONT); // 渲染阴影时通常剔除前面，以减少阴影痤疮
+
+        shader_.setMat4("viewProjectMatrix", lightSpaceMatrices[i]);
+        
+        // 6. 渲染所有可投射阴影的网格
+        for (const auto &mesh : meshes)
+        {
+            if (mesh == nullptr)
+                continue; // 避免空指针
+
+            shader_.setMat4("model", mesh->getModelMatrix());
+            mesh->render(shader_); // 绘制网格，只关心深度
+        }
     }
 
     // 7. 恢复 OpenGL 状态
@@ -89,7 +103,8 @@ void ShadowPass::Render(const std::vector<const Mesh*>& meshes, const PointLight
     GL_CHECK_ERROR();
 }
 
-void ShadowPass::Resize(int width, int height) {
+void ShadowPass::Resize(int width, int height)
+{
     // 调用基类 Resize 更新宽度和高度
     RenderPass::Resize(width, height);
 
