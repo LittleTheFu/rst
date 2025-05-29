@@ -77,7 +77,7 @@ void ShadowPass::Render(const std::vector<const Mesh *> &meshes, const PointLigh
         
     // 3. 启用深度测试和裁剪（确保只渲染正面，避免阴影痤疮）
     enableState(GL_DEPTH_TEST);
-    // glCullFace(GL_FRONT); // 渲染阴影时通常剔除前面，以减少阴影痤疮
+    // glCullFace(GL_BACK); // 渲染阴影时通常剔除前面，以减少阴影痤疮
 
 
     for (int face = 0; face < 6; ++face)
@@ -113,7 +113,7 @@ void ShadowPass::Render(const std::vector<const Mesh *> &meshes, const PointLigh
     }
 
     // 7. 恢复 OpenGL 状态
-    // glCullFace(GL_BACK); // 恢复背面剔除
+    // glCullFace(GL_FRONT); // 恢复背面剔除
 
     // 8. 解绑阴影 Pass 的 Framebuffer
     deactivateFramebuffer();
