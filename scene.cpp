@@ -61,11 +61,12 @@ void Scene::init()
     // auto test = Texture2D::loadFromFile("gold/albedo.png");
     // 7. 初始化网格和材质
     // 加载LDR纹理
-    std::shared_ptr<Texture2D> albedoTexture = std::move(Texture2D::loadFromFile("gold/albedo.png"));
-    std::shared_ptr<Texture2D> normalTexture = std::move(Texture2D::loadFromFile("gold/normal.png"));
-    std::shared_ptr<Texture2D> roughnessTexture = std::move(Texture2D::loadFromFile("gold/roughness.png"));
-    std::shared_ptr<Texture2D> metallicTexture = std::move(Texture2D::loadFromFile("gold/metallic.png"));
-    std::shared_ptr<Texture2D> aoTexture = std::move(Texture2D::loadFromFile("gold/ao.png"));
+    const std::string folder = "wall/";
+    std::shared_ptr<Texture2D> albedoTexture = std::move(Texture2D::loadFromFile(folder + "albedo.png"));
+    std::shared_ptr<Texture2D> normalTexture = std::move(Texture2D::loadFromFile(folder + "normal.png"));
+    std::shared_ptr<Texture2D> roughnessTexture = std::move(Texture2D::loadFromFile(folder + "roughness.png"));
+    std::shared_ptr<Texture2D> metallicTexture = std::move(Texture2D::loadFromFile(folder + "metallic.png"));
+    std::shared_ptr<Texture2D> aoTexture = std::move(Texture2D::loadFromFile(folder + "ao.png"));
 
     // 创建材质
     std::shared_ptr<Material> material_teapot = std::make_shared<Material>("teapot_mtrl");
@@ -107,7 +108,7 @@ void Scene::run()
     x_light *= 0.5;
     mainLight_->position = Eigen::Vector3f(x_light, x_light, 7.0f);
     // mainLight_->position = Eigen::Vector3f(5, 5, 7.0f);
-    mainLight_->intensity = 1000.0f;
+    mainLight_->intensity = 100.0f;
 
     // 调试光标位置
     Eigen::Vector3f offset = Eigen::Vector3f(0.0f, 0.5f, 0.0f);
