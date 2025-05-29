@@ -133,30 +133,30 @@ void Scene::run()
     GL_CHECK_ERROR();
 
     // 2. 渲染 G-Buffer (GBufferPass)
-    // gBufferPass_->Render(rawMeshes, camera_);
-    // GL_CHECK_ERROR();
+    gBufferPass_->Render(rawMeshes, camera_);
+    GL_CHECK_ERROR();
 
     // // 3. 渲染 LightPass (直接光照)
-    // lightPass_->Render(gBufferPass_->getColorAttachment(0), // gPosition
-    //                    gBufferPass_->getColorAttachment(1), // gNormal
-    //                    gBufferPass_->getColorAttachment(2), // gAlbedo
-    //                    gBufferPass_->getColorAttachment(3), // gRoughness
-    //                    gBufferPass_->getColorAttachment(4), // gMetallic
-    //                    gBufferPass_->getColorAttachment(5), // gAO
-    //                    *mainLight_,
-    //                    camera_,
-    //                    shadowPass_->getShadowMapDepthOutputTextureID());
-    // GL_CHECK_ERROR();
+    lightPass_->Render(gBufferPass_->getPositionTextureId(), // gPosition
+                       gBufferPass_->getNormalTextureId(), // gNormal
+                       gBufferPass_->getAlbedoTextureId(), // gAlbedo
+                       gBufferPass_->getRoughnessTextureId(), // gRoughness
+                       gBufferPass_->getMetallicTextureId(), // gMetallic
+                       gBufferPass_->getAOTextureId(), // gAO
+                       *mainLight_,
+                       camera_,
+                       shadowPass_->getShadowMapDepthOutputTextureID());
+    GL_CHECK_ERROR();
 
     // // 4. 渲染 IBLPass (环境光照贡献)
-    // iblPass_->Render(gBufferPass_->getColorAttachment(0), // gPosition
-    //                  gBufferPass_->getColorAttachment(1), // gNormal
-    //                  gBufferPass_->getColorAttachment(2), // gAlbedo
-    //                  gBufferPass_->getColorAttachment(3), // gRoughness
-    //                  gBufferPass_->getColorAttachment(4), // gMetallic
-    //                  gBufferPass_->getColorAttachment(5), // gAO
-    //                  camera_);
-    // GL_CHECK_ERROR();
+    iblPass_->Render(gBufferPass_->getPositionTextureId(), // gPosition
+                     gBufferPass_->getNormalTextureId(), // gNormal
+                     gBufferPass_->getAlbedoTextureId(), // gAlbedo
+                     gBufferPass_->getRoughnessTextureId(), // gRoughness
+                     gBufferPass_->getMetallicTextureId(), // gMetallic
+                     gBufferPass_->getAOTextureId(), // gAO
+                     camera_);
+    GL_CHECK_ERROR();
 
     // 5. 渲染天空盒 (SkyPass)
     // 注意：天空盒通常最后渲染，且不写入深度，因为它在所有物体后
@@ -166,10 +166,10 @@ void Scene::run()
     // GL_CHECK_ERROR();
 
     // 6. 最终的屏幕合成 Pass (ScreenPass)
-    // screenPass_->Render(lightPass_->getOutputTextureID(), // 直接光照结果
-    //                     iblPass_->getOutputTexture(),       // IBL 环境光照结果
-    //                     gBufferPass_->getDepthAttachment()); // G-Buffer 深度 (可能用于调试或后处理)
-    // GL_CHECK_ERROR();
+    screenPass_->Render(lightPass_->getOutputTextureID(), // 直接光照结果
+                        iblPass_->getOutputTexture(),       // IBL 环境光照结果
+                        gBufferPass_->getDepthAttachment()); // G-Buffer 深度 (可能用于调试或后处理)
+    GL_CHECK_ERROR();
 }
 
 void Scene::resize(int width, int height)
