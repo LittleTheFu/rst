@@ -91,33 +91,40 @@ void LightPass::Render(GLuint positionTextureID,
 
     // 5. 绑定 G-Buffer 纹理
     //warning: inconsistent with texture interface
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, positionTextureID);
+    // glActiveTexture(GL_TEXTURE0);
+    // glBindTexture(GL_TEXTURE_2D, positionTextureID);
+    glBindTextureUnit(0, positionTextureID);
     shader_.setInt("positionTexture", 0);
 
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, normalTextureID);
+    // glActiveTexture(GL_TEXTURE1);
+    // glBindTexture(GL_TEXTURE_2D, normalTextureID);
+    glBindTextureUnit(1, normalTextureID);
     shader_.setInt("normalTexture", 1);
 
-    glActiveTexture(GL_TEXTURE2);
-    glBindTexture(GL_TEXTURE_2D, albedoTextureID);
+    // glActiveTexture(GL_TEXTURE2);
+    // glBindTexture(GL_TEXTURE_2D, albedoTextureID);
+    glBindTextureUnit(2, albedoTextureID);
     shader_.setInt("albedoTexture", 2);
 
-    glActiveTexture(GL_TEXTURE3);
-    glBindTexture(GL_TEXTURE_2D, roughnessTextureID);
+    // glActiveTexture(GL_TEXTURE3);
+    // glBindTexture(GL_TEXTURE_2D, roughnessTextureID);
+    glBindTextureUnit(3, roughnessTextureID);
     shader_.setInt("roughnessTexture", 3);
 
-    glActiveTexture(GL_TEXTURE4);
-    glBindTexture(GL_TEXTURE_2D, metallicTextureID);
+    // glActiveTexture(GL_TEXTURE4);
+    // glBindTexture(GL_TEXTURE_2D, metallicTextureID);
+    glBindTextureUnit(4, metallicTextureID);
     shader_.setInt("metallicTexture", 4);
 
-    glActiveTexture(GL_TEXTURE5);
-    glBindTexture(GL_TEXTURE_2D, aoTextureID);
+    // glActiveTexture(GL_TEXTURE5);
+    // glBindTexture(GL_TEXTURE_2D, aoTextureID);
+    glBindTextureUnit(5, aoTextureID);
     shader_.setInt("aoTexture", 5);
 
     // 6. 绑定阴影贴图 (立方体贴图)
-    glActiveTexture(GL_TEXTURE6);
-    glBindTexture(GL_TEXTURE_CUBE_MAP, shadowMapID);
+    // glActiveTexture(GL_TEXTURE6);
+    // glBindTexture(GL_TEXTURE_CUBE_MAP, shadowMapID);
+    glBindTextureUnit(6, shadowMapID);
     shader_.setInt("shadowMapTexture", 6);
 
     // 7. 设置 Uniform 变量
