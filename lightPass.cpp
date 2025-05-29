@@ -49,8 +49,6 @@ LightPass::LightPass(int width, int height)
     }
     glUniformBlockBinding(shader_.ID, lightBlockIndex, lightBindingPoint_);
 
-    objectLightUBO_.unbind(); // 解绑 UBO 是一个好习惯
-
     initScreenQuad(); // 初始化屏幕四边形
 }
 

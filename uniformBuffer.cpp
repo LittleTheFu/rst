@@ -1,54 +1,38 @@
 #include "UniformBuffer.h"
-#include <glad/glad.h>
-#include <iostream>
+#include <iostream> 
 
-UniformBuffer::UniformBuffer()
-{
-}
+UniformBuffer::UniformBuffer() 
+{ 
+} 
 
-void UniformBuffer::create(size_t size, GLenum usage)
-{
-    size_ = size;
+void UniformBuffer::create(size_t size, GLenum usage) 
+{ 
+    size_ = size; 
+    // DSA：直接创建缓冲区对象
+    glCreateBuffers(1, &id_); 
+    // DSA：直接为指定 ID 的缓冲区分配存储空间
+    glNamedBufferData(id_, size, nullptr, usage); 
+} 
 
-    glGenBuffers(1, &id_); // id_ 是 GLResource 的保护成员，可以直接访问
-    
-    // 绑定用于初始数据分配
-    glBindBuffer(GL_UNIFORM_BUFFER, id_);
-    glBufferData(GL_UNIFORM_BUFFER, size, nullptr, usage);
-    glBindBuffer(GL_UNIFORM_BUFFER, 0);
-}
+// 移除了 bind() 和 unbind() 方法，因为它们不再是 DSA 风格操作所必需的。
 
-// 实现 GLResource::bind()：用于通用操作，如更新数据
-void UniformBuffer::bind() const
-{
-    glBindBuffer(GL_UNIFORM_BUFFER, id_);
-}
+void UniformBuffer::bindToBindingPoint(GLuint bindingPoint) const 
+{ 
+    // 此函数仍然至关重要，因为它将 UBO 连接到着色器的 uniform 块。
+    glBindBufferBase(GL_UNIFORM_BUFFER, bindingPoint, id_); 
+} 
 
-// 实现 GLResource::unbind()
-void UniformBuffer::unbind() const
-{
-    glBindBuffer(GL_UNIFORM_BUFFER, 0);
-}
+void UniformBuffer::updateData(size_t offset, size_t size, const void* data) 
+{ 
+    // DSA：直接更新指定 ID 的缓冲区对象的数据，无需绑定。
+    glNamedBufferSubData(id_, offset, size, data); 
+} 
 
-// 新增方法：将UBO绑定到特定的着色器绑定点
-void UniformBuffer::bindToBindingPoint(GLuint bindingPoint) const
-{
-    glBindBufferBase(GL_UNIFORM_BUFFER, bindingPoint, id_);
-}
-
-void UniformBuffer::updateData(size_t offset, size_t size, const void* data)
-{
-    // 这里调用 bind() 来确保缓冲区已绑定
-    bind(); // 使用统一的 bind() 方法
-    glBufferSubData(GL_UNIFORM_BUFFER, offset, size, data);
-    unbind(); // 使用统一的 unbind() 方法
-}
-
-void UniformBuffer::release()
-{
-    if (id_ != 0) { // 直接访问 id_ 成员变量
-        glDeleteBuffers(1, &id_);
-        id_ = 0;
-        size_ = 0;
-    }
+void UniformBuffer::release() 
+{ 
+    if (id_ != 0) {
+        glDeleteBuffers(1, &id_); 
+        id_ = 0; 
+        size_ = 0; 
+    } 
 }
