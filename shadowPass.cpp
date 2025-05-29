@@ -47,7 +47,7 @@ ShadowPass::ShadowPass(int width, int height)
 void ShadowPass::Render(const std::vector<const Mesh*>& meshes, const PointLight& light)
 {
     // 如果没有可用的阴影贴图或网格，直接返回
-    if (shadowMapDepthTestTexture_ == 0 || meshes.empty()) {
+    if (shadowMapDepthTestTexture_ == 0 || shadowMapDepthOutputTexture_ || meshes.empty()) {
         return;
     }
 
@@ -68,13 +68,8 @@ void ShadowPass::Render(const std::vector<const Mesh*>& meshes, const PointLight
 
     // 5. 设置 Uniform 变量
     shader_.setVec3("lightPos", light.position); // 光源位置
-    shader_.setFloat("far_plane", 100.0f); // 阴影贴图的远裁剪面距离
+    shader_.setFloat("farPlane", 100.0f); // 阴影贴图的远裁剪面距离
 
-    // 传入所有 6 个光照空间矩阵（用于点光源立方体阴影）
-    for (unsigned int i = 0; i < lightSpaceMatrices.size(); ++i)
-    {
-        shader_.setMat4("lightSpaceMatrices[" + std::to_string(i) + "]", lightSpaceMatrices[i]);
-    }
 
     // 6. 渲染所有可投射阴影的网格
     for (const auto& mesh : meshes)
