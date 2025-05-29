@@ -61,8 +61,9 @@ void Scene::init()
     // auto test = Texture2D::loadFromFile("gold/albedo.png");
     // 7. 初始化网格和材质
     // 加载LDR纹理
-    // const std::string folder = "wall/";
     const std::string folder = "wall/";
+    // const std::string folder = "rusted_iron/";
+    // const std::string folder = "gold/";
     std::shared_ptr<Texture2D> albedoTexture = std::move(Texture2D::loadFromFile(folder + "albedo.png"));
     std::shared_ptr<Texture2D> normalTexture = std::move(Texture2D::loadFromFile(folder + "normal.png"));
     std::shared_ptr<Texture2D> roughnessTexture = std::move(Texture2D::loadFromFile(folder + "roughness.png"));

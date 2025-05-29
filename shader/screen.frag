@@ -28,7 +28,7 @@ void main()
     //     FragColor = lightColor;
     // }
 
-    FragColor = lightColor;
-    // FragColor = lightColor + iblColor;
+    // FragColor = lightColor;
+    FragColor = lightColor + iblColor;
     // FragColor = iblColor;
 }
