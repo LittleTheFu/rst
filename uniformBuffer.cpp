@@ -1,5 +1,6 @@
 #include "UniformBuffer.h"
 #include <iostream> 
+#include "debug_utils.h"
 
 UniformBuffer::UniformBuffer() 
 { 
@@ -12,6 +13,7 @@ void UniformBuffer::create(size_t size, GLenum usage)
     glCreateBuffers(1, &id_); 
     // DSA：直接为指定 ID 的缓冲区分配存储空间
     glNamedBufferData(id_, size, nullptr, usage); 
+    GL_CHECK_ERROR();
 } 
 
 // 移除了 bind() 和 unbind() 方法，因为它们不再是 DSA 风格操作所必需的。

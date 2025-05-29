@@ -41,13 +41,13 @@ LightPass::LightPass(int width, int height)
     objectLightUBO_.bindToBindingPoint(lightBindingPoint_);
 
     // 获取 Shader 中 Uniform Block 的索引，并绑定到相同的绑定点
-    GLuint lightBlockIndex = glGetUniformBlockIndex(shader_.ID, "PointLightBlock");
-    if (lightBlockIndex == GL_INVALID_INDEX)
-    {
-        std::cerr << "Error: Uniform block 'PointLightBlock' not found in light shader!" << std::endl;
-        // 考虑抛出异常或更严重的错误处理
-    }
-    glUniformBlockBinding(shader_.ID, lightBlockIndex, lightBindingPoint_);
+    // GLuint lightBlockIndex = glGetUniformBlockIndex(shader_.ID, "PointLightBlock");
+    // if (lightBlockIndex == GL_INVALID_INDEX)
+    // {
+    //     std::cerr << "Error: Uniform block 'PointLightBlock' not found in light shader!" << std::endl;
+    //     // 考虑抛出异常或更严重的错误处理
+    // }
+    // glUniformBlockBinding(shader_.ID, lightBlockIndex, lightBindingPoint_);
 
     initScreenQuad(); // 初始化屏幕四边形
 }
@@ -87,41 +87,24 @@ void LightPass::Render(GLuint positionTextureID,
     // 4. 绑定 Light Shader
     shader_.use();
 
-    // 5. 绑定 G-Buffer 纹理
-    //warning: inconsistent with texture interface
-    // glActiveTexture(GL_TEXTURE0);
-    // glBindTexture(GL_TEXTURE_2D, positionTextureID);
     glBindTextureUnit(0, positionTextureID);
     shader_.setInt("positionTexture", 0);
 
-    // glActiveTexture(GL_TEXTURE1);
-    // glBindTexture(GL_TEXTURE_2D, normalTextureID);
     glBindTextureUnit(1, normalTextureID);
     shader_.setInt("normalTexture", 1);
 
-    // glActiveTexture(GL_TEXTURE2);
-    // glBindTexture(GL_TEXTURE_2D, albedoTextureID);
     glBindTextureUnit(2, albedoTextureID);
     shader_.setInt("albedoTexture", 2);
 
-    // glActiveTexture(GL_TEXTURE3);
-    // glBindTexture(GL_TEXTURE_2D, roughnessTextureID);
     glBindTextureUnit(3, roughnessTextureID);
     shader_.setInt("roughnessTexture", 3);
 
-    // glActiveTexture(GL_TEXTURE4);
-    // glBindTexture(GL_TEXTURE_2D, metallicTextureID);
     glBindTextureUnit(4, metallicTextureID);
     shader_.setInt("metallicTexture", 4);
 
-    // glActiveTexture(GL_TEXTURE5);
-    // glBindTexture(GL_TEXTURE_2D, aoTextureID);
     glBindTextureUnit(5, aoTextureID);
     shader_.setInt("aoTexture", 5);
 
-    // 6. 绑定阴影贴图 (立方体贴图)
-    // glActiveTexture(GL_TEXTURE6);
-    // glBindTexture(GL_TEXTURE_CUBE_MAP, shadowMapID);
     glBindTextureUnit(6, shadowMapID);
     shader_.setInt("shadowMapTexture", 6);
 
@@ -132,6 +115,12 @@ void LightPass::Render(GLuint positionTextureID,
     shader_.setFloat("light.intensity", light.intensity);
     shader_.setFloat("shadowCameraFarClip", 100.0f); // 应该与 ShadowPass 中的 far_plane 一致
 
+    PointLightDataForUBO lightData;
+    lightData.position = light.position;
+    lightData.color = light.color;
+    lightData.intensity = light.intensity;
+
+    objectLightUBO_.updateData(0, sizeof(PointLightDataForUBO), &lightData);
 
     // 8. 渲染全屏四边形
     renderQuad(); // 假设你有一个 renderQuad() 辅助函数来绘制全屏四边形
