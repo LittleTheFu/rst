@@ -35,6 +35,7 @@ add_executable(OpenGL_GLAD_SDL2
     textureCubeMap.cpp
     material.cpp
     mesh.cpp
+    oitPass.cpp
     shadowPass.cpp
     shadowUtils.cpp
     lightPass.cpp

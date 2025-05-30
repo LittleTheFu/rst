@@ -23,6 +23,7 @@
 #include "skyPass.h"
 #include "shadowPass.h"
 #include "IBLPass.h"
+#include "OitPass.h"
 
 // SceneData 现在可以更精简，只包含全局共享的固定信息，或者直接移除，
 // 因为大部分动态数据现在通过Render函数传递。
@@ -56,6 +57,7 @@ private:
     std::unique_ptr<ScreenPass> screenPass_;
     std::unique_ptr<ShadowPass> shadowPass_;
     std::unique_ptr<IBLPass> iblPass_;
+    std::unique_ptr<OitPass> oitPass_;
 
     // IBL 预计算纹理，由 Scene 管理其生命周期并注入给 IBLPass 和 SkyPass
     std::shared_ptr<TextureCubeMap> irradianceMapTex_;
