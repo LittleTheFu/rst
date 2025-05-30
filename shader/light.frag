@@ -89,9 +89,8 @@ void main()
     // fragToLight.z = -fragToLight.z;
     vec3 fragToLight_norm = normalize(fragToLight);
     // fragToLight_norm.z = -fragToLight_norm.z;
-    float closestDepth = texture(shadowMapTexture, fragToLight_norm).r * shadowCameraFarClip;
     // float closestDepth = texture(shadowMapTexture, fragToLight_norm).r * shadowCameraFarClip;
-    // float closestDepth = texture(shadowMapTexture, fragToLight_norm).r;
+    float closestDepth = texture(shadowMapTexture, fragToLight_norm).r;
     float currentDepth = length(fragToLight);
     float bias = 0.0155 * shadowCameraFarClip; // 尝试加大一些偏移看看效果
     float shadow = 0.0;
@@ -160,7 +159,7 @@ void main()
     // out_Texture = vec4(currentDepth, currentDepth, currentDepth, 1.0);
     out_DebugCurrentDepth = vec4(currentDepth, currentDepth, currentDepth, 1.0);
 
-    closestDepth = closestDepth / shadowCameraFarClip;
+    // closestDepth = closestDepth / shadowCameraFarClip;
     out_DebugClosestDepth = vec4(closestDepth, closestDepth, closestDepth, 1.0);
 
     // out_DebugClosestDepth = vec4(fragToLight, 1.0);
