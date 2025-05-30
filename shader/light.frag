@@ -93,7 +93,7 @@ void main()
     // float closestDepth = texture(shadowMapTexture, fragToLight_norm).r * shadowCameraFarClip;
     // float closestDepth = texture(shadowMapTexture, fragToLight_norm).r;
     float currentDepth = length(fragToLight);
-    float bias = 0.0055 * shadowCameraFarClip; // 尝试加大一些偏移看看效果
+    float bias = 0.0155 * shadowCameraFarClip; // 尝试加大一些偏移看看效果
     float shadow = 0.0;
     // if (currentDepth > 10) {
     // if (currentDepth > shadowCameraFarClip) {
