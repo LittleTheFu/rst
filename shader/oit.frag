@@ -4,36 +4,41 @@ in VS_OUT {
     vec2 texCoords;
 } fs_in;
 
-layout(location = 0) out vec4 accum;   // 预乘颜色 + alpha的累计
+layout(location = 0) out vec4 accum;   // 预乘颜色+alpha累计
 layout(location = 1) out float reveal; // revealage
+// layout(location = 1) out vec4 reveal; // revealage
 
 uniform sampler2D albedoMap;
 uniform bool hasAlbedoMap;
 
+// 摄像机近平面和远平面距离（需CPU端传入）
+// uniform float znear;
+// uniform float zfar;
 
 void main() {
-    // 线性空间颜色，未做 gamma 校正，假设已是线性
+    // 采样颜色（假设线性空间），默认alpha=1（不透明）
     vec4 color = texture(albedoMap, fs_in.texCoords);
-    //test alpha
-    color.a = 0.9;
+    
+    // 测试用硬编码透明度，可自行替换为color.a
+    color.a = 0.5;
 
-    // 计算权重函数
-    // color.a 是 alpha，color.rgb 最大值控制颜色权重，gl_FragCoord.z 深度归一化到 [0,1]
-    float weight = max(min(1.0, max(max(color.r, color.g), color.b) * color.a), color.a) *
-                   clamp(0.03 / (1e-5 + pow(gl_FragCoord.z / 200.0, 4.0)), 1e-2, 3e3);
+    // 将非线性深度gl_FragCoord.z映射到线性深度范围[znear, zfar]
+    // float weight = max(
+    //     min(1.0, max(max(color.r, color.g), color.b) * color.a),
+    //     color.a
+    // ) * clamp(0.03 / (1e-5 + pow(gl_FragCoord.z / 200, 4.0)), 1e-2, 3e3);
 
-    // float weight = exp(-gl_FragCoord.z * 10.0);
+    float depthFactor = clamp(0.03 / (1e-5 + pow(gl_FragCoord.z / 200.0, 4.0)), 1e-2, 3e3);
+    float base = max(max(color.r, color.g), color.b) * color.a;
+    float weight = max(base, color.a) * depthFactor;
 
-
-
-    // 预乘 alpha 乘权重
+    // blend func: GL_ONE, GL_ONE
+    // switch to pre-multiplied alpha and weight
+    // accum = vec4(color.rgb * color.a, color.a) * weight * 0.0005;
     accum = vec4(color.rgb * color.a, color.a) * weight;
-    // accum = color;
 
-    // revealage 代表“不透明度遮盖程度”
-    // reveal = color.a;
-
-    // reveal = (1.0 - color.a) * weight;
-    // reveal = 1;
-    reveal = weight;
+    // blend func: GL_ZERO, GL_ONE_MINUS_SRC_ALPHA
+    reveal = color.a;
+    // reveal = 0.5;
+    
 }

@@ -14,19 +14,36 @@ void OitPass::Render(const std::vector<const Mesh *> &meshes, const Camera &came
     activateFramebuffer();
     setViewport(width_, height_);
 
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-    clearBuffers(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    // glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    // clearBuffers(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    Eigen::Vector4f clearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClearBufferfv(GL_COLOR, 0, clearColor.data());  // 使用 .data() 提供 float 指针
+
+    // 清除 COLOR_ATTACHMENT1（reveal）
+    float clearReveal = 1.0f;  // 通常是1，表示完全“未遮盖”
+    glClearBufferfv(GL_COLOR, 1, &clearReveal);
+
+    glClear(GL_DEPTH_BUFFER_BIT);
 
     glDisable(GL_CULL_FACE);
 
     enableState(GL_DEPTH_TEST);
     glDepthMask(GL_FALSE);
 
+    // glDisable(GL_BLEND);
+
     glEnable(GL_BLEND);
     glBlendEquation(GL_FUNC_ADD);
 
-    glBlendFuncSeparatei(0, GL_ONE, GL_ONE, GL_ONE, GL_ONE);
-    glBlendFuncSeparatei(1, GL_ZERO, GL_ONE_MINUS_SRC_ALPHA, GL_ZERO, GL_ONE_MINUS_SRC_ALPHA);
+    glBlendFunci(0, GL_ONE, GL_ONE); // accumulation blend target
+    glBlendEquationi(0, GL_FUNC_ADD); // For accum
+
+    glBlendFunci(1, GL_ZERO, GL_ONE_MINUS_SRC_COLOR); // revealge blend target
+    glBlendEquationi(1, GL_FUNC_ADD); // For reveal
+
+    // glBlendFuncSeparatei(0, GL_ONE, GL_ONE, GL_ONE, GL_ONE);
+    // glBlendFuncSeparatei(1, GL_ZERO, GL_ONE_MINUS_SRC_ALPHA, GL_ZERO, GL_ONE_MINUS_SRC_ALPHA);
 
     shader_.use();
 
@@ -54,8 +71,14 @@ void OitPass::init()
     colorTexture_ = std::make_unique<Texture2D>(width_, height_, GL_RGBA8); // 颜色
     colorTexture_->setParameters();
 
-    alphaTexture_ = std::make_unique<Texture2D>(width_, height_, GL_R8); // 颜色
+    alphaTexture_ = std::make_unique<Texture2D>(width_, height_, GL_R32F); // 颜色
     alphaTexture_->setParameters();
+    // glBindTexture(GL_TEXTURE_2D, alphaTexture_->id());
+    // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    // glBindTexture(GL_TEXTURE_2D, 0);
 
     // 创建深度纹理
     depthTexture_ = std::make_unique<Texture2D>(width_, height_, GL_DEPTH_COMPONENT24);
