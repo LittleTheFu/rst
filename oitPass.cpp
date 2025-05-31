@@ -9,10 +9,17 @@ OitPass::OitPass(int width, int height)
     init(); // 初始化 G-Buffer FBO 和纹理
 }
 
-void OitPass::Render(const std::vector<const Mesh *> &meshes, const Camera &camera)
+void OitPass::Render(const std::vector<const Mesh*>& meshes, const Camera& camera, GLuint gPassDepthTextureID)
 {
     activateFramebuffer();
     setViewport(width_, height_);
+
+    frameBuffer_->attachDepthTexture(gPassDepthTextureID, 0);
+    frameBuffer_->checkCompleteness();
+    GL_CHECK_ERROR();
+
+    // 检查 Framebuffer 完整性
+    // frameBuffer_->checkCompleteness();
 
     // glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     // clearBuffers(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -24,7 +31,7 @@ void OitPass::Render(const std::vector<const Mesh *> &meshes, const Camera &came
     float clearReveal = 1.0f;  // 通常是1，表示完全“未遮盖”
     glClearBufferfv(GL_COLOR, 1, &clearReveal);
 
-    glClear(GL_DEPTH_BUFFER_BIT);
+    // glClear(GL_DEPTH_BUFFER_BIT);
 
     glDisable(GL_CULL_FACE);
 
@@ -91,23 +98,16 @@ void OitPass::init()
     frameBuffer_->attachColorTexture(revealTexture_->id(), GL_COLOR_ATTACHMENT1);
 
     // 创建深度纹理附件
-    frameBuffer_->attachDepthTexture(depthTexture_->id(), 0);
+    // frameBuffer_->attachDepthTexture(depthTexture_->id(), 0);
 
     // 设置绘制缓冲区 (指定哪些颜色附件会被渲染)
     std::vector<GLenum> drawBuffers = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1};
     frameBuffer_->setDrawBuffers(drawBuffers);
 
     // 检查 Framebuffer 完整性
-    frameBuffer_->checkCompleteness();
+    // frameBuffer_->checkCompleteness();
 
     GL_CHECK_ERROR(); // 检查 OpenGL 错误
-}
-
-// 获取深度纹理
-GLuint OitPass::getDepthAttachment() const
-{
-    assert(depthTexture_ && "Depth texture is not initialized!");
-    return depthTexture_->id();
 }
 
 GLint OitPass::getAccumTextureId() const

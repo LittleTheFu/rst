@@ -34,10 +34,15 @@ void main()
     // FragColor = lightColor + iblColor;
     // FragColor = iblColor;
 
+    vec4 gFinalColor = lightColor + iblColor;
+
     vec4 accum = texture(accumTexture, TexCoords);
     float reveal = texture(revealTexture, TexCoords).r;
 
     float alpha = accum.a;
     vec3 color = accum.rgb / max(alpha, 1e-5);
-    FragColor = vec4(color, 1.0 - reveal);
+    vec4 oitColor = vec4(color, 1.0 - reveal);
+
+    FragColor = oitColor + gFinalColor;
+    // FragColor = mix(gFinalColor, oitColor, oitColor.a);
 }

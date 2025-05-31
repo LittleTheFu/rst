@@ -127,9 +127,18 @@ void Scene::run()
 
     // 获取需要用于Pass的网格列表 (转换为const Mesh*，避免所有权问题)
     std::vector<const Mesh*> rawMeshes;
-    for (const auto& mesh : meshes_) {
-        rawMeshes.push_back(mesh.get());
-    }
+    // for (const auto& mesh : meshes_) {
+    //     rawMeshes.push_back(mesh.get());
+    // }
+    // rawMeshes.push_back(meshes_[0].get());
+    rawMeshes.push_back(meshes_[1].get());
+    // rawMeshes.push_back(meshes_[2].get());
+
+    std::vector<const Mesh*> transparentMeshes;
+
+    transparentMeshes.push_back(meshes_[0].get());
+    // transparentMeshes.push_back(meshes_[1].get());
+    transparentMeshes.push_back(meshes_[2].get());
 
     // --- 渲染管线执行 ---
 
@@ -141,7 +150,7 @@ void Scene::run()
     gBufferPass_->Render(rawMeshes, camera_);
     GL_CHECK_ERROR();
 
-    oitPass_->Render(rawMeshes, camera_);
+    oitPass_->Render(transparentMeshes, camera_, gBufferPass_->getDepthTextureId());
     GL_CHECK_ERROR();
 
     // // 3. 渲染 LightPass (直接光照)
@@ -176,7 +185,7 @@ void Scene::run()
     // 6. 最终的屏幕合成 Pass (ScreenPass)
     screenPass_->Render(lightPass_->getOutputTextureID(),
                         iblPass_->getOutputTexture(),
-                        gBufferPass_->getDepthAttachment(),
+                        gBufferPass_->getDepthTextureId(),
                         oitPass_->getAccumTextureId(),
                         oitPass_->getRevealTextureId());
     GL_CHECK_ERROR();

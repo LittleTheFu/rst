@@ -18,7 +18,8 @@ struct ObjectData {
 struct SceneData {
     int screenWidth;
     int screenHeight;
-    std::vector<std::shared_ptr<Mesh>> objects;
+    std::vector<std::shared_ptr<Mesh>> opaqueObjects;
+    std::vector<std::shared_ptr<Mesh>> transparentObjects;
     std::shared_ptr<Mesh> skybox;
     std::shared_ptr<PointLight> light;
 

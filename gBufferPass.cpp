@@ -126,7 +126,7 @@ void GBufferPass::initGBuffer()
 }
 
 // 获取深度纹理
-GLuint GBufferPass::getDepthAttachment() const
+GLuint GBufferPass::getDepthTextureId() const
 {
     assert(depthTexture_ && "Depth texture is not initialized!");
     return depthTexture_->id();

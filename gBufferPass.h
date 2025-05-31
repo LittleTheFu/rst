@@ -20,7 +20,7 @@ public:
     void Render(const std::vector<const Mesh*>& meshes, const Camera& camera);
 
     void Resize(int width, int height) override;
-    GLuint getDepthAttachment() const;
+    GLuint getDepthTextureId() const;
 
     // G-Buffer 纹理的 Getter 保持不变
     // GLuint getColorAttachment(int index) const;
