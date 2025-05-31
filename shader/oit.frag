@@ -20,7 +20,7 @@ void main() {
     vec4 color = texture(albedoMap, fs_in.texCoords);
     
     // 测试用硬编码透明度，可自行替换为color.a
-    color.a = 0.5;
+    color.a = 0.2;
 
     // 将非线性深度gl_FragCoord.z映射到线性深度范围[znear, zfar]
     // float weight = max(
