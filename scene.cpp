@@ -84,18 +84,22 @@ void Scene::init()
     mesh_teapot->setMaterial(material_teapot);
     mesh_teapot->setScale(Eigen::Vector3f(1.0f, 1.0f, 1.0f));
     mesh_teapot->setPosition(Eigen::Vector3f(0.0f, 0.0f, 0.0f));
-    meshes_.push_back(std::move(mesh_teapot));
+    // meshes_.push_back(std::move(mesh_teapot));
+    // sceneData_.opaqueObjects.push_back(std::move(mesh_teapot));
+    sceneData_.transparentObjects.push_back(std::move(mesh_teapot));
 
     std::unique_ptr<Mesh> mesh_box = std::make_unique<Mesh>("bx.obj");
     mesh_box->setMaterial(material_teapot);
     mesh_box->setPosition(Eigen::Vector3f(0.0f, 0.0f, -12.0f));
     mesh_box->setScale(Eigen::Vector3f(10.0f, 10.0f, 10.0f));
-    meshes_.push_back(std::move(mesh_box));
+    // meshes_.push_back(std::move(mesh_box));
+    sceneData_.opaqueObjects.push_back(std::move(mesh_box));
 
     std::unique_ptr<Mesh> mesh_cursor = std::make_unique<Mesh>("bx.obj");
     mesh_cursor->setMaterial(material_teapot);
     mesh_cursor->setScale(Eigen::Vector3f(0.2f, 0.2f, 0.2f));
-    meshes_.push_back(std::move(mesh_cursor));
+    // meshes_.push_back(std::move(mesh_cursor));
+    sceneData_.opaqueObjects.push_back(std::move(mesh_cursor));
 }
 
 void Scene::run()
@@ -115,9 +119,9 @@ void Scene::run()
 
     // 调试光标位置
     Eigen::Vector3f offset = Eigen::Vector3f(0.0f, 0.5f, 0.0f);
-    if(!meshes_.empty())
+    if(!sceneData_.opaqueObjects.empty())
     {
-        meshes_.back()->setPosition(mainLight_->position + offset);
+        sceneData_.opaqueObjects.back()->setPosition(mainLight_->position + offset);
     }
 
     // 设置阴影相机 (更新位置)
@@ -131,26 +135,26 @@ void Scene::run()
     //     rawMeshes.push_back(mesh.get());
     // }
     // rawMeshes.push_back(meshes_[0].get());
-    rawMeshes.push_back(meshes_[1].get());
+    // rawMeshes.push_back(meshes_[1].get());
     // rawMeshes.push_back(meshes_[2].get());
 
     std::vector<const Mesh*> transparentMeshes;
 
-    transparentMeshes.push_back(meshes_[0].get());
+    // transparentMeshes.push_back(meshes_[0].get());
     // transparentMeshes.push_back(meshes_[1].get());
-    transparentMeshes.push_back(meshes_[2].get());
+    // transparentMeshes.push_back(meshes_[2].get());
 
     // --- 渲染管线执行 ---
 
     // 1. 渲染阴影贴图 (Shadow Pass)
-    shadowPass_->Render(rawMeshes, *mainLight_);
+    shadowPass_->Render(sceneData_.opaqueObjects, *mainLight_);
     GL_CHECK_ERROR();
 
     // 2. 渲染 G-Buffer (GBufferPass)
-    gBufferPass_->Render(rawMeshes, camera_);
+    gBufferPass_->Render(sceneData_.opaqueObjects, camera_);
     GL_CHECK_ERROR();
 
-    oitPass_->Render(transparentMeshes, camera_, gBufferPass_->getDepthTextureId());
+    oitPass_->Render(sceneData_.transparentObjects, camera_, gBufferPass_->getDepthTextureId());
     GL_CHECK_ERROR();
 
     // // 3. 渲染 LightPass (直接光照)

@@ -9,7 +9,7 @@ OitPass::OitPass(int width, int height)
     init(); // 初始化 G-Buffer FBO 和纹理
 }
 
-void OitPass::Render(const std::vector<const Mesh*>& meshes, const Camera& camera, GLuint gPassDepthTextureID)
+void OitPass::Render(const std::vector<std::shared_ptr<Mesh>>& meshes, const Camera& camera, GLuint gPassDepthTextureID)
 {
     activateFramebuffer();
     setViewport(width_, height_);

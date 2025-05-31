@@ -47,7 +47,7 @@ ShadowPass::ShadowPass(int width, int height)
 // 析构函数保持默认，unique_ptr 会自动清理资源
 // ShadowPass::~ShadowPass() = default;
 
-void ShadowPass::Render(const std::vector<const Mesh *> &meshes, const PointLight &light)
+void ShadowPass::Render(const std::vector<std::shared_ptr<Mesh>>& meshes, const PointLight &light)
 {
     // 如果没有可用的阴影贴图或网格，直接返回
     if (!shadowMapDepthTestTexture_ || !shadowMapDepthOutputTexture_ || meshes.empty())
