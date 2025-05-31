@@ -68,11 +68,11 @@ void OitPass::Render(const std::vector<const Mesh *> &meshes, const Camera &came
 
 void OitPass::init()
 {
-    colorTexture_ = std::make_unique<Texture2D>(width_, height_, GL_RGBA8); // 颜色
-    colorTexture_->setParameters();
+    accumTexture_ = std::make_unique<Texture2D>(width_, height_, GL_RGBA8); // 颜色
+    accumTexture_->setParameters();
 
-    alphaTexture_ = std::make_unique<Texture2D>(width_, height_, GL_R32F); // 颜色
-    alphaTexture_->setParameters();
+    revealTexture_ = std::make_unique<Texture2D>(width_, height_, GL_R32F); // 颜色
+    revealTexture_->setParameters();
     // glBindTexture(GL_TEXTURE_2D, alphaTexture_->id());
     // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -87,8 +87,8 @@ void OitPass::init()
     frameBuffer_ = std::make_unique<Framebuffer>(width_, height_);
 
     // 创建 G-Buffer 纹理附件
-    frameBuffer_->attachColorTexture(colorTexture_->id(), GL_COLOR_ATTACHMENT0);
-    frameBuffer_->attachColorTexture(alphaTexture_->id(), GL_COLOR_ATTACHMENT1);
+    frameBuffer_->attachColorTexture(accumTexture_->id(), GL_COLOR_ATTACHMENT0);
+    frameBuffer_->attachColorTexture(revealTexture_->id(), GL_COLOR_ATTACHMENT1);
 
     // 创建深度纹理附件
     frameBuffer_->attachDepthTexture(depthTexture_->id(), 0);
@@ -110,10 +110,16 @@ GLuint OitPass::getDepthAttachment() const
     return depthTexture_->id();
 }
 
-GLint OitPass::getColorTextureId() const
+GLint OitPass::getAccumTextureId() const
 {
-    assert(colorTexture_ && "Position texture is not initialized!");
-    return colorTexture_->id();
+    assert(accumTexture_ && "Position texture is not initialized!");
+    return accumTexture_->id();
+}
+
+GLint OitPass::getRevealTextureId() const
+{
+    assert(revealTexture_ && "alpha texture is not initialized!");
+    return revealTexture_->id(); 
 }
 
 // 重写 Resize 方法以重新创建 G-Buffer 纹理

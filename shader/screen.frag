@@ -5,6 +5,8 @@ out vec4 FragColor;
 uniform sampler2D lightTexture;
 uniform sampler2D iblTexture;
 uniform sampler2D lightDepthTexture;
+uniform sampler2D accumTexture;
+uniform sampler2D revealTexture;
 
 void main()
 {
@@ -29,6 +31,13 @@ void main()
     // }
 
     // FragColor = lightColor;
-    FragColor = lightColor + iblColor;
+    // FragColor = lightColor + iblColor;
     // FragColor = iblColor;
+
+    vec4 accum = texture(accumTexture, TexCoords);
+    float reveal = texture(revealTexture, TexCoords).r;
+
+    float alpha = accum.a;
+    vec3 color = accum.rgb / max(alpha, 1e-5);
+    FragColor = vec4(color, 1.0 - reveal);
 }

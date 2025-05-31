@@ -18,7 +18,11 @@ ScreenPass::ScreenPass(int width, int height)
 // 移除 Render(SceneData&, Camera&) 方法
 
 // 实现基类的纯虚函数 Render()，不带参数
-void ScreenPass::Render(GLuint directLightTextureID, GLuint iblTextureID, GLuint depthTextureID)
+void ScreenPass::Render(GLuint directLightTextureID,
+                        GLuint iblTextureID,
+                        GLuint gDepthTextureID,
+                        GLuint oitAccumTextureID,
+                        GLuint oitRevealTextureID)
 {
     // ScreenPass 通常直接渲染到默认帧缓冲 (屏幕)
     glBindFramebuffer(GL_FRAMEBUFFER, 0); // 绑定默认帧缓冲
@@ -27,6 +31,10 @@ void ScreenPass::Render(GLuint directLightTextureID, GLuint iblTextureID, GLuint
     // 清除屏幕
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glBlendEquation(GL_FUNC_ADD);
 
     // 禁用深度测试
     disableState(GL_DEPTH_TEST);
@@ -44,14 +52,24 @@ void ScreenPass::Render(GLuint directLightTextureID, GLuint iblTextureID, GLuint
     shader_.setInt("iblTexture", 1);
 
     glActiveTexture(GL_TEXTURE2);
-    glBindTexture(GL_TEXTURE_2D, depthTextureID); // 如果需要深度用于调试或其他后处理
+    glBindTexture(GL_TEXTURE_2D, gDepthTextureID); // 如果需要深度用于调试或其他后处理
     shader_.setInt("depthTexture", 2);
+
+    glActiveTexture(GL_TEXTURE3); 
+    glBindTexture(GL_TEXTURE_2D, oitAccumTextureID);
+    shader_.setInt("accumTexture", 3);
+
+    glActiveTexture(GL_TEXTURE4); 
+    glBindTexture(GL_TEXTURE_2D, oitRevealTextureID);
+    shader_.setInt("revealTexture", 4);
 
     // 设置其他 Uniform 变量 (例如调试选项)
     // shader_.setFloat("somePostProcessParam", 0.5f);
 
     // 渲染全屏四边形
     renderQuad(); // 假设你有一个 renderQuad() 辅助函数来绘制全屏四边形
+
+    glDisable(GL_BLEND);
 
     GL_CHECK_ERROR();
 }

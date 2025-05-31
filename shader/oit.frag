@@ -34,8 +34,8 @@ void main() {
 
     // blend func: GL_ONE, GL_ONE
     // switch to pre-multiplied alpha and weight
-    // accum = vec4(color.rgb * color.a, color.a) * weight * 0.0005;
-    accum = vec4(color.rgb * color.a, color.a) * weight;
+    accum = vec4(color.rgb * color.a, color.a) * weight * 0.0005;
+    // accum = vec4(color.rgb * color.a, color.a) * weight;
 
     // blend func: GL_ZERO, GL_ONE_MINUS_SRC_ALPHA
     reveal = color.a;

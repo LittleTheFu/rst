@@ -22,17 +22,15 @@ public:
     void Resize(int width, int height) override;
     GLuint getDepthAttachment() const;
 
-    // G-Buffer 纹理的 Getter 保持不变
-    GLint getColorTextureId() const;
-    GLint getAlphaTextureId() const;
-
+    GLint getAccumTextureId() const;
+    GLint getRevealTextureId() const;
 
 private:
     Shader shader_;
 
     // G-Buffer 纹理的 IDs
-    std::unique_ptr<Texture2D> colorTexture_; // 存储世界空间位置
-    std::unique_ptr<Texture2D> alphaTexture_;   // 存储世界空间法线
+    std::unique_ptr<Texture2D> accumTexture_; // 存储世界空间位置
+    std::unique_ptr<Texture2D> revealTexture_;   // 存储世界空间法线
     
     std::unique_ptr<Texture2D> depthTexture_; // 存储深度信息（作为纹理）
     

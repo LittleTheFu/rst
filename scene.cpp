@@ -174,9 +174,11 @@ void Scene::run()
     // GL_CHECK_ERROR();
 
     // 6. 最终的屏幕合成 Pass (ScreenPass)
-    screenPass_->Render(lightPass_->getOutputTextureID(), // 直接光照结果
-                        iblPass_->getOutputTexture(),       // IBL 环境光照结果
-                        gBufferPass_->getDepthAttachment()); // G-Buffer 深度 (可能用于调试或后处理)
+    screenPass_->Render(lightPass_->getOutputTextureID(),
+                        iblPass_->getOutputTexture(),
+                        gBufferPass_->getDepthAttachment(),
+                        oitPass_->getAccumTextureId(),
+                        oitPass_->getRevealTextureId());
     GL_CHECK_ERROR();
 }
 

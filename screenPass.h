@@ -16,7 +16,11 @@ public:
     ~ScreenPass() override = default;
 
     // 实现基类的纯虚函数，不带参数
-    void Render(GLuint directLightTextureID, GLuint iblTextureID, GLuint depthTextureID);
+    void Render(GLuint directLightTextureID,
+                GLuint iblTextureID,
+                GLuint gDepthTextureID,
+                GLuint oitAccumTextureID,
+                GLuint oitRevealTextureID);
 
     // 维持 Resize 方法
     void Resize(int width, int height) override;
