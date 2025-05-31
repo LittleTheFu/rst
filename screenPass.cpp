@@ -32,9 +32,9 @@ void ScreenPass::Render(GLuint directLightTextureID,
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glBlendEquation(GL_FUNC_ADD);
+    // glEnable(GL_BLEND);
+    // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    // glBlendEquation(GL_FUNC_ADD);
 
     // 禁用深度测试
     disableState(GL_DEPTH_TEST);
@@ -69,7 +69,7 @@ void ScreenPass::Render(GLuint directLightTextureID,
     // 渲染全屏四边形
     renderQuad(); // 假设你有一个 renderQuad() 辅助函数来绘制全屏四边形
 
-    glDisable(GL_BLEND);
+    // glDisable(GL_BLEND);
 
     GL_CHECK_ERROR();
 }
