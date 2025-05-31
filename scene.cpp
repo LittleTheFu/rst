@@ -22,10 +22,6 @@ void Scene::init()
     mainLight_->color = Eigen::Vector3f(1.0f, 1.0f, 1.0f);
     mainLight_->intensity = 8.0f;
 
-    // 4. 初始化阴影相机 (点光源阴影通常需要6个面，这里只设置基本属性)
-    shadow_camera_.setAspectRatio(1.0f); // 阴影贴图通常是正方形
-    shadow_camera_.setFOV(90.0f);        // 90度FOV用于点光源的立方体阴影贴图
-
     // 5. 加载 IBL 纹理 (在创建 IBLPass 和 SkyPass 之前加载)
     std::shared_ptr<TextureCubeMap> irradianceMapTex_ = TextureCubeMap::loadDDS("ibl/house/houseDiffuseHDR.dds");
     if (!irradianceMapTex_) {
@@ -62,8 +58,8 @@ void Scene::init()
     // auto test = Texture2D::loadFromFile("gold/albedo.png");
     // 7. 初始化网格和材质
     // 加载LDR纹理
-    const std::string folder = "wall/";
-    // const std::string folder = "rusted_iron/";
+    // const std::string folder = "wall/";
+    const std::string folder = "rusted_iron/";
     // const std::string folder = "gold/";
     std::shared_ptr<Texture2D> albedoTexture = std::move(Texture2D::loadFromFile(folder + "albedo.png"));
     std::shared_ptr<Texture2D> normalTexture = std::move(Texture2D::loadFromFile(folder + "normal.png"));
@@ -72,34 +68,40 @@ void Scene::init()
     std::shared_ptr<Texture2D> aoTexture = std::move(Texture2D::loadFromFile(folder + "ao.png"));
 
     // 创建材质
-    std::shared_ptr<Material> material_teapot = std::make_shared<Material>("teapot_mtrl");
-    material_teapot->setAlbedoMap(albedoTexture);
-    material_teapot->setNormalMap(normalTexture);
-    material_teapot->setRoughnessMap(roughnessTexture);
-    material_teapot->setMetallicMap(metallicTexture);
-    material_teapot->setAmbientOcclusionMap(aoTexture);
+    std::shared_ptr<Material> material_opaque = std::make_shared<Material>("opaque_mtrl");
+    material_opaque->setAlbedoMap(albedoTexture);
+    material_opaque->setNormalMap(normalTexture);
+    material_opaque->setRoughnessMap(roughnessTexture);
+    material_opaque->setMetallicMap(metallicTexture);
+    material_opaque->setAmbientOcclusionMap(aoTexture);
+
+    std::shared_ptr<Material> material_transparent = std::make_shared<Material>("transparent_mtrl");
+    material_transparent->setAlbedoMap(albedoTexture);
+    //-------------------------------------
 
     // 创建网格并设置材质和变换
     std::unique_ptr<Mesh> mesh_teapot = std::make_unique<Mesh>("teapot.obj");
-    mesh_teapot->setMaterial(material_teapot);
+    mesh_teapot->setMaterial(material_opaque);
     mesh_teapot->setScale(Eigen::Vector3f(1.0f, 1.0f, 1.0f));
     mesh_teapot->setPosition(Eigen::Vector3f(0.0f, 0.0f, 0.0f));
-    // meshes_.push_back(std::move(mesh_teapot));
-    // sceneData_.opaqueObjects.push_back(std::move(mesh_teapot));
-    sceneData_.transparentObjects.push_back(std::move(mesh_teapot));
+    sceneData_.opaqueObjects.push_back(std::move(mesh_teapot));
 
     std::unique_ptr<Mesh> mesh_box = std::make_unique<Mesh>("bx.obj");
-    mesh_box->setMaterial(material_teapot);
+    mesh_box->setMaterial(material_opaque);
     mesh_box->setPosition(Eigen::Vector3f(0.0f, 0.0f, -12.0f));
     mesh_box->setScale(Eigen::Vector3f(10.0f, 10.0f, 10.0f));
-    // meshes_.push_back(std::move(mesh_box));
     sceneData_.opaqueObjects.push_back(std::move(mesh_box));
 
     std::unique_ptr<Mesh> mesh_cursor = std::make_unique<Mesh>("bx.obj");
-    mesh_cursor->setMaterial(material_teapot);
+    mesh_cursor->setMaterial(material_opaque);
     mesh_cursor->setScale(Eigen::Vector3f(0.2f, 0.2f, 0.2f));
-    // meshes_.push_back(std::move(mesh_cursor));
     sceneData_.opaqueObjects.push_back(std::move(mesh_cursor));
+
+    std::unique_ptr<Mesh> mesh_transparent_teapot = std::make_unique<Mesh>("teapot.obj");
+    mesh_transparent_teapot->setMaterial(material_transparent);
+    mesh_transparent_teapot->setScale(Eigen::Vector3f(0.5f, 0.5f, 0.5f));
+    mesh_transparent_teapot->setPosition(Eigen::Vector3f(5.0f, 0.0f, 0.0f));
+    sceneData_.transparentObjects.push_back(std::move(mesh_transparent_teapot));
 }
 
 void Scene::run()
@@ -115,7 +117,7 @@ void Scene::run()
     x_light *= 0.5;
     mainLight_->position = Eigen::Vector3f(x_light, x_light, 7.0f);
     // mainLight_->position = Eigen::Vector3f(5, 5, 7.0f);
-    mainLight_->intensity = 100.0f;
+    mainLight_->intensity = 5.0f;
 
     // 调试光标位置
     Eigen::Vector3f offset = Eigen::Vector3f(0.0f, 0.5f, 0.0f);
@@ -123,26 +125,6 @@ void Scene::run()
     {
         sceneData_.opaqueObjects.back()->setPosition(mainLight_->position + offset);
     }
-
-    // 设置阴影相机 (更新位置)
-    // 对于点光源，shadow_camera_ 的 GetLightSpaceMatrices() 方法
-    // 会根据 mainLight_->position 和 far_plane 生成6个视图-投影矩阵。
-    shadow_camera_.Position = mainLight_->position;
-
-    // 获取需要用于Pass的网格列表 (转换为const Mesh*，避免所有权问题)
-    std::vector<const Mesh*> rawMeshes;
-    // for (const auto& mesh : meshes_) {
-    //     rawMeshes.push_back(mesh.get());
-    // }
-    // rawMeshes.push_back(meshes_[0].get());
-    // rawMeshes.push_back(meshes_[1].get());
-    // rawMeshes.push_back(meshes_[2].get());
-
-    std::vector<const Mesh*> transparentMeshes;
-
-    // transparentMeshes.push_back(meshes_[0].get());
-    // transparentMeshes.push_back(meshes_[1].get());
-    // transparentMeshes.push_back(meshes_[2].get());
 
     // --- 渲染管线执行 ---
 

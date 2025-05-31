@@ -24,10 +24,6 @@
 #include "shadowPass.h"
 #include "IBLPass.h"
 #include "OitPass.h"
-
-// SceneData 现在可以更精简，只包含全局共享的固定信息，或者直接移除，
-// 因为大部分动态数据现在通过Render函数传递。
-// 为保持兼容性，我们暂时保留它，但可以按需精简。
 #include "SceneData.h"
 
 class Scene
@@ -46,9 +42,7 @@ private:
 
     // 场景中的核心对象
     Camera camera_;
-    Camera shadow_camera_; // 用于阴影渲染的相机
     std::shared_ptr<PointLight> mainLight_; // 主光源
-    std::vector<std::unique_ptr<Mesh>> meshes_; // 场景中的所有可渲染网格
 
     // 渲染 Pass 实例
     std::unique_ptr<GBufferPass> gBufferPass_;
