@@ -55,50 +55,98 @@ void Scene::init()
 
     screenPass_ = std::make_unique<ScreenPass>(sceneData_.screenWidth, sceneData_.screenHeight);
 
-    // auto test = Texture2D::loadFromFile("gold/albedo.png");
-    // 7. 初始化网格和材质
-    // 加载LDR纹理
-    // const std::string folder = "wall/";
-    const std::string folder = "rusted_iron/";
-    // const std::string folder = "gold/";
-    std::shared_ptr<Texture2D> albedoTexture = std::move(Texture2D::loadFromFile(folder + "albedo.png"));
-    std::shared_ptr<Texture2D> normalTexture = std::move(Texture2D::loadFromFile(folder + "normal.png"));
-    std::shared_ptr<Texture2D> roughnessTexture = std::move(Texture2D::loadFromFile(folder + "roughness.png"));
-    std::shared_ptr<Texture2D> metallicTexture = std::move(Texture2D::loadFromFile(folder + "metallic.png"));
-    std::shared_ptr<Texture2D> aoTexture = std::move(Texture2D::loadFromFile(folder + "ao.png"));
+    //---gold-------------------------------------------------
+    std::shared_ptr<Texture2D> goldAlbedoTexture = std::move(Texture2D::loadFromFile("gold/albedo.png"));
+    std::shared_ptr<Texture2D> goldNormalTexture = std::move(Texture2D::loadFromFile("gold/normal.png"));
+    std::shared_ptr<Texture2D> goldRoughnessTexture = std::move(Texture2D::loadFromFile("gold/roughness.png"));
+    std::shared_ptr<Texture2D> goldMetallicTexture = std::move(Texture2D::loadFromFile("gold/metallic.png"));
+    std::shared_ptr<Texture2D> goldAoTexture = std::move(Texture2D::loadFromFile("gold/ao.png"));
 
-    // 创建材质
-    std::shared_ptr<Material> material_opaque = std::make_shared<Material>("opaque_mtrl");
-    material_opaque->setAlbedoMap(albedoTexture);
-    material_opaque->setNormalMap(normalTexture);
-    material_opaque->setRoughnessMap(roughnessTexture);
-    material_opaque->setMetallicMap(metallicTexture);
-    material_opaque->setAmbientOcclusionMap(aoTexture);
+    std::shared_ptr<Material> goldMaterial = std::make_shared<Material>("goldMaterial");
+    goldMaterial->setAlbedoMap(goldAlbedoTexture);
+    goldMaterial->setNormalMap(goldNormalTexture);
+    goldMaterial->setRoughnessMap(goldRoughnessTexture);
+    goldMaterial->setMetallicMap(goldMetallicTexture);
+    goldMaterial->setAmbientOcclusionMap(goldAoTexture);
 
-    std::shared_ptr<Material> material_transparent = std::make_shared<Material>("transparent_mtrl");
-    material_transparent->setAlbedoMap(albedoTexture);
-    //-------------------------------------
+    //-----wall---------------------------------------------------------------------------
+    std::shared_ptr<Texture2D> wallAlbedoTexture = std::move(Texture2D::loadFromFile("wall/albedo.png"));
+    std::shared_ptr<Texture2D> wallNormalTexture = std::move(Texture2D::loadFromFile("wall/normal.png"));
+    std::shared_ptr<Texture2D> wallRoughnessTexture = std::move(Texture2D::loadFromFile("wall/roughness.png"));
+    std::shared_ptr<Texture2D> wallMetallicTexture = std::move(Texture2D::loadFromFile("wall/metallic.png"));
+    std::shared_ptr<Texture2D> wallAoTexture = std::move(Texture2D::loadFromFile("wall/ao.png"));
+
+    std::shared_ptr<Material> wallMaterial = std::make_shared<Material>("wallMaterial");
+    wallMaterial->setAlbedoMap(wallAlbedoTexture);
+    wallMaterial->setNormalMap(wallNormalTexture);
+    wallMaterial->setRoughnessMap(wallRoughnessTexture);
+    wallMaterial->setMetallicMap(wallMetallicTexture);
+    wallMaterial->setAmbientOcclusionMap(wallAoTexture);
+
+    //----grass-----------------------------------------------------------------------------
+    std::shared_ptr<Texture2D> grassAlbedoTexture = std::move(Texture2D::loadFromFile("grass/albedo.png"));
+    std::shared_ptr<Texture2D> grassNormalTexture = std::move(Texture2D::loadFromFile("grass/normal.png"));
+    std::shared_ptr<Texture2D> grassRoughnessTexture = std::move(Texture2D::loadFromFile("grass/roughness.png"));
+    std::shared_ptr<Texture2D> grassMetallicTexture = std::move(Texture2D::loadFromFile("grass/metallic.png"));
+    std::shared_ptr<Texture2D> grassAoTexture = std::move(Texture2D::loadFromFile("grass/ao.png"));
+
+    std::shared_ptr<Material> grassMaterial = std::make_shared<Material>("grassMaterial");
+    grassMaterial->setAlbedoMap(grassAlbedoTexture);
+    grassMaterial->setNormalMap(grassNormalTexture);
+    grassMaterial->setRoughnessMap(grassRoughnessTexture);
+    grassMaterial->setMetallicMap(grassMetallicTexture);
+    grassMaterial->setAmbientOcclusionMap(grassAoTexture);
+
+    //----plastic-----------------------------------------------------------------
+    std::shared_ptr<Texture2D> plasticAlbedoTexture = std::move(Texture2D::loadFromFile("plastic/albedo.png"));
+    std::shared_ptr<Texture2D> plasticNormalTexture = std::move(Texture2D::loadFromFile("plastic/normal.png"));
+    std::shared_ptr<Texture2D> plasticRoughnessTexture = std::move(Texture2D::loadFromFile("plastic/roughness.png"));
+    std::shared_ptr<Texture2D> plasticMetallicTexture = std::move(Texture2D::loadFromFile("plastic/metallic.png"));
+    std::shared_ptr<Texture2D> plasticAoTexture = std::move(Texture2D::loadFromFile("plastic/ao.png"));
+
+    std::shared_ptr<Material> plasticMaterial = std::make_shared<Material>("plasticMaterial");
+    plasticMaterial->setAlbedoMap(plasticAlbedoTexture);
+    plasticMaterial->setNormalMap(plasticNormalTexture);
+    plasticMaterial->setRoughnessMap(plasticRoughnessTexture);
+    plasticMaterial->setMetallicMap(plasticMetallicTexture);
+    plasticMaterial->setAmbientOcclusionMap(plasticAoTexture);
+
+    //----rusted_iron-------------------------------------------------
+    std::shared_ptr<Texture2D> rustedIronAlbedoTexture = std::move(Texture2D::loadFromFile("rusted_iron/albedo.png"));
+    std::shared_ptr<Texture2D> rustedIronNormalTexture = std::move(Texture2D::loadFromFile("rusted_iron/normal.png"));
+    std::shared_ptr<Texture2D> rustedIronRoughnessTexture = std::move(Texture2D::loadFromFile("rusted_iron/roughness.png"));
+    std::shared_ptr<Texture2D> rustedIronMetallicTexture = std::move(Texture2D::loadFromFile("rusted_iron/metallic.png"));
+    std::shared_ptr<Texture2D> rustedIronAoTexture = std::move(Texture2D::loadFromFile("rusted_iron/ao.png"));
+
+    std::shared_ptr<Material> rustedIronMaterial = std::make_shared<Material>("rustedIronMaterial");
+    rustedIronMaterial->setAlbedoMap(rustedIronAlbedoTexture);
+    rustedIronMaterial->setNormalMap(rustedIronNormalTexture);
+    rustedIronMaterial->setRoughnessMap(rustedIronRoughnessTexture);
+    rustedIronMaterial->setMetallicMap(rustedIronMetallicTexture);
+    rustedIronMaterial->setAmbientOcclusionMap(rustedIronAoTexture);
+
+    //--------------------------------------------------------------------------------------------------------
 
     // 创建网格并设置材质和变换
     std::unique_ptr<Mesh> mesh_teapot = std::make_unique<Mesh>("teapot.obj");
-    mesh_teapot->setMaterial(material_opaque);
+    mesh_teapot->setMaterial(plasticMaterial);
     mesh_teapot->setScale(Eigen::Vector3f(1.0f, 1.0f, 1.0f));
     mesh_teapot->setPosition(Eigen::Vector3f(0.0f, 0.0f, 0.0f));
     sceneData_.opaqueObjects.push_back(std::move(mesh_teapot));
 
     std::unique_ptr<Mesh> mesh_box = std::make_unique<Mesh>("bx.obj");
-    mesh_box->setMaterial(material_opaque);
+    mesh_box->setMaterial(wallMaterial);
     mesh_box->setPosition(Eigen::Vector3f(0.0f, 0.0f, -12.0f));
     mesh_box->setScale(Eigen::Vector3f(10.0f, 10.0f, 10.0f));
     sceneData_.opaqueObjects.push_back(std::move(mesh_box));
 
     std::unique_ptr<Mesh> mesh_cursor = std::make_unique<Mesh>("bx.obj");
-    mesh_cursor->setMaterial(material_opaque);
+    mesh_cursor->setMaterial(goldMaterial);
     mesh_cursor->setScale(Eigen::Vector3f(0.2f, 0.2f, 0.2f));
     sceneData_.opaqueObjects.push_back(std::move(mesh_cursor));
 
     std::unique_ptr<Mesh> mesh_transparent_teapot = std::make_unique<Mesh>("teapot.obj");
-    mesh_transparent_teapot->setMaterial(material_transparent);
+    mesh_transparent_teapot->setMaterial(grassMaterial);
     mesh_transparent_teapot->setScale(Eigen::Vector3f(0.5f, 0.5f, 0.5f));
     mesh_transparent_teapot->setPosition(Eigen::Vector3f(5.0f, 0.0f, 0.0f));
     sceneData_.transparentObjects.push_back(std::move(mesh_transparent_teapot));
