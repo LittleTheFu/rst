@@ -8,6 +8,7 @@ layout (location = 4) in vec3 aBitangent;
 
 out VS_OUT {
     vec2 texCoords;
+    vec3 worldPos;
 } vs_out;
 
 
@@ -18,4 +19,5 @@ uniform mat4 model;
 void main() {
     vs_out.texCoords = aTexCoords;
     gl_Position = projection * view * model * vec4(aPos, 1.0);
+    vs_out.worldPos = vec3(model * vec4(aPos, 1.0));
 }

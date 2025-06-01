@@ -54,8 +54,10 @@ void OitPass::Render(const std::vector<std::shared_ptr<Mesh>>& meshes, const Cam
 
     shader_.use();
 
+    shader_.setVec3("cameraPos", camera.getPosition());
     shader_.setMat4("projection", camera.GetProjectionMatrix());
     shader_.setMat4("view", camera.GetViewMatrix());
+
 
     for (const auto &mesh : meshes)
     {

@@ -2,6 +2,7 @@
 
 in VS_OUT {
     vec2 texCoords;
+    vec3 worldPos;
 } fs_in;
 
 layout(location = 0) out vec4 accum;   // 预乘颜色+alpha累计
@@ -11,34 +12,129 @@ layout(location = 1) out float reveal; // revealage
 uniform sampler2D albedoMap;
 uniform bool hasAlbedoMap;
 
-// 摄像机近平面和远平面距离（需CPU端传入）
-// uniform float znear;
-// uniform float zfar;
+//Material::bindTextures()
+uniform sampler2D albedoTexture;
+uniform sampler2D normalTexture;
+uniform sampler2D metallicTexture;
+uniform sampler2D roughnessTexture;
+uniform sampler2D aoTexture;
+
+uniform vec3 cameraPos;
+
+layout (std140) uniform PointLightBlock {
+    vec3 position;
+    float pad0;
+    vec3 color;
+    float pad1;
+    float intensity;
+    // float constant;
+    // float linear;
+    // float quadratic;
+} uPointLight;
+
+const float PI = 3.14159265359;
+
+vec3 fresnelSchlick(float cosTheta, vec3 F0)
+{
+    return F0 + (1.0 - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
+}  
+
+float DistributionGGX(vec3 N, vec3 H, float roughness)
+{
+    float a      = roughness*roughness;
+    float a2     = a*a;
+    float NdotH  = max(dot(N, H), 0.0);
+    float NdotH2 = NdotH*NdotH;
+	
+    float num   = a2;
+    float denom = (NdotH2 * (a2 - 1.0) + 1.0);
+    denom = PI * denom * denom;
+	
+    return num / denom;
+}
+
+float GeometrySchlickGGX(float NdotV, float roughness)
+{
+    float r = (roughness + 1.0);
+    float k = (r*r) / 8.0;
+
+    float num   = NdotV;
+    float denom = NdotV * (1.0 - k) + k;
+	
+    return num / denom;
+}
+
+float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness)
+{
+    float NdotV = max(dot(N, V), 0.0);
+    float NdotL = max(dot(N, L), 0.0);
+    float ggx2  = GeometrySchlickGGX(NdotV, roughness);
+    float ggx1  = GeometrySchlickGGX(NdotL, roughness);
+	
+    return ggx1 * ggx2;
+}
+
 
 void main() {
-    // 采样颜色（假设线性空间），默认alpha=1（不透明）
-    vec4 color = texture(albedoMap, fs_in.texCoords);
-    
-    // 测试用硬编码透明度，可自行替换为color.a
-    color.a = 0.6;
+    vec3 world_position = fs_in.worldPos;
+    vec3 normal = texture(normalTexture, fs_in.texCoords).rgb;
+    vec3 albedo = texture(albedoTexture, fs_in.texCoords).rgb;
+    float metallic = 0;
+    float roughness = texture(roughnessTexture, fs_in.texCoords).r;
+    vec3 ao = texture(aoTexture, fs_in.texCoords).rgb;
 
-    // 将非线性深度gl_FragCoord.z映射到线性深度范围[znear, zfar]
-    // float weight = max(
-    //     min(1.0, max(max(color.r, color.g), color.b) * color.a),
-    //     color.a
-    // ) * clamp(0.03 / (1e-5 + pow(gl_FragCoord.z / 200, 4.0)), 1e-2, 3e3);
+    // 确保粗糙度在0.05到1.0之间
+    roughness = clamp(roughness, 0.05, 1.0);  // 不要为0，也不要大于1
+
+    vec3 viewDir = normalize(cameraPos - world_position);
+    vec3 lightDir = normalize(uPointLight.position - world_position);
+    vec3 halfwayDir = normalize(lightDir + viewDir);
+
+    float distance = length(uPointLight.position - world_position);
+    float attenuation = 1.0 / (distance * distance);
+
+    vec3 radiance = uPointLight.color * uPointLight.intensity * attenuation;
+    // vec3 radiance = uPointLight.color * uPointLight.intensity;
+    // vec3 radiance = uPointLight.color;
+
+    // fresnelSchlick
+    vec3 F0 = vec3(0.04); 
+    F0 = mix(F0, albedo, metallic);
+    vec3 F = fresnelSchlick(max(dot(halfwayDir, viewDir), 0.0), F0);
+
+    float NDF = DistributionGGX(normal, halfwayDir, roughness);       
+    float G = GeometrySmith(normal, viewDir, lightDir, roughness); 
+
+    vec3 numerator = NDF * G * F;
+    float denominator = 4.0 * max(dot(normal, viewDir), 0.0) * max(dot(normal, lightDir), 0.0)  + 0.0001;
+    vec3 specular = numerator / denominator; 
+
+    vec3 kS = F;
+    vec3 kD = vec3(1.0) - kS;
+
+    kD *= 1.0 - metallic;
+  
+    float NdotL = max(dot(normal, lightDir), 0.0);  
+
+    vec3 Lo = vec3(0.0);      
+    Lo += (kD * albedo / PI + specular) * radiance * NdotL;
+
+    vec3 ambient = vec3(0.45) * albedo * ao;
+    // vec3 ambient = vec3(0.03) * albedo * ao;
+    vec4 outColor = vec4(Lo, 1.0) + vec4(ambient, 1.0);
+
+    //-------------------------------------------------------------------------------
+    vec4 color = outColor;
+    // vec4 color = texture(albedoMap, fs_in.texCoords);    
+    color.a = 0.6;
 
     float depthFactor = clamp(0.03 / (1e-5 + pow(gl_FragCoord.z / 200.0, 4.0)), 1e-2, 3e3);
     float base = max(max(color.r, color.g), color.b) * color.a;
     float weight = max(base, color.a) * depthFactor;
 
-    // blend func: GL_ONE, GL_ONE
-    // switch to pre-multiplied alpha and weight
     // accum = vec4(color.rgb * color.a, color.a) * weight * 0.0001;
     accum = vec4(color.rgb * color.a, color.a) * weight;
 
-    // blend func: GL_ZERO, GL_ONE_MINUS_SRC_ALPHA
     reveal = color.a;
-    // reveal = 0.5;
-    
+    // reveal = 0.5;    
 }

@@ -84,7 +84,6 @@ void main()
     float roughness = texture(roughnessTexture, TexCoords).r;
     vec3 ao = texture(aoTexture, TexCoords).rgb;
 
-    // 这里暗含一个bug，因为depth的映射不是线性的。
     vec3 fragToLight = (world_position - uPointLight.position);
     // fragToLight.z = -fragToLight.z;
     vec3 fragToLight_norm = normalize(fragToLight);
