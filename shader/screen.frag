@@ -44,6 +44,6 @@ void main()
     vec4 oitColor = vec4(color, 1.0 - reveal);
 
     // FragColor = lightColor;
-    FragColor = oitColor + gPassFinalColor;
+    FragColor = oitColor * 0.6 + gPassFinalColor;
     // FragColor = mix(gFinalColor, oitColor, oitColor.a);
 }

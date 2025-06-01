@@ -132,7 +132,8 @@ void Scene::init()
     mesh_teapot->setMaterial(plasticMaterial);
     mesh_teapot->setScale(Eigen::Vector3f(1.0f, 1.0f, 1.0f));
     mesh_teapot->setPosition(Eigen::Vector3f(0.0f, 0.0f, 0.0f));
-    sceneData_.opaqueObjects.push_back(std::move(mesh_teapot));
+    // sceneData_.opaqueObjects.push_back(std::move(mesh_teapot));
+    sceneData_.transparentObjects.push_back(std::move(mesh_teapot));
 
     std::unique_ptr<Mesh> mesh_box = std::make_unique<Mesh>("bx.obj");
     mesh_box->setMaterial(wallMaterial);
