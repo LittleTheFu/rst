@@ -106,6 +106,7 @@ void IBLPass::Render(GLuint gPositionID, GLuint gNormalID, GLuint gAlbedoID,
 
     // 7. 设置 Uniform 变量
     shader_.setVec3("viewPos", camera.Position);
+    shader_.setFloat("maxReflectionLOD", 1);
 
     // 8. 渲染全屏四边形
     renderQuad(); // 假设你有一个 renderQuad() 辅助函数来绘制全屏四边形

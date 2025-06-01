@@ -1,15 +1,32 @@
 #include "oitPass.h"
 #include <iostream>
 #include "debug_utils.h" // 确保包含调试工具
+#include "pointLightDataForUBO.h"
 
-OitPass::OitPass(int width, int height)
-    : RenderPass("OitPass", width, height)
+OitPass::OitPass(int width,
+                 int height,
+                 std::shared_ptr<TextureCubeMap> irradianceMap,
+                 std::shared_ptr<TextureCubeMap> prefilterMap,
+                 std::shared_ptr<Texture2D> brdfLUT)
+    : RenderPass("OitPass", width, height),
+      irradianceMap_(irradianceMap),
+      prefilterMap_(prefilterMap),
+      brdfLUT_(brdfLUT)
 {
     shader_.load("shader/oit.vert", "shader/oit.frag");
+
+    // 初始化 Uniform Buffer Object
+    lightBindingPoint_ = shader_.getUniformBlockIndex("PointLightBlock");
+    objectLightUBO_.create(sizeof(PointLightDataForUBO), GL_DYNAMIC_DRAW);
+    objectLightUBO_.bindToBindingPoint(lightBindingPoint_);
+
     init(); // 初始化 G-Buffer FBO 和纹理
 }
 
-void OitPass::Render(const std::vector<std::shared_ptr<Mesh>>& meshes, const Camera& camera, GLuint gPassDepthTextureID)
+void OitPass::Render(const std::vector<std::shared_ptr<Mesh>> &meshes,
+                     const PointLight &light,
+                     const Camera &camera,
+                     GLuint gPassDepthTextureID)
 {
     activateFramebuffer();
     setViewport(width_, height_);
@@ -54,9 +71,27 @@ void OitPass::Render(const std::vector<std::shared_ptr<Mesh>>& meshes, const Cam
 
     shader_.use();
 
+    irradianceMap_->activate(6);
+    shader_.setInt("irradianceMap", 6);
+
+    prefilterMap_->activate(7);
+    shader_.setInt("prefilterMap", 7);
+
+    brdfLUT_->activate(8);
+    shader_.setInt("brdfLUT", 8);
+
+    shader_.setFloat("maxReflectionLOD", 1);
+
     shader_.setVec3("cameraPos", camera.getPosition());
     shader_.setMat4("projection", camera.GetProjectionMatrix());
     shader_.setMat4("view", camera.GetViewMatrix());
+
+    PointLightDataForUBO lightData;
+    lightData.position = light.position;
+    lightData.color = light.color;
+    lightData.intensity = light.intensity;
+
+    objectLightUBO_.updateData(0, sizeof(PointLightDataForUBO), &lightData);
 
 
     for (const auto &mesh : meshes)

@@ -42,12 +42,21 @@ void Scene::init()
     gBufferPass_ = std::make_unique<GBufferPass>(sceneData_.screenWidth, sceneData_.screenHeight);
     shadowPass_ = std::make_unique<ShadowPass>(sceneData_.shadowMapWidth, sceneData_.shadowMapHeight);
     lightPass_ = std::make_unique<LightPass>(sceneData_.screenWidth, sceneData_.screenHeight);
-    oitPass_ = std::make_unique<OitPass>(sceneData_.screenWidth, sceneData_.screenHeight);
+
+    oitPass_ = std::make_unique<OitPass>(
+        sceneData_.screenWidth,
+        sceneData_.screenHeight,
+        irradianceMapTex_,
+        prefilterMapTex_,
+        brdfLUTTex_);
 
     // IBLPass 和 SkyPass 的构造函数仍然可以注入其不变的IBL纹理
     iblPass_ = std::make_unique<IBLPass>(
-        sceneData_.screenWidth, sceneData_.screenHeight,
-        irradianceMapTex_, prefilterMapTex_, brdfLUTTex_);
+        sceneData_.screenWidth,
+        sceneData_.screenHeight,
+        irradianceMapTex_,
+        prefilterMapTex_,
+        brdfLUTTex_);
 
     // skyPass_ = std::make_unique<SkyPass>(
     //     sceneData_.screenWidth, sceneData_.screenHeight,
@@ -129,7 +138,7 @@ void Scene::init()
 
     // 创建网格并设置材质和变换
     std::unique_ptr<Mesh> mesh_teapot = std::make_unique<Mesh>("teapot.obj");
-    mesh_teapot->setMaterial(plasticMaterial);
+    mesh_teapot->setMaterial(rustedIronMaterial);
     mesh_teapot->setScale(Eigen::Vector3f(1.0f, 1.0f, 1.0f));
     mesh_teapot->setPosition(Eigen::Vector3f(0.0f, 0.0f, 0.0f));
     // sceneData_.opaqueObjects.push_back(std::move(mesh_teapot));
@@ -185,7 +194,10 @@ void Scene::run()
     gBufferPass_->Render(sceneData_.opaqueObjects, camera_);
     GL_CHECK_ERROR();
 
-    oitPass_->Render(sceneData_.transparentObjects, camera_, gBufferPass_->getDepthTextureId());
+    oitPass_->Render(sceneData_.transparentObjects,
+                     *mainLight_,
+                     camera_,
+                     gBufferPass_->getDepthTextureId());
     GL_CHECK_ERROR();
 
     // // 3. 渲染 LightPass (直接光照)
