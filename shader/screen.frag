@@ -34,7 +34,7 @@ void main()
     // FragColor = lightColor + iblColor;
     // FragColor = iblColor;
 
-    vec4 gPassFinalColor = lightColor + iblColor * 0.5;
+    vec4 gPassFinalColor = lightColor + iblColor * 0.1;
 
     vec4 accum = texture(accumTexture, TexCoords);
     float reveal = texture(revealTexture, TexCoords).r;
