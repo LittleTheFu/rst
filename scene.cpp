@@ -141,8 +141,8 @@ void Scene::init()
     mesh_teapot->setMaterial(rustedIronMaterial);
     mesh_teapot->setScale(Eigen::Vector3f(1.0f, 1.0f, 1.0f));
     mesh_teapot->setPosition(Eigen::Vector3f(0.0f, 0.0f, 0.0f));
-    // sceneData_.opaqueObjects.push_back(std::move(mesh_teapot));
-    sceneData_.transparentObjects.push_back(std::move(mesh_teapot));
+    sceneData_.opaqueObjects.push_back(std::move(mesh_teapot));
+    // sceneData_.transparentObjects.push_back(std::move(mesh_teapot));
 
     std::unique_ptr<Mesh> mesh_box = std::make_unique<Mesh>("bx.obj");
     mesh_box->setMaterial(wallMaterial);
@@ -175,7 +175,7 @@ void Scene::run()
     x_light *= 0.5;
     mainLight_->position = Eigen::Vector3f(x_light, x_light, 7.0f);
     // mainLight_->position = Eigen::Vector3f(5, 5, 7.0f);
-    mainLight_->intensity = 800.0f;
+    mainLight_->intensity = 15.0f;
 
     // 调试光标位置
     Eigen::Vector3f offset = Eigen::Vector3f(0.0f, 0.5f, 0.0f);
