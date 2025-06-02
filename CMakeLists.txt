@@ -25,6 +25,7 @@ add_executable(OpenGL_GLAD_SDL2
     glObject.cpp
     window.cpp
     vertex.cpp
+    vertexBuffer.cpp
     frameBuffer.cpp
     renderPass.cpp
     gBufferpass.cpp
