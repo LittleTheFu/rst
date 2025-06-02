@@ -47,44 +47,36 @@ Mesh::Mesh(const std::string& filePath, std::shared_ptr<Material> material) :
 }
 
 Mesh::~Mesh() {
-    glDeleteVertexArrays(1, &VAO);
-    glDeleteBuffers(1, &VBO);
-    glDeleteBuffers(1, &EBO);
+    // glDeleteVertexArrays(1, &VAO);
+    // glDeleteBuffers(1, &VBO);
+    // glDeleteBuffers(1, &EBO);
 }
 
 void Mesh::setupMesh() {
-    glCreateVertexArrays(1, &VAO);
-    glCreateBuffers(1, &VBO);
-    glCreateBuffers(1, &EBO);
 
-    glBindVertexArray(VAO);
+    VAO_ = std::make_unique<VertexArray>(); // 创建 VertexArray 对象
+    VBO_ = std::make_unique<VertexBuffer>(vertices.data(), vertices.size(), GL_STATIC_DRAW); // 创建 VertexBuffer 对象
+    EBO_ = std::make_unique<IndexBuffer>(indices.data(), indices.size(), GL_STATIC_DRAW); // 创建 IndexBuffer 对象
 
-    // 顶点数据
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), vertices.data(), GL_STATIC_DRAW);
+    VAO_->bind(); // 绑定 VAO
+    VAO_->setIndexBuffer(*EBO_); // 设置索引缓冲区
 
-    // 索引数据
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), indices.data(), GL_STATIC_DRAW);
+    VAO_->setAttribute(0, *VBO_, 3, GL_FLOAT, GL_FALSE, offsetof(Vertex, position), sizeof(Vertex), 0); // 位置
+    VAO_->enableAttribute(0);
 
-    // 顶点属性指针
-    // 位置
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, position));
-    // 法线
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, normal));
-    // 纹理坐标
-    glEnableVertexAttribArray(2);
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, texCoords));
-    // 切线
-    glEnableVertexAttribArray(3);
-    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, tangent));
-    // 副切线
-    glEnableVertexAttribArray(4);
-    glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, bitangent));
+    VAO_->setAttribute(1, *VBO_, 3, GL_FLOAT, GL_FALSE, offsetof(Vertex, normal), sizeof(Vertex), 0);   // 法线
+    VAO_->enableAttribute(1);
 
-    glBindVertexArray(0);
+    VAO_->setAttribute(2, *VBO_, 2, GL_FLOAT, GL_FALSE, offsetof(Vertex, texCoords), sizeof(Vertex), 0); // 纹理坐标
+    VAO_->enableAttribute(2);
+
+    VAO_->setAttribute(3, *VBO_, 3, GL_FLOAT, GL_FALSE, offsetof(Vertex, tangent), sizeof(Vertex), 0);   // 切线
+    VAO_->enableAttribute(3);
+
+    VAO_->setAttribute(4, *VBO_, 3, GL_FLOAT, GL_FALSE, offsetof(Vertex, bitangent), sizeof(Vertex), 0); // 副切线
+    VAO_->enableAttribute(4);
+
+    VAO_->unbind(); // 解绑 VAO
 }
 
 void Mesh::render(Shader& shader) const {
@@ -99,9 +91,11 @@ void Mesh::render(Shader& shader) const {
         material_->setUniforms(shader); // 假设 Material 类有这个方法
     }
 
-    glBindVertexArray(VAO);
+    // glBindVertexArray(VAO);
+    VAO_->bind();
     glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
-    glBindVertexArray(0);
+    VAO_->unbind();
+    // glBindVertexArray(0);
 }
 
 Eigen::Matrix4f Mesh::getModelMatrix() const {

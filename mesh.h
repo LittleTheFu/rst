@@ -13,6 +13,9 @@
 #include "Material.h" // 包含 Material 类
 #include <memory>     // 包含 std::shared_ptr
 #include "vertex.h"   // 包含 Vertex 结构体
+#include "vertexArray.h"
+#include "indexBuffer.h"
+#include "vertexBuffer.h"
 
 
 class Mesh : public Renderable, public Transformable {
@@ -40,7 +43,11 @@ private:
     std::vector<Vertex> vertices;
     std::vector<unsigned int> indices;
 
-    GLuint VAO, VBO, EBO;
+    // GLuint VAO, VBO, EBO;
+    std::unique_ptr<VertexArray> VAO_; // 使用 VertexArray 的智能指针
+    std::unique_ptr<VertexBuffer> VBO_; // 使用 VertexBuffer 的智能指针
+    std::unique_ptr<IndexBuffer> EBO_; // 使用 IndexBuffer 的智能指针
+
     std::shared_ptr<Material> material_; // 使用 Material 的智能指针
     Eigen::Vector3f position_;
     Eigen::Quaternionf rotation_;
