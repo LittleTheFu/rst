@@ -8,6 +8,7 @@
 #include "camera.h"        // 相机
 #include "Texture2D.h"     // G-Buffer 纹理输入和 LightPass 输出
 #include "TextureCubeMap.h" // 阴影贴图可能需要 TextureCubeMap
+#include "screenQuad.h"
 
 class LightPass : public RenderPass
 {
@@ -41,12 +42,13 @@ public:
 
 private:
     Shader shader_;
+    ScreenQuad screenQuad_;
 
-    GLuint quadVAO_ = 0;
-    GLuint quadVBO_ = 0;
+    // GLuint quadVAO_ = 0;
+    // GLuint quadVBO_ = 0;
 
-    void initScreenQuad(); // 初始化屏幕四边形
-    void renderQuad();     // 渲染屏幕四边形
+    // void initScreenQuad(); // 初始化屏幕四边形
+    // void renderQuad();     // 渲染屏幕四边形
 
     UniformBuffer objectLightUBO_;
     GLuint lightBindingPoint_;

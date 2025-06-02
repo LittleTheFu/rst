@@ -5,7 +5,7 @@
 #include "debug_utils.h"
 
 LightPass::LightPass(int width, int height)
-    : RenderPass("LightPass", width, height)
+    : RenderPass("LightPass", width, height),screenQuad_()
 {
     shader_.load("shader/light.vert", "shader/light.frag");
 
@@ -49,17 +49,17 @@ LightPass::LightPass(int width, int height)
     // }
     // glUniformBlockBinding(shader_.ID, lightBlockIndex, lightBindingPoint_);
 
-    initScreenQuad(); // 初始化屏幕四边形
+    // initScreenQuad(); // 初始化屏幕四边形
 }
 
 LightPass::~LightPass() {
     // Unique_ptr 会自动清理纹理，UBO 和 VAO/VBO 需要手动清理
-    if (quadVAO_ != 0) {
-        glDeleteVertexArrays(1, &quadVAO_);
-    }
-    if (quadVBO_ != 0) {
-        glDeleteBuffers(1, &quadVBO_);
-    }
+    // if (quadVAO_ != 0) {
+    //     glDeleteVertexArrays(1, &quadVAO_);
+    // }
+    // if (quadVBO_ != 0) {
+    //     glDeleteBuffers(1, &quadVBO_);
+    // }
     // objectLightUBO_ 的析构函数应该会处理其资源的释放
 }
 
@@ -123,7 +123,8 @@ void LightPass::Render(GLuint positionTextureID,
     objectLightUBO_.updateData(0, sizeof(PointLightDataForUBO), &lightData);
 
     // 8. 渲染全屏四边形
-    renderQuad(); // 假设你有一个 renderQuad() 辅助函数来绘制全屏四边形
+    // renderQuad(); // 假设你有一个 renderQuad() 辅助函数来绘制全屏四边形
+    screenQuad_.render();
 
     // 9. 解绑纹理
     // ... 实际应用中可以省略解绑，因为下一个绘制命令会重新绑定 ...
@@ -166,38 +167,38 @@ void LightPass::Resize(int width, int height) {
     deactivateFramebuffer(); // 解激活
 }
 
-void LightPass::initScreenQuad()
-{
-    float quadVertices[] = {
-        // positions // texCoords
-        -1.0f, 1.0f, 0.0f, 1.0f,
-        -1.0f, -1.0f, 0.0f, 0.0f,
-        1.0f, -1.0f, 1.0f, 0.0f,
+// void LightPass::initScreenQuad()
+// {
+//     float quadVertices[] = {
+//         // positions // texCoords
+//         -1.0f, 1.0f, 0.0f, 1.0f,
+//         -1.0f, -1.0f, 0.0f, 0.0f,
+//         1.0f, -1.0f, 1.0f, 0.0f,
 
-        -1.0f, 1.0f, 0.0f, 1.0f,
-        1.0f, -1.0f, 1.0f, 0.0f,
-        1.0f, 1.0f, 1.0f, 1.0f
-    };
+//         -1.0f, 1.0f, 0.0f, 1.0f,
+//         1.0f, -1.0f, 1.0f, 0.0f,
+//         1.0f, 1.0f, 1.0f, 1.0f
+//     };
 
-    glCreateVertexArrays(1, &quadVAO_);
-    glBindVertexArray(quadVAO_);
+//     glCreateVertexArrays(1, &quadVAO_);
+//     glBindVertexArray(quadVAO_);
 
-    glCreateBuffers(1, &quadVBO_);
-    glBindBuffer(GL_ARRAY_BUFFER, quadVBO_);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
+//     glCreateBuffers(1, &quadVBO_);
+//     glBindBuffer(GL_ARRAY_BUFFER, quadVBO_);
+//     glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
 
-    // 设置顶点属性指针
-    glEnableVertexAttribArray(0); // 位置属性
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *)0);
-    glEnableVertexAttribArray(1); // 纹理坐标属性
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *)(2 * sizeof(float)));
+//     // 设置顶点属性指针
+//     glEnableVertexAttribArray(0); // 位置属性
+//     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *)0);
+//     glEnableVertexAttribArray(1); // 纹理坐标属性
+//     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *)(2 * sizeof(float)));
 
-    glBindVertexArray(0);
-}
+//     glBindVertexArray(0);
+// }
 
-void LightPass::renderQuad()
-{
-    glBindVertexArray(quadVAO_);
-    glDrawArrays(GL_TRIANGLES, 0, 6);
-    glBindVertexArray(0);
-}
+// void LightPass::renderQuad()
+// {
+//     glBindVertexArray(quadVAO_);
+//     glDrawArrays(GL_TRIANGLES, 0, 6);
+//     glBindVertexArray(0);
+// }

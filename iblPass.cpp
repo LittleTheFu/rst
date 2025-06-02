@@ -10,7 +10,8 @@ IBLPass::IBLPass(int width, int height,
     : RenderPass("IBLPass", width, height),
       irradianceMap_(irradianceMap),
       prefilterMap_(prefilterMap),
-      brdfLUT_(brdfLUT)
+      brdfLUT_(brdfLUT),
+      screenQuad_()
 {
     shader_.load("shader/ibl.vert", "shader/ibl.frag"); // IBL 着色器路径
 
@@ -32,7 +33,7 @@ IBLPass::IBLPass(int width, int height,
     // 检查 FBO 完整性
     frameBuffer_->checkCompleteness();
 
-    initScreenQuad();
+    // initScreenQuad();
 }
 
 // 移除不再需要的 Render(SceneData&, Camera&) 方法
@@ -109,8 +110,8 @@ void IBLPass::Render(GLuint gPositionID, GLuint gNormalID, GLuint gAlbedoID,
     shader_.setFloat("maxReflectionLOD", 1);
 
     // 8. 渲染全屏四边形
-    renderQuad(); // 假设你有一个 renderQuad() 辅助函数来绘制全屏四边形
-
+    // renderQuad(); // 假设你有一个 renderQuad() 辅助函数来绘制全屏四边形
+    screenQuad_.render();
     // 9. 解绑纹理
     // ...
 
@@ -153,36 +154,36 @@ void IBLPass::Resize(int width, int height)
     frameBuffer_->checkCompleteness();
 }
 
-void IBLPass::initScreenQuad()
-{
-    float quadVertices[] = {
-        // positions   // texCoords
-        -1.0f, 1.0f, 0.0f, 1.0f,
-        -1.0f, -1.0f, 0.0f, 0.0f,
-        1.0f, -1.0f, 1.0f, 0.0f,
+// void IBLPass::initScreenQuad()
+// {
+//     float quadVertices[] = {
+//         // positions   // texCoords
+//         -1.0f, 1.0f, 0.0f, 1.0f,
+//         -1.0f, -1.0f, 0.0f, 0.0f,
+//         1.0f, -1.0f, 1.0f, 0.0f,
 
-        -1.0f, 1.0f, 0.0f, 1.0f,
-        1.0f, -1.0f, 1.0f, 0.0f,
-        1.0f, 1.0f, 1.0f, 1.0f};
+//         -1.0f, 1.0f, 0.0f, 1.0f,
+//         1.0f, -1.0f, 1.0f, 0.0f,
+//         1.0f, 1.0f, 1.0f, 1.0f};
 
-    glGenVertexArrays(1, &quadVAO_);
-    glGenBuffers(1, &quadVBO_);
+//     glGenVertexArrays(1, &quadVAO_);
+//     glGenBuffers(1, &quadVBO_);
 
-    glBindVertexArray(quadVAO_);
-    glBindBuffer(GL_ARRAY_BUFFER, quadVBO_);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
+//     glBindVertexArray(quadVAO_);
+//     glBindBuffer(GL_ARRAY_BUFFER, quadVBO_);
+//     glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
 
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *)0);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *)(2 * sizeof(float)));
-    glEnableVertexAttribArray(1);
+//     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *)0);
+//     glEnableVertexAttribArray(0);
+//     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *)(2 * sizeof(float)));
+//     glEnableVertexAttribArray(1);
 
-    glBindVertexArray(0);
-}
+//     glBindVertexArray(0);
+// }
 
-void IBLPass::renderQuad()
-{
-    glBindVertexArray(quadVAO_);
-    glDrawArrays(GL_TRIANGLES, 0, 6);
-    glBindVertexArray(0);
-}
+// void IBLPass::renderQuad()
+// {
+//     glBindVertexArray(quadVAO_);
+//     glDrawArrays(GL_TRIANGLES, 0, 6);
+//     glBindVertexArray(0);
+// }

@@ -9,6 +9,8 @@
 #include "Texture2D.h"
 #include "TextureCubeMap.h"
 
+#include "screenQuad.h"
+
 class IBLPass : public RenderPass
 {
 public:
@@ -39,11 +41,13 @@ public:
 private:
     Shader shader_;
 
-    GLuint quadVAO_ = 0;
-    GLuint quadVBO_ = 0;
+    ScreenQuad screenQuad_;
 
-    void initScreenQuad();
-    void renderQuad();
+    // GLuint quadVAO_ = 0;
+    // GLuint quadVBO_ = 0;
+
+    // void initScreenQuad();
+    // void renderQuad();
 
     GLuint outputTexture_; // IBLPass 自身的输出纹理 ID (由其 FBO 管理)
 
