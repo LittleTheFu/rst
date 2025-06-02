@@ -70,6 +70,14 @@ target_link_libraries(OpenGL_GLAD_SDL2
     gli
 )
 
+add_custom_command(
+    TARGET OpenGL_GLAD_SDL2 POST_BUILD
+    COMMAND powershell -ExecutionPolicy Bypass -File "${CMAKE_SOURCE_DIR}/cp_res.ps1"
+    COMMAND powershell -ExecutionPolicy Bypass -File "${CMAKE_SOURCE_DIR}/cp_shader.ps1"
+    COMMENT "Running PowerShell scripts after build"
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+)
+
 # MSVC 特别处理
 if (MSVC)
     add_compile_options(/source-charset:utf-8)

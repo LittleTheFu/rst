@@ -2,6 +2,10 @@
 $SourceDir = "resource"
 $TargetDir = "build/Debug"
 
+# Write-Host "SourceDir is: '$SourceDir'" -ForegroundColor Yellow
+# Write-Host "Current Directory: $(Get-Location)" -ForegroundColor Cyan
+
+
 # Check if source directory exists
 if (-not (Test-Path $SourceDir -PathType Container)) {
     Write-Host "Error: Source directory '$SourceDir' does not exist." -ForegroundColor Red
