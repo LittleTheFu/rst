@@ -18,7 +18,7 @@ Framebuffer::Framebuffer(int width, int height)
     GL_CHECK_ERROR();
 }
 
-void Framebuffer::deleteGlResource() {
+void Framebuffer::release() {
     if (id_ != 0) {
         glDeleteFramebuffers(1, &id_);
         id_ = 0;

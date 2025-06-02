@@ -15,7 +15,7 @@ Texture::Texture(GLenum target, GLenum internalFormat, int width, int height, in
     GL_CHECK_ERROR(); // 检查是否有错误
 }
 
-void Texture::deleteGlResource() {
+void Texture::release() {
     if (id_ != 0) {
         glDeleteTextures(1, &id_);
         id_ = 0;

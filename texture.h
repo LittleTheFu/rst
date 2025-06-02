@@ -1,9 +1,9 @@
 #ifndef _RENDER_TEXTURE_H_
 #define _RENDER_TEXTURE_H_
 
-#include "GLObject.h" // 假设你的 GLObject 基类在这里
+#include "GLResource.h"
 
-class Texture : public GLObject {
+class Texture : public GLResource {
 protected:
     GLenum target_; // GL_TEXTURE_2D, GL_TEXTURE_CUBE_MAP, GL_TEXTURE_3D
 
@@ -29,7 +29,7 @@ public:
 
 protected:
     // GLObject 的资源释放
-    void deleteGlResource() override;
+    void release() override;
 };
 
 #endif // TEXTURE_H

@@ -1,14 +1,15 @@
 #ifndef FRAMEBUFFER_H
 #define FRAMEBUFFER_H
 
-#include "GLObject.h"
+#include "glResource.h"
 #include <glad/glad.h>
 #include <vector>
 #include <stdexcept>
 
-class Framebuffer : public GLObject {
+
+class Framebuffer : public GLResource {
+    
 private:
-    GLuint id_ = 0;
     int width_;
     int height_;
 
@@ -46,12 +47,11 @@ public:
     void setDrawBuffers(const std::vector<GLenum>& drawBuffers);
     void checkCompleteness() const;
 
-    GLuint id() const { return id_; }
     int getWidth() const { return width_; }
     int getHeight() const { return height_; }
 
 protected:
-    void deleteGlResource() override;
+    void release() override;
 };
 
 #endif // FRAMEBUFFER_H
