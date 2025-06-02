@@ -32,6 +32,7 @@ add_executable(OpenGL_GLAD_SDL2
     renderPass.cpp
     gBufferpass.cpp
     texture.cpp
+    screenQuad.cpp
     uniformBuffer.cpp
     glResource.cpp
     lightPass.cpp

@@ -3,6 +3,7 @@
 
 #include "RenderPass.h"
 #include "Shader.h"
+#include "screenQuad.h"
 // #include "pointLight.h" // 移除，因为 ScreenPass 不直接处理光源数据
 // #include "uniformBuffer.h" // 移除，假设 ScreenPass 不使用 UBO
 // #include "camera.h" // 移除，因为 ScreenPass 不直接使用 Camera 数据
@@ -28,11 +29,10 @@ public:
 private:
     Shader shader_;
 
-    GLuint quadVAO_ = 0;
-    GLuint quadVBO_ = 0;
+    ScreenQuad screenQuad_;
 
-    void initScreenQuad();
-    void renderQuad();
+    // void initScreenQuad();
+    // void renderQuad();
 
     // 通过构造函数注入并作为成员持有的纹理 ID
     GLuint lightTextureID_;
