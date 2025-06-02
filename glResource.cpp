@@ -2,33 +2,31 @@
 #include "GLResource.h"
 #include <glad/glad.h>
 
-// GLuint GLResource::generateId(GLenum target) {
-//     GLuint newId = 0;
-//     switch (target) {
-//         case GL_ARRAY_BUFFER:
-//         case GL_ELEMENT_ARRAY_BUFFER:
-//         case GL_UNIFORM_BUFFER: // 添加 GL_UNIFORM_BUFFER
-//             glGenBuffers(1, &newId);
-//             break;
-//         case GL_FRAMEBUFFER:
-//             glGenFramebuffers(1, &newId);
-//             break;
-//         case GL_VERTEX_ARRAY:
-//             glGenVertexArrays(1, &newId);
-//             break;
-//         case GL_TEXTURE:
-//             glGenTextures(1, &newId);
-//             break;
-//         case GL_RENDERBUFFER:
-//             glGenRenderbuffers(1, &newId);
-//             break;
-//         default:
-//             // 处理不支持的类型
-//             break;
-//     }
-//     id_ = newId;
-//     return id_;
-// }
+
+GLResource::GLResource() : id_(0) {}
+
+GLResource::~GLResource() {
+    release();
+}
+
+GLuint GLResource::id() const {
+    return id_;
+}
+
+// --- 新增：移动构造函数 ---
+GLResource::GLResource(GLResource&& other) noexcept : id_(other.id_) {
+    other.id_ = 0; // 转移所有权，清空源对象ID
+}
+
+// --- 新增：移动赋值运算符 ---
+GLResource& GLResource::operator=(GLResource&& other) noexcept {
+    if (this != &other) { // 防止自我赋值
+        release(); // 释放当前对象的资源
+        id_ = other.id_; // 转移所有权
+        other.id_ = 0;   // 清空源对象ID
+    }
+    return *this;
+}
 
 void GLResource::release() {
     // 基类的 release 不做任何操作，由子类根据其资源类型实现
