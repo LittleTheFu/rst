@@ -45,44 +45,25 @@ void ScreenPass::Render(GLuint directLightTextureID,
     shader_.use();
 
     // 绑定输入纹理
-    // glActiveTexture(GL_TEXTURE0);
-    // glBindTexture(GL_TEXTURE_2D, directLightTextureID);
     glBindTextureUnit(0, directLightTextureID);
     shader_.setInt("directLightTexture", 0);
 
-    // glActiveTexture(GL_TEXTURE1);
-    // glBindTexture(GL_TEXTURE_2D, iblTextureID);
     glBindTextureUnit(1, iblTextureID);
     shader_.setInt("iblTexture", 1);
 
-    // glActiveTexture(GL_TEXTURE2);
-    // glBindTexture(GL_TEXTURE_2D, gpassDepthTextureID); // 如果需要深度用于调试或其他后处理
     glBindTextureUnit(2, gpassDepthTextureID);
     shader_.setInt("gpassDepthTexture", 2);
 
-    // glActiveTexture(GL_TEXTURE3); 
-    // glBindTexture(GL_TEXTURE_2D, oitAccumTextureID);
     glBindTextureUnit(3, oitAccumTextureID);
     shader_.setInt("accumTexture", 3);
 
-    // glActiveTexture(GL_TEXTURE4); 
-    // glBindTexture(GL_TEXTURE_2D, oitRevealTextureID);
     glBindTextureUnit(4, oitRevealTextureID);
     shader_.setInt("revealTexture", 4);
 
-    // glActiveTexture(GL_TEXTURE5);
-    // glBindTexture(GL_TEXTURE_2D, skyboxTextureID); // 天空盒纹理
     glBindTextureUnit(5, skyboxTextureID);
     shader_.setInt("skyboxTexture", 5);
 
-    // 设置其他 Uniform 变量 (例如调试选项)
-    // shader_.setFloat("somePostProcessParam", 0.5f);
-
-    // 渲染全屏四边形
-    // renderQuad(); // 假设你有一个 renderQuad() 辅助函数来绘制全屏四边形
     screenQuad_.render(); 
-
-    // glDisable(GL_BLEND);
 
     GL_CHECK_ERROR();
 }
@@ -94,42 +75,3 @@ void ScreenPass::Resize(int width, int height)
     // 设置视口大小
     setViewport(width_, height_);
 }
-
-// void ScreenPass::initScreenQuad()
-// {
-//     float quadVertices[] = {
-//         // positions   // texCoords
-//         -1.0f, 1.0f, 0.0f, 1.0f,
-//         -1.0f, -1.0f, 0.0f, 0.0f,
-//         1.0f, -1.0f, 1.0f, 0.0f,
-
-//         -1.0f, 1.0f, 0.0f, 1.0f,
-//         1.0f, -1.0f, 1.0f, 0.0f,
-//         1.0f, 1.0f, 1.0f, 1.0f};
-
-//     glCreateVertexArrays(1, &quadVAO_);
-//     glBindVertexArray(quadVAO_);
-
-//     glCreateBuffers(1, &quadVBO_);
-//     glBindBuffer(GL_ARRAY_BUFFER, quadVBO_);
-//     glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
-
-//     // 设置顶点属性指针
-//     // 位置属性
-//     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *)0);
-//     glEnableVertexAttribArray(0);
-//     // 纹理坐标属性
-//     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *)(2 * sizeof(float)));
-//     glEnableVertexAttribArray(1);
-
-//     glBindVertexArray(0);
-//     GL_CHECK_ERROR(); // 确保创建 VAO/VBO 没有错误
-// }
-
-// void ScreenPass::renderQuad()
-// {
-//     glBindVertexArray(quadVAO_);
-//     glDrawArrays(GL_TRIANGLES, 0, 6);
-//     glBindVertexArray(0);
-//     GL_CHECK_ERROR(); // 确保绘制没有错误
-// }

@@ -117,12 +117,6 @@ void OitPass::init()
 
     revealTexture_ = std::make_unique<Texture2D>(width_, height_, GL_R32F); // 颜色
     revealTexture_->setParameters();
-    // glBindTexture(GL_TEXTURE_2D, alphaTexture_->id());
-    // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    // glBindTexture(GL_TEXTURE_2D, 0);
 
     // 创建深度纹理
     depthTexture_ = std::make_unique<Texture2D>(width_, height_, GL_DEPTH_COMPONENT24);
