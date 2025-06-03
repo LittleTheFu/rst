@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.10)
 project(OpenGL_GLAD_SDL2)
 
+enable_language(C CXX)  # 不启用 Fortran
+
 set(CMAKE_CXX_STANDARD 17)
 
 # 添加 SDL2 子目录
