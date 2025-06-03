@@ -7,7 +7,7 @@ set(CMAKE_CXX_STANDARD 17)
 
 # MSVC 特别处理
 if (MSVC)
-    add_compile_options("/utf-8")
+    add_compile_options("/source-charset:utf-8")
 endif()
 
 
