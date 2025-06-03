@@ -168,22 +168,23 @@ void Scene::init()
     sceneData_.opaqueObjects.push_back(std::move(mesh_teapot));
     // sceneData_.transparentObjects.push_back(std::move(mesh_teapot));
 
-    std::unique_ptr<Mesh> mesh_box = std::make_unique<Mesh>("bx.obj");
-    mesh_box->setMaterial(wallMaterial);
-    mesh_box->setPosition(Eigen::Vector3f(0.0f, 0.0f, -12.0f));
-    mesh_box->setScale(Eigen::Vector3f(10.0f, 10.0f, 10.0f));
-    sceneData_.opaqueObjects.push_back(std::move(mesh_box));
+    // std::unique_ptr<Mesh> mesh_box = std::make_unique<Mesh>("bx.obj");
+    // mesh_box->setMaterial(wallMaterial);
+    // mesh_box->setPosition(Eigen::Vector3f(0.0f, 0.0f, -12.0f));
+    // mesh_box->setScale(Eigen::Vector3f(10.0f, 10.0f, 10.0f));
+    // sceneData_.opaqueObjects.push_back(std::move(mesh_box));
+
+    std::unique_ptr<Mesh> mesh_transparent_teapot = std::make_unique<Mesh>("teapot.obj");
+    mesh_transparent_teapot->setMaterial(grassMaterial);
+    mesh_transparent_teapot->setScale(Eigen::Vector3f(5, 5, 5));
+    mesh_transparent_teapot->setPosition(Eigen::Vector3f(0.0f, 0.0f, -30.0f));
+    sceneData_.opaqueObjects.push_back(std::move(mesh_transparent_teapot));
+    // sceneData_.transparentObjects.push_back(std::move(mesh_transparent_teapot));
 
     std::unique_ptr<Mesh> mesh_cursor = std::make_unique<Mesh>("bx.obj");
     mesh_cursor->setMaterial(goldMaterial);
     mesh_cursor->setScale(Eigen::Vector3f(0.2f, 0.2f, 0.2f));
     sceneData_.opaqueObjects.push_back(std::move(mesh_cursor));
-
-    std::unique_ptr<Mesh> mesh_transparent_teapot = std::make_unique<Mesh>("teapot.obj");
-    mesh_transparent_teapot->setMaterial(grassMaterial);
-    mesh_transparent_teapot->setScale(Eigen::Vector3f(0.5f, 0.5f, 0.5f));
-    mesh_transparent_teapot->setPosition(Eigen::Vector3f(5.0f, 0.0f, 0.0f));
-    sceneData_.transparentObjects.push_back(std::move(mesh_transparent_teapot));
 }
 
 void Scene::run()
