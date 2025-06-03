@@ -43,12 +43,12 @@ void Scene::init()
     shadowPass_ = std::make_unique<ShadowPass>(sceneData_.shadowMapWidth, sceneData_.shadowMapHeight);
     lightPass_ = std::make_unique<LightPass>(sceneData_.screenWidth, sceneData_.screenHeight);
 
-    oitPass_ = std::make_unique<OitPass>(
-        sceneData_.screenWidth,
-        sceneData_.screenHeight,
-        irradianceMapTex_,
-        prefilterMapTex_,
-        brdfLUTTex_);
+    // oitPass_ = std::make_unique<OitPass>(
+    //     sceneData_.screenWidth,
+    //     sceneData_.screenHeight,
+    //     irradianceMapTex_,
+    //     prefilterMapTex_,
+    //     brdfLUTTex_);
 
     // IBLPass 和 SkyPass 的构造函数仍然可以注入其不变的IBL纹理
     iblPass_ = std::make_unique<IBLPass>(
@@ -58,9 +58,7 @@ void Scene::init()
         prefilterMapTex_,
         brdfLUTTex_);
 
-    // skyPass_ = std::make_unique<SkyPass>(
-    //     sceneData_.screenWidth, sceneData_.screenHeight,
-    //     irradianceMapTex_); // 或 prefilterMapTex_，取决于天空盒材质的真实性需求
+    skyPass_ = std::make_unique<SkyPass>(sceneData_.screenWidth, sceneData_.screenHeight, prefilterMapTex_);
 
     screenPass_ = std::make_unique<ScreenPass>(sceneData_.screenWidth, sceneData_.screenHeight);
 
@@ -211,56 +209,53 @@ void Scene::run()
 
     // --- 渲染管线执行 ---
 
+    skyPass_->Render(camera_);
+    GL_CHECK_ERROR();
+
+
     // 1. 渲染阴影贴图 (Shadow Pass)
-    shadowPass_->Render(sceneData_.opaqueObjects, *mainLight_);
-    GL_CHECK_ERROR();
-
-    // 2. 渲染 G-Buffer (GBufferPass)
-    gBufferPass_->Render(sceneData_.opaqueObjects, camera_);
-    GL_CHECK_ERROR();
-
-    oitPass_->Render(sceneData_.transparentObjects,
-                     *mainLight_,
-                     camera_,
-                     gBufferPass_->getDepthTextureId());
-    GL_CHECK_ERROR();
-
-    // // 3. 渲染 LightPass (直接光照)
-    lightPass_->Render(gBufferPass_->getPositionTextureId(), // gPosition
-                       gBufferPass_->getNormalTextureId(), // gNormal
-                       gBufferPass_->getAlbedoTextureId(), // gAlbedo
-                       gBufferPass_->getRoughnessTextureId(), // gRoughness
-                       gBufferPass_->getMetallicTextureId(), // gMetallic
-                       gBufferPass_->getAOTextureId(), // gAO
-                       *mainLight_,
-                       camera_,
-                       shadowPass_->getShadowMapDepthOutputTextureID());
-    GL_CHECK_ERROR();
-
-    // // 4. 渲染 IBLPass (环境光照贡献)
-    iblPass_->Render(gBufferPass_->getPositionTextureId(), // gPosition
-                     gBufferPass_->getNormalTextureId(), // gNormal
-                     gBufferPass_->getAlbedoTextureId(), // gAlbedo
-                     gBufferPass_->getRoughnessTextureId(), // gRoughness
-                     gBufferPass_->getMetallicTextureId(), // gMetallic
-                     gBufferPass_->getAOTextureId(), // gAO
-                     camera_);
-    GL_CHECK_ERROR();
-
-    // 5. 渲染天空盒 (SkyPass)
-    // 注意：天空盒通常最后渲染，且不写入深度，因为它在所有物体后
-    // 但为了确保深度测试正确进行，并且只渲染在可见区域，通常放在IBL后，Screen前。
-    // 如果天空盒不写入深度，它将在前景物体后面。
-    // skyPass_->Render(camera_);
+    // shadowPass_->Render(sceneData_.opaqueObjects, *mainLight_);
     // GL_CHECK_ERROR();
 
-    // 6. 最终的屏幕合成 Pass (ScreenPass)
-    screenPass_->Render(lightPass_->getOutputTextureID(),
-                        iblPass_->getOutputTexture(),
-                        gBufferPass_->getDepthTextureId(),
-                        oitPass_->getAccumTextureId(),
-                        oitPass_->getRevealTextureId());
-    GL_CHECK_ERROR();
+    // // 2. 渲染 G-Buffer (GBufferPass)
+    // gBufferPass_->Render(sceneData_.opaqueObjects, camera_);
+    // GL_CHECK_ERROR();
+
+    // oitPass_->Render(sceneData_.transparentObjects,
+    //                  *mainLight_,
+    //                  camera_,
+    //                  gBufferPass_->getDepthTextureId());
+    // GL_CHECK_ERROR();
+
+    // // // 3. 渲染 LightPass (直接光照)
+    // lightPass_->Render(gBufferPass_->getPositionTextureId(), // gPosition
+    //                    gBufferPass_->getNormalTextureId(), // gNormal
+    //                    gBufferPass_->getAlbedoTextureId(), // gAlbedo
+    //                    gBufferPass_->getRoughnessTextureId(), // gRoughness
+    //                    gBufferPass_->getMetallicTextureId(), // gMetallic
+    //                    gBufferPass_->getAOTextureId(), // gAO
+    //                    *mainLight_,
+    //                    camera_,
+    //                    shadowPass_->getShadowMapDepthOutputTextureID());
+    // GL_CHECK_ERROR();
+
+    // // // 4. 渲染 IBLPass (环境光照贡献)
+    // iblPass_->Render(gBufferPass_->getPositionTextureId(), // gPosition
+    //                  gBufferPass_->getNormalTextureId(), // gNormal
+    //                  gBufferPass_->getAlbedoTextureId(), // gAlbedo
+    //                  gBufferPass_->getRoughnessTextureId(), // gRoughness
+    //                  gBufferPass_->getMetallicTextureId(), // gMetallic
+    //                  gBufferPass_->getAOTextureId(), // gAO
+    //                  camera_);
+    // GL_CHECK_ERROR();
+
+    // // 6. 最终的屏幕合成 Pass (ScreenPass)
+    // screenPass_->Render(lightPass_->getOutputTextureID(),
+    //                     iblPass_->getOutputTexture(),
+    //                     gBufferPass_->getDepthTextureId(),
+    //                     oitPass_->getAccumTextureId(),
+    //                     oitPass_->getRevealTextureId());
+    // GL_CHECK_ERROR();
 }
 
 void Scene::resize(int width, int height)
@@ -276,9 +271,9 @@ void Scene::resize(int width, int height)
     if (lightPass_) {
         lightPass_->Resize(width, height);
     }
-    // if (skyPass_) {
-    //     skyPass_->Resize(width, height);
-    // }
+    if (skyPass_) {
+        skyPass_->Resize(width, height);
+    }
     if (screenPass_) {
         screenPass_->Resize(width, height);
     }
