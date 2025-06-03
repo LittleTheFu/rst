@@ -21,9 +21,10 @@ ScreenPass::ScreenPass(int width, int height)
 // 实现基类的纯虚函数 Render()，不带参数
 void ScreenPass::Render(GLuint directLightTextureID,
                         GLuint iblTextureID,
-                        GLuint gDepthTextureID,
+                        GLuint gpassDepthTextureID,
                         GLuint oitAccumTextureID,
-                        GLuint oitRevealTextureID)
+                        GLuint oitRevealTextureID,
+                        GLuint skyboxTextureID)
 {
     // ScreenPass 通常直接渲染到默认帧缓冲 (屏幕)
     glBindFramebuffer(GL_FRAMEBUFFER, 0); // 绑定默认帧缓冲
@@ -53,8 +54,8 @@ void ScreenPass::Render(GLuint directLightTextureID,
     shader_.setInt("iblTexture", 1);
 
     glActiveTexture(GL_TEXTURE2);
-    glBindTexture(GL_TEXTURE_2D, gDepthTextureID); // 如果需要深度用于调试或其他后处理
-    shader_.setInt("depthTexture", 2);
+    glBindTexture(GL_TEXTURE_2D, gpassDepthTextureID); // 如果需要深度用于调试或其他后处理
+    shader_.setInt("gpassDepthTexture", 2);
 
     glActiveTexture(GL_TEXTURE3); 
     glBindTexture(GL_TEXTURE_2D, oitAccumTextureID);
@@ -63,6 +64,10 @@ void ScreenPass::Render(GLuint directLightTextureID,
     glActiveTexture(GL_TEXTURE4); 
     glBindTexture(GL_TEXTURE_2D, oitRevealTextureID);
     shader_.setInt("revealTexture", 4);
+
+    glActiveTexture(GL_TEXTURE5);
+    glBindTexture(GL_TEXTURE_2D, skyboxTextureID); // 天空盒纹理
+    shader_.setInt("skyboxTexture", 5);
 
     // 设置其他 Uniform 变量 (例如调试选项)
     // shader_.setFloat("somePostProcessParam", 0.5f);

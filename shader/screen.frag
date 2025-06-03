@@ -4,9 +4,10 @@ out vec4 FragColor;
 
 uniform sampler2D lightTexture;
 uniform sampler2D iblTexture;
-uniform sampler2D lightDepthTexture;
+uniform sampler2D gpassDepthTexture;
 uniform sampler2D accumTexture;
 uniform sampler2D revealTexture;
+uniform sampler2D skyboxTexture;
 
 void main()
 {
@@ -16,7 +17,7 @@ void main()
     vec4 lightColor = texture(lightTexture, TexCoords);
     vec4 iblColor = texture(iblTexture, TexCoords);
     // 读取深度纹理
-    float depth = texture(lightDepthTexture, TexCoords).r;
+    float depth = texture(gpassDepthTexture, TexCoords).r;
 
     // 使用 lightTexture 的 alpha 通道作为混合因子
     // FragColor = mix(skyColor, lightColor, lightColor.a);
@@ -35,6 +36,12 @@ void main()
     // FragColor = iblColor;
 
     vec4 gPassFinalColor = lightColor + iblColor * 0.1;
+
+    //patch: sky box
+    if(depth >= 1.0)
+    {
+        gPassFinalColor = texture(skyboxTexture, TexCoords);
+    }
 
     vec4 accum = texture(accumTexture, TexCoords);
     float reveal = texture(revealTexture, TexCoords).r;

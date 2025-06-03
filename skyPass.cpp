@@ -98,3 +98,9 @@ void SkyPass::Resize(int width, int height)
 
     initFrameBuffer();
 }
+
+GLuint SkyPass::getColorTextureId() const
+{
+    assert(colorTexture_);
+    return colorTexture_->id(); // 返回颜色附件的纹理 ID
+}

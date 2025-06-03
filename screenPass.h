@@ -19,9 +19,10 @@ public:
     // 实现基类的纯虚函数，不带参数
     void Render(GLuint directLightTextureID,
                 GLuint iblTextureID,
-                GLuint gDepthTextureID,
+                GLuint gpassDepthTextureID,
                 GLuint oitAccumTextureID,
-                GLuint oitRevealTextureID);
+                GLuint oitRevealTextureID,
+                GLuint skyboxTextureID);
 
     // 维持 Resize 方法
     void Resize(int width, int height) override;
@@ -37,7 +38,7 @@ private:
     // 通过构造函数注入并作为成员持有的纹理 ID
     GLuint lightTextureID_;
     GLuint iblTextureID_;
-    GLuint lightDepthTextureID_;
+    GLuint gpassDepthTextureID_;
 
     // 移除不再使用的 UniformBuffer 成员
     // UniformBuffer objectLightUBO_;

@@ -43,12 +43,12 @@ void Scene::init()
     shadowPass_ = std::make_unique<ShadowPass>(sceneData_.shadowMapWidth, sceneData_.shadowMapHeight);
     lightPass_ = std::make_unique<LightPass>(sceneData_.screenWidth, sceneData_.screenHeight);
 
-    // oitPass_ = std::make_unique<OitPass>(
-    //     sceneData_.screenWidth,
-    //     sceneData_.screenHeight,
-    //     irradianceMapTex_,
-    //     prefilterMapTex_,
-    //     brdfLUTTex_);
+    oitPass_ = std::make_unique<OitPass>(
+        sceneData_.screenWidth,
+        sceneData_.screenHeight,
+        irradianceMapTex_,
+        prefilterMapTex_,
+        brdfLUTTex_);
 
     // IBLPass 和 SkyPass 的构造函数仍然可以注入其不变的IBL纹理
     iblPass_ = std::make_unique<IBLPass>(
@@ -213,49 +213,45 @@ void Scene::run()
     GL_CHECK_ERROR();
 
 
-    // 1. 渲染阴影贴图 (Shadow Pass)
-    // shadowPass_->Render(sceneData_.opaqueObjects, *mainLight_);
-    // GL_CHECK_ERROR();
+    shadowPass_->Render(sceneData_.opaqueObjects, *mainLight_);
+    GL_CHECK_ERROR();
 
-    // // 2. 渲染 G-Buffer (GBufferPass)
-    // gBufferPass_->Render(sceneData_.opaqueObjects, camera_);
-    // GL_CHECK_ERROR();
+    gBufferPass_->Render(sceneData_.opaqueObjects, camera_);
+    GL_CHECK_ERROR();
 
-    // oitPass_->Render(sceneData_.transparentObjects,
-    //                  *mainLight_,
-    //                  camera_,
-    //                  gBufferPass_->getDepthTextureId());
-    // GL_CHECK_ERROR();
+    oitPass_->Render(sceneData_.transparentObjects,
+                     *mainLight_,
+                     camera_,
+                     gBufferPass_->getDepthTextureId());
+    GL_CHECK_ERROR();
 
-    // // // 3. 渲染 LightPass (直接光照)
-    // lightPass_->Render(gBufferPass_->getPositionTextureId(), // gPosition
-    //                    gBufferPass_->getNormalTextureId(), // gNormal
-    //                    gBufferPass_->getAlbedoTextureId(), // gAlbedo
-    //                    gBufferPass_->getRoughnessTextureId(), // gRoughness
-    //                    gBufferPass_->getMetallicTextureId(), // gMetallic
-    //                    gBufferPass_->getAOTextureId(), // gAO
-    //                    *mainLight_,
-    //                    camera_,
-    //                    shadowPass_->getShadowMapDepthOutputTextureID());
-    // GL_CHECK_ERROR();
+    lightPass_->Render(gBufferPass_->getPositionTextureId(), // gPosition
+                       gBufferPass_->getNormalTextureId(), // gNormal
+                       gBufferPass_->getAlbedoTextureId(), // gAlbedo
+                       gBufferPass_->getRoughnessTextureId(), // gRoughness
+                       gBufferPass_->getMetallicTextureId(), // gMetallic
+                       gBufferPass_->getAOTextureId(), // gAO
+                       *mainLight_,
+                       camera_,
+                       shadowPass_->getShadowMapDepthOutputTextureID());
+    GL_CHECK_ERROR();
 
-    // // // 4. 渲染 IBLPass (环境光照贡献)
-    // iblPass_->Render(gBufferPass_->getPositionTextureId(), // gPosition
-    //                  gBufferPass_->getNormalTextureId(), // gNormal
-    //                  gBufferPass_->getAlbedoTextureId(), // gAlbedo
-    //                  gBufferPass_->getRoughnessTextureId(), // gRoughness
-    //                  gBufferPass_->getMetallicTextureId(), // gMetallic
-    //                  gBufferPass_->getAOTextureId(), // gAO
-    //                  camera_);
-    // GL_CHECK_ERROR();
+    iblPass_->Render(gBufferPass_->getPositionTextureId(), // gPosition
+                     gBufferPass_->getNormalTextureId(), // gNormal
+                     gBufferPass_->getAlbedoTextureId(), // gAlbedo
+                     gBufferPass_->getRoughnessTextureId(), // gRoughness
+                     gBufferPass_->getMetallicTextureId(), // gMetallic
+                     gBufferPass_->getAOTextureId(), // gAO
+                     camera_);
+    GL_CHECK_ERROR();
 
-    // // 6. 最终的屏幕合成 Pass (ScreenPass)
-    // screenPass_->Render(lightPass_->getOutputTextureID(),
-    //                     iblPass_->getOutputTexture(),
-    //                     gBufferPass_->getDepthTextureId(),
-    //                     oitPass_->getAccumTextureId(),
-    //                     oitPass_->getRevealTextureId());
-    // GL_CHECK_ERROR();
+    screenPass_->Render(lightPass_->getOutputTextureID(),
+                        iblPass_->getOutputTexture(),
+                        gBufferPass_->getDepthTextureId(),
+                        oitPass_->getAccumTextureId(),
+                        oitPass_->getRevealTextureId(),
+                        skyPass_->getColorTextureId());
+    GL_CHECK_ERROR();
 }
 
 void Scene::resize(int width, int height)

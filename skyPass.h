@@ -24,6 +24,8 @@ public:
     // 重写基类的 Resize 方法
     void Resize(int width, int height) override;
 
+    GLuint getColorTextureId() const;
+
 
 private:
     void initFrameBuffer();
