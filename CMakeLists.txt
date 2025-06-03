@@ -5,6 +5,12 @@ enable_language(C CXX)  # 不启用 Fortran
 
 set(CMAKE_CXX_STANDARD 17)
 
+# MSVC 特别处理
+if (MSVC)
+    add_compile_options("/utf-8")
+endif()
+
+
 # 添加 SDL2 子目录
 add_subdirectory(third/sdl)
 add_subdirectory(third/assimp)
@@ -84,7 +90,3 @@ add_custom_command(
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 )
 
-# MSVC 特别处理
-if (MSVC)
-    add_compile_options(/source-charset:utf-8)
-endif()
