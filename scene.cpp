@@ -136,6 +136,30 @@ void Scene::init()
 
     //--------------------------------------------------------------------------------------------------------
 
+    //---gun--------------------------------------------------------------------------------------------------
+    std::shared_ptr<Texture2D> gunAlbedoTexture = std::move(Texture2D::loadFromFile("gun/Textures/Cerberus_A.tga"));
+    std::shared_ptr<Texture2D> gunNormalTexture = std::move(Texture2D::loadFromFile("gun/Textures/Cerberus_N.tga"));
+    std::shared_ptr<Texture2D> gunRoughnessTexture = std::move(Texture2D::loadFromFile("gun/Textures/Cerberus_R.tga"));
+    std::shared_ptr<Texture2D> gunMetallicTexture = std::move(Texture2D::loadFromFile("gun/Textures/Cerberus_M.tga"));
+    std::shared_ptr<Texture2D> gunAoTexture = std::move(Texture2D::loadFromFile("gun/Textures/raw/Cerberus_AO.tga"));
+
+    std::shared_ptr<Material> gunMaterial = std::make_shared<Material>("gunMaterial");
+    gunMaterial->setAlbedoMap(gunAlbedoTexture);
+    gunMaterial->setNormalMap(gunNormalTexture);
+    gunMaterial->setRoughnessMap(gunRoughnessTexture);
+    gunMaterial->setMetallicMap(gunMetallicTexture);
+    gunMaterial->setAmbientOcclusionMap(gunAoTexture);
+
+    // float scale = 0.06f; // 调整缩放比例
+    // std::unique_ptr<Mesh> mesh_gun = std::make_unique<Mesh>("gun/Cerberus_LP.FBX");
+    // mesh_gun->setMaterial(gunMaterial);
+    // mesh_gun->setRotation(Eigen::Quaternionf(M_PI/4, 0.0f, 1.0f, 0.0f));
+    // mesh_gun->setScale(Eigen::Vector3f(scale, scale, scale));
+    // mesh_gun->setPosition(Eigen::Vector3f(0.0f, 5.0f, 0.0f));
+    // sceneData_.opaqueObjects.push_back(std::move(mesh_gun));
+
+    //----------------------------------------------------------------------------------------
+
     // 创建网格并设置材质和变换
     std::unique_ptr<Mesh> mesh_teapot = std::make_unique<Mesh>("teapot.obj");
     mesh_teapot->setMaterial(rustedIronMaterial);
