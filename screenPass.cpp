@@ -45,28 +45,34 @@ void ScreenPass::Render(GLuint directLightTextureID,
     shader_.use();
 
     // 绑定输入纹理
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, directLightTextureID);
+    // glActiveTexture(GL_TEXTURE0);
+    // glBindTexture(GL_TEXTURE_2D, directLightTextureID);
+    glBindTextureUnit(0, directLightTextureID);
     shader_.setInt("directLightTexture", 0);
 
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, iblTextureID);
+    // glActiveTexture(GL_TEXTURE1);
+    // glBindTexture(GL_TEXTURE_2D, iblTextureID);
+    glBindTextureUnit(1, iblTextureID);
     shader_.setInt("iblTexture", 1);
 
-    glActiveTexture(GL_TEXTURE2);
-    glBindTexture(GL_TEXTURE_2D, gpassDepthTextureID); // 如果需要深度用于调试或其他后处理
+    // glActiveTexture(GL_TEXTURE2);
+    // glBindTexture(GL_TEXTURE_2D, gpassDepthTextureID); // 如果需要深度用于调试或其他后处理
+    glBindTextureUnit(2, gpassDepthTextureID);
     shader_.setInt("gpassDepthTexture", 2);
 
-    glActiveTexture(GL_TEXTURE3); 
-    glBindTexture(GL_TEXTURE_2D, oitAccumTextureID);
+    // glActiveTexture(GL_TEXTURE3); 
+    // glBindTexture(GL_TEXTURE_2D, oitAccumTextureID);
+    glBindTextureUnit(3, oitAccumTextureID);
     shader_.setInt("accumTexture", 3);
 
-    glActiveTexture(GL_TEXTURE4); 
-    glBindTexture(GL_TEXTURE_2D, oitRevealTextureID);
+    // glActiveTexture(GL_TEXTURE4); 
+    // glBindTexture(GL_TEXTURE_2D, oitRevealTextureID);
+    glBindTextureUnit(4, oitRevealTextureID);
     shader_.setInt("revealTexture", 4);
 
-    glActiveTexture(GL_TEXTURE5);
-    glBindTexture(GL_TEXTURE_2D, skyboxTextureID); // 天空盒纹理
+    // glActiveTexture(GL_TEXTURE5);
+    // glBindTexture(GL_TEXTURE_2D, skyboxTextureID); // 天空盒纹理
+    glBindTextureUnit(5, skyboxTextureID);
     shader_.setInt("skyboxTexture", 5);
 
     // 设置其他 Uniform 变量 (例如调试选项)
