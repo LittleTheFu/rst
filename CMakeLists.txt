@@ -56,6 +56,7 @@ add_executable(OpenGL_GLAD_SDL2
     iblPass.cpp
     texture2D.cpp
     combinedPass.cpp
+    postPass.cpp
     rendererConfig.cpp
     shader.cpp
     camera.cpp

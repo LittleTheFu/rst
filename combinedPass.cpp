@@ -1,17 +1,16 @@
 #include "combinedPass.h"
 #include <iostream>
 #include "debug_utils.h"
+#include <cassert>
 
 CombinedPass::CombinedPass(int width, int height)
     : RenderPass("CombinedPass", width, height),
       screenQuad_()
 {
-    shader_.load("shader/combine.vert", "shader/combine.frag"); // 假设你的屏幕 Shader 文件名为 screen.vert 和 screen.frag
+    shader_.load("shader/combine.vert", "shader/combine.frag");
+    init();
 }
 
-// 移除 Render(SceneData&, Camera&) 方法
-
-// 实现基类的纯虚函数 Render()，不带参数
 void CombinedPass::Render(GLuint directLightTextureID,
                         GLuint iblTextureID,
                         GLuint gpassDepthTextureID,
@@ -19,8 +18,8 @@ void CombinedPass::Render(GLuint directLightTextureID,
                         GLuint oitRevealTextureID,
                         GLuint skyboxTextureID)
 {
-    // CombinedPass 通常直接渲染到默认帧缓冲 (屏幕)
-    glBindFramebuffer(GL_FRAMEBUFFER, 0); // 绑定默认帧缓冲
+    activateFramebuffer();
+
     setViewport(width_, height_);
 
     // 清除屏幕
@@ -54,6 +53,8 @@ void CombinedPass::Render(GLuint directLightTextureID,
 
     screenQuad_.render(); 
 
+    deactivateFramebuffer();
+
     GL_CHECK_ERROR();
 }
 
@@ -63,4 +64,40 @@ void CombinedPass::Resize(int width, int height)
     RenderPass::Resize(width, height);
     // 设置视口大小
     setViewport(width_, height_);
+
+    init();
+}
+
+GLuint CombinedPass::getColorTextureId() const
+{
+    assert(colorTexture_);
+
+    return colorTexture_->id();
+}
+
+void CombinedPass::init()
+{
+    colorTexture_ = std::make_unique<Texture2D>(width_, height_, GL_RGBA8); // 颜色
+    colorTexture_->setParameters();
+
+    // 创建深度纹理
+    depthTexture_ = std::make_unique<Texture2D>(width_, height_, GL_DEPTH_COMPONENT24);
+
+    // 创建 Framebuffer 对象
+    frameBuffer_ = std::make_unique<Framebuffer>(width_, height_);
+
+    // 创建 G-Buffer 纹理附件
+    frameBuffer_->attachColorTexture(colorTexture_->id(), GL_COLOR_ATTACHMENT0);
+
+    // 创建深度纹理附件
+    frameBuffer_->attachDepthTexture(depthTexture_->id(), 0);
+
+    // 设置绘制缓冲区 (指定哪些颜色附件会被渲染)
+    std::vector<GLenum> drawBuffers = {GL_COLOR_ATTACHMENT0};
+    frameBuffer_->setDrawBuffers(drawBuffers);
+
+    // 检查 Framebuffer 完整性
+    frameBuffer_->checkCompleteness();
+
+    GL_CHECK_ERROR();
 }

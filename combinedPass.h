@@ -4,6 +4,7 @@
 #include "RenderPass.h"
 #include "Shader.h"
 #include "screenQuad.h"
+#include "texture2D.h"
 
 class CombinedPass : public RenderPass
 {
@@ -24,8 +25,15 @@ public:
     // 维持 Resize 方法
     void Resize(int width, int height) override;
 
+    GLuint getColorTextureId() const;
+
+private:
+    void init();
+
 private:
     Shader shader_;
+    std::unique_ptr<Texture2D> colorTexture_; // 存储世界空间位置
+    std::unique_ptr<Texture2D> depthTexture_; // 存储深度信息（作为纹理）
 
     ScreenQuad screenQuad_;
 

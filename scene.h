@@ -24,6 +24,8 @@
 #include "shadowPass.h"
 #include "IBLPass.h"
 #include "OitPass.h"
+#include "postPass.h"
+
 #include "SceneData.h"
 
 class Scene
@@ -45,13 +47,16 @@ private:
     std::shared_ptr<PointLight> mainLight_; // 主光源
 
     // 渲染 Pass 实例
+    std::unique_ptr<SkyPass> skyPass_;
+    std::unique_ptr<ShadowPass> shadowPass_;
+    std::unique_ptr<OitPass> oitPass_;
+
     std::unique_ptr<GBufferPass> gBufferPass_;
     std::unique_ptr<LightPass> lightPass_;
-    std::unique_ptr<SkyPass> skyPass_;
-    std::unique_ptr<CombinedPass> combinedPass_;
-    std::unique_ptr<ShadowPass> shadowPass_;
     std::unique_ptr<IBLPass> iblPass_;
-    std::unique_ptr<OitPass> oitPass_;
+
+    std::unique_ptr<CombinedPass> combinedPass_;
+    std::unique_ptr<PostPass> postPass_;
 
     // IBL 预计算纹理，由 Scene 管理其生命周期并注入给 IBLPass 和 SkyPass
     std::shared_ptr<TextureCubeMap> irradianceMapTex_;

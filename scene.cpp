@@ -59,8 +59,8 @@ void Scene::init()
         brdfLUTTex_);
 
     skyPass_ = std::make_unique<SkyPass>(sceneData_.screenWidth, sceneData_.screenHeight, prefilterMapTex_);
-
     combinedPass_ = std::make_unique<CombinedPass>(sceneData_.screenWidth, sceneData_.screenHeight);
+    postPass_ = std::make_unique<PostPass>(sceneData_.screenWidth, sceneData_.screenHeight);
 
     //---gold-------------------------------------------------
     std::shared_ptr<Texture2D> goldAlbedoTexture = std::move(Texture2D::loadFromFile("gold/albedo.png"));
@@ -251,6 +251,9 @@ void Scene::run()
                         oitPass_->getAccumTextureId(),
                         oitPass_->getRevealTextureId(),
                         skyPass_->getColorTextureId());
+
+    postPass_->Render(combinedPass_->getColorTextureId());
+    
     GL_CHECK_ERROR();
 }
 
@@ -276,8 +279,6 @@ void Scene::resize(int width, int height)
     if (iblPass_) {
         iblPass_->Resize(width, height);
     }
-    // ShadowPass 通常只依赖于其固定的阴影贴图尺寸，不受屏幕尺寸影响
-    // 但如果你的阴影 Pass 需要根据屏幕比例调整，这里也要调用其 Resize
     // if (shadowPass_) {
     //     shadowPass_->Resize(sceneData_.shadowMapWidth, sceneData_.shadowMapHeight);
     // }
