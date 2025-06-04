@@ -160,7 +160,7 @@ void Scene::init()
 
     // 创建网格并设置材质和变换
     std::unique_ptr<Mesh> mesh_teapot = std::make_unique<Mesh>("teapot.obj");
-    mesh_teapot->setMaterial(goldMaterial);
+    mesh_teapot->setMaterial(rustedIronMaterial);
     mesh_teapot->setScale(Eigen::Vector3f(1.0f, 1.0f, 1.0f));
     mesh_teapot->setPosition(Eigen::Vector3f(0.0f, 0.0f, 0.0f));
     sceneData_.opaqueObjects.push_back(std::move(mesh_teapot));
@@ -173,7 +173,7 @@ void Scene::init()
     // sceneData_.opaqueObjects.push_back(std::move(mesh_box));
 
     std::unique_ptr<Mesh> mesh_transparent_teapot = std::make_unique<Mesh>("teapot.obj");
-    mesh_transparent_teapot->setMaterial(goldMaterial);
+    mesh_transparent_teapot->setMaterial(grassMaterial);
     mesh_transparent_teapot->setScale(Eigen::Vector3f(5, 5, 5));
     mesh_transparent_teapot->setPosition(Eigen::Vector3f(0.0f, 0.0f, -30.0f));
     sceneData_.opaqueObjects.push_back(std::move(mesh_transparent_teapot));
