@@ -12,11 +12,6 @@ Texture2D::Texture2D(GLenum target, GLenum internalFormat, int width, int height
     : Texture(target, internalFormat, width, height, 1), // depth is 1 for 2D
       mipLevels_(mipLevels)
 {
-    // Note: allocateStorage and setParameters are NOT called here.
-    // They will be handled by the static factory method (e.g., loadDDS)
-    // which has full information from the file.
-    // glCreateTextures(GL_TEXTURE_2D, 1, &id_); // DSA: 直接操作纹理ID
-    // GL_CHECK_ERROR();
 }
 
 // Public constructor for general purpose (raw data upload or generation)
@@ -24,21 +19,12 @@ Texture2D::Texture2D(int width, int height, GLenum internalFormat, int mipLevels
     : Texture(GL_TEXTURE_2D, internalFormat, width, height, 1), // depth is 1 for 2D
       mipLevels_(mipLevels)
 {
-    // glCreateTextures(GL_TEXTURE_2D, 1, &id_); // DSA: 直接操作纹理ID
-    // GL_CHECK_ERROR();
-
-    // This constructor allocates storage and sets parameters immediately.
     allocateStorage(mipLevels_);
     setParameters();
 }
 
 void Texture2D::allocateStorage(int mipLevels)
 {
-    // if(id_ == 17)
-    // {
-    //     std::cerr << "ERROR: Texture ID " << id_ << " is NOT a valid OpenGL texture object before allocateStorage!" << std::endl;
-    // }
-
     if (id_ == 0)
     {
         THROW_GL_EXCEPTION("Texture ID is 0. Cannot allocate storage.");
@@ -46,30 +32,10 @@ void Texture2D::allocateStorage(int mipLevels)
 
     if (!glIsTexture(id_))
     {
-        std::cerr << "ERROR: Texture ID " << id_ << " is NOT a valid OpenGL texture object before allocateStorage!" << std::endl;
-        // 你甚至可以在这里抛出异常或断言，以阻止程序继续
         THROW_GL_EXCEPTION("Invalid OpenGL Texture ID before allocating storage.");
     }
 
-    // // --- 在这里添加以下打印语句 ---
-    // std::cout << "DEBUG: Calling glTextureStorage2D with:" << std::endl;
-    // std::cout << "  Texture ID (id_) = " << id_ << std::endl;
-    // std::cout << "  Mip Levels (mipLevels) = " << mipLevels << std::endl;
-    // // 使用 std::hex 打印 GLenum，因为它通常是十六进制值
-    // std::cout << "  Internal Format (internalFormat_) = 0x" << std::hex << internalFormat_ << std::dec << std::endl;
-    // // 打印一些常见格式的十六进制值作为参考，以便你能对照
-    // std::cout << "    (e.g., GL_RGBA8 is 0x" << std::hex << GL_RGBA8 << std::dec << ")" << std::endl;
-    // std::cout << "  Width (width_) = " << width_ << std::endl;
-    // std::cout << "  Height (height_) = " << height_ << std::endl;
-    // // --- 打印结束 ---
-
-    //  // --- 在这里添加以下打印语句 ---
-    // std::cout << "  纹理目标 (target_) = 0x" << std::hex << target_ << std::dec << std::endl;
-    // std::cout << "    (例如，GL_TEXTURE_2D 的值是 0x" << std::hex << GL_TEXTURE_2D << std::dec << ")" << std::endl;
-    // // --- 打印结束 ---
-
-    glTextureStorage2D(id_, mipLevels, internalFormat_, width_, height_); // DSA: 直接操作纹理ID
-    GL_CHECK_ERROR();
+    glTextureStorage2D(id_, mipLevels, internalFormat_, width_, height_);
 }
 
 void Texture2D::setParameters()
@@ -167,7 +133,7 @@ std::unique_ptr<Texture2D> Texture2D::loadDDS(const std::string &filePath)
 std::unique_ptr<Texture2D> Texture2D::loadFromFile(const std::string &filePath, bool generateMipmaps)
 {
     int width, height, numChannels;
-    // 使用 stb_image 加载图片数据
+    
     // STBI_rgb_alpha 强制加载为 RGBA (4 个通道)，即使原图是 RGB
     // 这是为了确保数据布局一致性，避免 OpenGL 格式匹配问题
     unsigned char *data = stbi_load(filePath.c_str(), &width, &height, &numChannels, 4);
