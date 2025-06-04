@@ -1,7 +1,7 @@
 #include "lightPass.h"
 #include <iostream>
-#include <vector> // 确保包含 vector
-#include "pointLightDataForUBO.h" // 确保包含 PointLightDataForUBO
+#include <vector>
+#include "pointLightDataForUBO.h"
 #include "debug_utils.h"
 
 LightPass::LightPass(int width, int height)
@@ -13,7 +13,7 @@ LightPass::LightPass(int width, int height)
     activateFramebuffer();
 
     // 创建并附加 LightPass 的输出颜色纹理
-    outputTexture_ = std::make_unique<Texture2D>(width_, height_, GL_RGBA32F); // RGBA8 作为颜色输出
+    outputTexture_ = std::make_unique<Texture2D>(width_, height_, GL_RGBA32F);
     frameBuffer_->attachColorTexture(outputTexture_->id(), GL_COLOR_ATTACHMENT0);
 
     debugCurrentDepthTexture_ = std::make_unique<Texture2D>(width_, height_, GL_R32F);
@@ -99,7 +99,6 @@ void LightPass::Render(GLuint positionTextureID,
     objectLightUBO_.updateData(0, sizeof(PointLightDataForUBO), &lightData);
 
     // 8. 渲染全屏四边形
-    // renderQuad(); // 假设你有一个 renderQuad() 辅助函数来绘制全屏四边形
     screenQuad_.render();
 
     // 9. 解绑纹理
