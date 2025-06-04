@@ -89,9 +89,6 @@ void LightPass::Render(GLuint positionTextureID,
 
     // 7. 设置 Uniform 变量
     shader_.setVec3("viewPos", camera.Position);
-    shader_.setVec3("light.position", light.position);
-    shader_.setVec3("light.color", light.color);
-    shader_.setFloat("light.intensity", light.intensity);
     shader_.setFloat("shadowCameraFarClip", 100.0f); // 应该与 ShadowPass 中的 far_plane 一致
 
     PointLightDataForUBO lightData;
