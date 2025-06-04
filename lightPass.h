@@ -34,7 +34,7 @@ public:
     // 提供类型安全的输出纹理 Getter
     const Texture2D& getOutputTexture() const { return *outputTexture_; }
 
-    GLuint getOutputTextureID() const { return outputTexture_->id(); }
+    GLuint getOutputTextureId() const { return outputTexture_->id(); }
 
     // (可选) 如果你仍然需要调试纹理的 getter，可以提供
     // const Texture2D& getDebugCurrentDepthTexture() const { return *debugCurrentDepthTexture_; }

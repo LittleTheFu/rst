@@ -233,7 +233,7 @@ void Scene::run()
                        gBufferPass_->getAOTextureId(), // gAO
                        *mainLight_,
                        camera_,
-                       shadowPass_->getShadowMapDepthOutputTextureID());
+                       shadowPass_->getShadowMapDepthOutputTextureId());
     GL_CHECK_ERROR();
 
     iblPass_->Render(gBufferPass_->getPositionTextureId(), // gPosition
@@ -245,7 +245,7 @@ void Scene::run()
                      camera_);
     GL_CHECK_ERROR();
 
-    combinedPass_->Render(lightPass_->getOutputTextureID(),
+    combinedPass_->Render(lightPass_->getOutputTextureId(),
                         iblPass_->getOutputTexture(),
                         gBufferPass_->getDepthTextureId(),
                         oitPass_->getAccumTextureId(),
@@ -253,7 +253,7 @@ void Scene::run()
                         skyPass_->getColorTextureId());
 
     postPass_->Render(combinedPass_->getColorTextureId());
-    
+
     GL_CHECK_ERROR();
 }
 

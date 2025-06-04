@@ -27,7 +27,7 @@ public:
     // GLuint getShadowMapTextureID() const { return shadowMapDepthTestTexture_->id(); }
 
     const TextureCubeMap& getShadowMapDepthOutputTexture() const { return *shadowMapDepthOutputTexture_; }
-    GLuint getShadowMapDepthOutputTextureID() const { return shadowMapDepthOutputTexture_->id(); }
+    GLuint getShadowMapDepthOutputTextureId() const { return shadowMapDepthOutputTexture_->id(); }
 
 private:
     Shader shader_;
