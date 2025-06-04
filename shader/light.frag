@@ -117,7 +117,7 @@ void main()
     float attenuation = 1.0 / (distance * distance);
 
     //test, it's not correct
-    attenuation *= distance;
+    // attenuation *= distance;
 
     // attenuation = 1.0;
     // vec3 radiance = uPointLight.color * 1000 * attenuation;
