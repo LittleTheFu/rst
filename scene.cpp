@@ -194,7 +194,7 @@ void Scene::run()
     static int count = 0;
     count++;
     count %= 48000;
-    float x_light = count / 1200.0f - 15.0f;
+    float x_light = count / 1200.0f - 10.0f;
     x_light *= 0.5;
     mainLight_->position = Eigen::Vector3f(x_light, x_light, 7.0f);
     // mainLight_->position = Eigen::Vector3f(5, 5, 7.0f);
