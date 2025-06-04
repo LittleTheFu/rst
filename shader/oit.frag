@@ -106,7 +106,8 @@ void main() {
     // 确保粗糙度在0.05到1.0之间
     roughness = clamp(roughness, 0.05, 1.0);  // 不要为0，也不要大于1
 
-    vec3 viewDir = normalize(cameraPos - world_position);
+    //bug here ? take care of the view direction~~~
+    vec3 viewDir = -normalize(cameraPos - world_position);
     vec3 lightDir = normalize(uPointLight.position - world_position);
     vec3 halfwayDir = normalize(lightDir + viewDir);
 
