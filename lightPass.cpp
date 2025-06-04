@@ -16,9 +16,6 @@ LightPass::LightPass(int width, int height)
     outputTexture_ = std::make_unique<Texture2D>(width_, height_, GL_RGBA32F); // RGBA8 作为颜色输出
     frameBuffer_->attachColorTexture(outputTexture_->id(), GL_COLOR_ATTACHMENT0);
 
-    // (可选) 创建并附加调试纹理（如果你的 shader 仍然使用它们）
-    // 注意：这里的 internalFormat 假设是为了方便调试输出深度图到颜色缓冲
-    // GL_R32F 适合存储原始深度值以便可视化
     debugCurrentDepthTexture_ = std::make_unique<Texture2D>(width_, height_, GL_R32F);
     frameBuffer_->attachColorTexture(debugCurrentDepthTexture_->id(), GL_COLOR_ATTACHMENT1);
 
@@ -39,28 +36,10 @@ LightPass::LightPass(int width, int height)
     lightBindingPoint_ = shader_.getUniformBlockIndex("PointLightBlock");
     objectLightUBO_.create(sizeof(PointLightDataForUBO), GL_DYNAMIC_DRAW);
     objectLightUBO_.bindToBindingPoint(lightBindingPoint_);
-
-    // 获取 Shader 中 Uniform Block 的索引，并绑定到相同的绑定点
-    // GLuint lightBlockIndex = glGetUniformBlockIndex(shader_.ID, "PointLightBlock");
-    // if (lightBlockIndex == GL_INVALID_INDEX)
-    // {
-    //     std::cerr << "Error: Uniform block 'PointLightBlock' not found in light shader!" << std::endl;
-    //     // 考虑抛出异常或更严重的错误处理
-    // }
-    // glUniformBlockBinding(shader_.ID, lightBlockIndex, lightBindingPoint_);
-
-    // initScreenQuad(); // 初始化屏幕四边形
 }
 
 LightPass::~LightPass() {
-    // Unique_ptr 会自动清理纹理，UBO 和 VAO/VBO 需要手动清理
-    // if (quadVAO_ != 0) {
-    //     glDeleteVertexArrays(1, &quadVAO_);
-    // }
-    // if (quadVBO_ != 0) {
-    //     glDeleteBuffers(1, &quadVBO_);
-    // }
-    // objectLightUBO_ 的析构函数应该会处理其资源的释放
+    // 确保在析构时释放所有资源
 }
 
 void LightPass::Render(GLuint positionTextureID,
@@ -166,39 +145,3 @@ void LightPass::Resize(int width, int height) {
 
     deactivateFramebuffer(); // 解激活
 }
-
-// void LightPass::initScreenQuad()
-// {
-//     float quadVertices[] = {
-//         // positions // texCoords
-//         -1.0f, 1.0f, 0.0f, 1.0f,
-//         -1.0f, -1.0f, 0.0f, 0.0f,
-//         1.0f, -1.0f, 1.0f, 0.0f,
-
-//         -1.0f, 1.0f, 0.0f, 1.0f,
-//         1.0f, -1.0f, 1.0f, 0.0f,
-//         1.0f, 1.0f, 1.0f, 1.0f
-//     };
-
-//     glCreateVertexArrays(1, &quadVAO_);
-//     glBindVertexArray(quadVAO_);
-
-//     glCreateBuffers(1, &quadVBO_);
-//     glBindBuffer(GL_ARRAY_BUFFER, quadVBO_);
-//     glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
-
-//     // 设置顶点属性指针
-//     glEnableVertexAttribArray(0); // 位置属性
-//     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *)0);
-//     glEnableVertexAttribArray(1); // 纹理坐标属性
-//     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *)(2 * sizeof(float)));
-
-//     glBindVertexArray(0);
-// }
-
-// void LightPass::renderQuad()
-// {
-//     glBindVertexArray(quadVAO_);
-//     glDrawArrays(GL_TRIANGLES, 0, 6);
-//     glBindVertexArray(0);
-// }

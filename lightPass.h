@@ -31,9 +31,6 @@ public:
     // 重写 Resize 方法，处理内部纹理和 Framebuffer 的重新分配
     void Resize(int width, int height) override;
 
-    // 提供类型安全的输出纹理 Getter
-    const Texture2D& getOutputTexture() const { return *outputTexture_; }
-
     GLuint getOutputTextureId() const { return outputTexture_->id(); }
 
     // (可选) 如果你仍然需要调试纹理的 getter，可以提供
@@ -43,12 +40,6 @@ public:
 private:
     Shader shader_;
     ScreenQuad screenQuad_;
-
-    // GLuint quadVAO_ = 0;
-    // GLuint quadVBO_ = 0;
-
-    // void initScreenQuad(); // 初始化屏幕四边形
-    // void renderQuad();     // 渲染屏幕四边形
 
     UniformBuffer objectLightUBO_;
     GLuint lightBindingPoint_;
