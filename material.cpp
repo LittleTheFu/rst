@@ -95,8 +95,7 @@ void Material::bindTextures(Shader& shader) {
 }
 
 void Material::setUniforms(Shader& shader) {
-    shader.setVec3("material.albedoColor", albedoColor_);
-    shader.setFloat("material.roughnessFactor", roughnessFactor_);
-    shader.setFloat("material.metallicFactor", metallicFactor_);
-    // ... 设置其他材质参数 uniform ...
+    // shader.setVec3("material.albedoColor", albedoColor_);
+    // shader.setFloat("material.roughnessFactor", roughnessFactor_);
+    // shader.setFloat("material.metallicFactor", metallicFactor_);
 }
