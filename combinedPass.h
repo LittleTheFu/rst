@@ -4,9 +4,6 @@
 #include "RenderPass.h"
 #include "Shader.h"
 #include "screenQuad.h"
-// #include "pointLight.h" // 移除，因为 CombinedPass 不直接处理光源数据
-// #include "uniformBuffer.h" // 移除，假设 CombinedPass 不使用 UBO
-// #include "camera.h" // 移除，因为 CombinedPass 不直接使用 Camera 数据
 
 class CombinedPass : public RenderPass
 {
@@ -32,17 +29,9 @@ private:
 
     ScreenQuad screenQuad_;
 
-    // void initScreenQuad();
-    // void renderQuad();
-
-    // 通过构造函数注入并作为成员持有的纹理 ID
     GLuint lightTextureID_;
     GLuint iblTextureID_;
     GLuint gpassDepthTextureID_;
-
-    // 移除不再使用的 UniformBuffer 成员
-    // UniformBuffer objectLightUBO_;
-    // GLuint lightBindingPoint_;
 };
 
 #endif // _SCREEN_PASS_H_

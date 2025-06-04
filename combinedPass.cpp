@@ -1,19 +1,12 @@
 #include "combinedPass.h"
 #include <iostream>
-// #include "uniformBuffer.h" // 移除，假设不使用
-// #include "pointLightDataForUBO.h" // 移除，假设不使用
-#include "debug_utils.h" // 确保包含调试工具
+#include "debug_utils.h"
 
 CombinedPass::CombinedPass(int width, int height)
     : RenderPass("CombinedPass", width, height),
       screenQuad_()
 {
     shader_.load("shader/combine.vert", "shader/combine.frag"); // 假设你的屏幕 Shader 文件名为 screen.vert 和 screen.frag
-
-    // CombinedPass 通常渲染到默认帧缓冲，所以不需要创建自定义 FBO
-    // base class's frameBuffer_ unique_ptr remains nullptr, which is intended.
-
-    // initScreenQuad();
 }
 
 // 移除 Render(SceneData&, Camera&) 方法
@@ -33,10 +26,6 @@ void CombinedPass::Render(GLuint directLightTextureID,
     // 清除屏幕
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    // glEnable(GL_BLEND);
-    // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    // glBlendEquation(GL_FUNC_ADD);
 
     // 禁用深度测试
     disableState(GL_DEPTH_TEST);
