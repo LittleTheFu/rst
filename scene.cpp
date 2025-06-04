@@ -60,7 +60,7 @@ void Scene::init()
 
     skyPass_ = std::make_unique<SkyPass>(sceneData_.screenWidth, sceneData_.screenHeight, prefilterMapTex_);
 
-    screenPass_ = std::make_unique<ScreenPass>(sceneData_.screenWidth, sceneData_.screenHeight);
+    combinedPass_ = std::make_unique<CombinedPass>(sceneData_.screenWidth, sceneData_.screenHeight);
 
     //---gold-------------------------------------------------
     std::shared_ptr<Texture2D> goldAlbedoTexture = std::move(Texture2D::loadFromFile("gold/albedo.png"));
@@ -245,7 +245,7 @@ void Scene::run()
                      camera_);
     GL_CHECK_ERROR();
 
-    screenPass_->Render(lightPass_->getOutputTextureID(),
+    combinedPass_->Render(lightPass_->getOutputTextureID(),
                         iblPass_->getOutputTexture(),
                         gBufferPass_->getDepthTextureId(),
                         oitPass_->getAccumTextureId(),
@@ -270,8 +270,8 @@ void Scene::resize(int width, int height)
     if (skyPass_) {
         skyPass_->Resize(width, height);
     }
-    if (screenPass_) {
-        screenPass_->Resize(width, height);
+    if (combinedPass_) {
+        combinedPass_->Resize(width, height);
     }
     if (iblPass_) {
         iblPass_->Resize(width, height);

@@ -1,16 +1,16 @@
-#include "screenPass.h"
+#include "combinedPass.h"
 #include <iostream>
 // #include "uniformBuffer.h" // 移除，假设不使用
 // #include "pointLightDataForUBO.h" // 移除，假设不使用
 #include "debug_utils.h" // 确保包含调试工具
 
-ScreenPass::ScreenPass(int width, int height)
-    : RenderPass("ScreenPass", width, height),
+CombinedPass::CombinedPass(int width, int height)
+    : RenderPass("CombinedPass", width, height),
       screenQuad_()
 {
-    shader_.load("shader/screen.vert", "shader/screen.frag"); // 假设你的屏幕 Shader 文件名为 screen.vert 和 screen.frag
+    shader_.load("shader/combine.vert", "shader/combine.frag"); // 假设你的屏幕 Shader 文件名为 screen.vert 和 screen.frag
 
-    // ScreenPass 通常渲染到默认帧缓冲，所以不需要创建自定义 FBO
+    // CombinedPass 通常渲染到默认帧缓冲，所以不需要创建自定义 FBO
     // base class's frameBuffer_ unique_ptr remains nullptr, which is intended.
 
     // initScreenQuad();
@@ -19,14 +19,14 @@ ScreenPass::ScreenPass(int width, int height)
 // 移除 Render(SceneData&, Camera&) 方法
 
 // 实现基类的纯虚函数 Render()，不带参数
-void ScreenPass::Render(GLuint directLightTextureID,
+void CombinedPass::Render(GLuint directLightTextureID,
                         GLuint iblTextureID,
                         GLuint gpassDepthTextureID,
                         GLuint oitAccumTextureID,
                         GLuint oitRevealTextureID,
                         GLuint skyboxTextureID)
 {
-    // ScreenPass 通常直接渲染到默认帧缓冲 (屏幕)
+    // CombinedPass 通常直接渲染到默认帧缓冲 (屏幕)
     glBindFramebuffer(GL_FRAMEBUFFER, 0); // 绑定默认帧缓冲
     setViewport(width_, height_);
 
@@ -68,7 +68,7 @@ void ScreenPass::Render(GLuint directLightTextureID,
     GL_CHECK_ERROR();
 }
 
-void ScreenPass::Resize(int width, int height)
+void CombinedPass::Resize(int width, int height)
 {
     // 更新基类的尺寸
     RenderPass::Resize(width, height);
