@@ -160,7 +160,7 @@ void Scene::init()
 
     // 创建网格并设置材质和变换
     std::unique_ptr<Mesh> mesh_teapot = std::make_unique<Mesh>("teapot.obj");
-    mesh_teapot->setMaterial(rustedIronMaterial);
+    mesh_teapot->setMaterial(goldMaterial);
     mesh_teapot->setScale(Eigen::Vector3f(1.0f, 1.0f, 1.0f));
     mesh_teapot->setPosition(Eigen::Vector3f(0.0f, 0.0f, 0.0f));
     sceneData_.opaqueObjects.push_back(std::move(mesh_teapot));
@@ -173,7 +173,7 @@ void Scene::init()
     // sceneData_.opaqueObjects.push_back(std::move(mesh_box));
 
     std::unique_ptr<Mesh> mesh_transparent_teapot = std::make_unique<Mesh>("teapot.obj");
-    mesh_transparent_teapot->setMaterial(grassMaterial);
+    mesh_transparent_teapot->setMaterial(goldMaterial);
     mesh_transparent_teapot->setScale(Eigen::Vector3f(5, 5, 5));
     mesh_transparent_teapot->setPosition(Eigen::Vector3f(0.0f, 0.0f, -30.0f));
     sceneData_.opaqueObjects.push_back(std::move(mesh_transparent_teapot));
@@ -193,7 +193,7 @@ void Scene::run()
     // 光源调试动画
     static int count = 0;
     count++;
-    count %= 48000;
+    count %= 24000;
     float x_light = count / 1200.0f - 10.0f;
     x_light *= 0.5;
     mainLight_->position = Eigen::Vector3f(x_light, x_light, 7.0f);
