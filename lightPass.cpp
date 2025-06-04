@@ -13,7 +13,7 @@ LightPass::LightPass(int width, int height)
     activateFramebuffer();
 
     // 创建并附加 LightPass 的输出颜色纹理
-    outputTexture_ = std::make_unique<Texture2D>(width_, height_, GL_RGBA8); // RGBA8 作为颜色输出
+    outputTexture_ = std::make_unique<Texture2D>(width_, height_, GL_RGBA32F); // RGBA8 作为颜色输出
     frameBuffer_->attachColorTexture(outputTexture_->id(), GL_COLOR_ATTACHMENT0);
 
     // (可选) 创建并附加调试纹理（如果你的 shader 仍然使用它们）

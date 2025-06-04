@@ -19,7 +19,7 @@ IBLPass::IBLPass(int width, int height,
     frameBuffer_ = std::make_unique<Framebuffer>(width_, height_);
 
     // 创建一个颜色附件纹理并附加到 FBO
-    auto colorOutputTex = std::make_unique<Texture2D>(width_, height_, GL_RGBA16F, 1);
+    auto colorOutputTex = std::make_unique<Texture2D>(width_, height_, GL_RGBA32F, 1);
     outputTexture_ = colorOutputTex->id(); // 获取其 OpenGL ID
     // 假设 IBLPass 不会自己管理这个 Texture2D 对象的生命周期，只获取 ID
     // 如果需要管理，这里需要一个成员来持有 unique_ptr/shared_ptr

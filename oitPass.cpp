@@ -112,7 +112,7 @@ void OitPass::Render(const std::vector<std::shared_ptr<Mesh>> &meshes,
 
 void OitPass::init()
 {
-    accumTexture_ = std::make_unique<Texture2D>(width_, height_, GL_RGBA16F); // 颜色
+    accumTexture_ = std::make_unique<Texture2D>(width_, height_, GL_RGBA32F); // 颜色
     accumTexture_->setParameters();
 
     revealTexture_ = std::make_unique<Texture2D>(width_, height_, GL_R32F); // 颜色
