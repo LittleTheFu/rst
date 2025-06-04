@@ -130,10 +130,10 @@ std::unique_ptr<Texture2D> Texture2D::loadDDS(const std::string &filePath)
     return texture;
 }
 
-std::unique_ptr<Texture2D> Texture2D::loadFromFile(const std::string &filePath, bool generateMipmaps)
+std::unique_ptr<Texture2D> Texture2D::loadFromFile(const std::string &filePath, bool generateMipmaps, bool useSRGB)
 {
     int width, height, numChannels;
-    
+
     // STBI_rgb_alpha 强制加载为 RGBA (4 个通道)，即使原图是 RGB
     // 这是为了确保数据布局一致性，避免 OpenGL 格式匹配问题
     unsigned char *data = stbi_load(filePath.c_str(), &width, &height, &numChannels, 4);
@@ -144,7 +144,7 @@ std::unique_ptr<Texture2D> Texture2D::loadFromFile(const std::string &filePath, 
     }
 
     // 确定 OpenGL 内部格式 (假设我们总是将其视为 RGBA8)
-    GLenum internalFormat = GL_RGBA8;
+    GLenum internalFormat = useSRGB ? GL_SRGB8_ALPHA8  : GL_RGBA8;
     // GLenum internalFormat = GL_RGBA8;
     // GLenum format = GL_RGBA; // external format for upload
     // GLenum type = GL_UNSIGNED_BYTE; // data type for upload

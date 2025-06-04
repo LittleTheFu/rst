@@ -25,8 +25,9 @@ public:
     static std::unique_ptr<Texture2D> loadDDS(const std::string& filePath);
 
      // --- 新增：加载普通图片格式的静态工厂方法 ---
-    static std::unique_ptr<Texture2D> loadFromFile(const std::string& filePath, bool generateMipmaps = false);
-
+    static std::unique_ptr<Texture2D> loadFromFile(const std::string &filePath,
+                                                   bool generateMipmaps = false,
+                                                   bool useSRGB = false);
 
     // 重写基类的纯虚函数
     void allocateStorage(int mipLevels = 1) override;

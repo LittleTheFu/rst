@@ -63,7 +63,7 @@ void Scene::init()
     postPass_ = std::make_unique<PostPass>(sceneData_.screenWidth, sceneData_.screenHeight);
 
     //---gold-------------------------------------------------
-    std::shared_ptr<Texture2D> goldAlbedoTexture = std::move(Texture2D::loadFromFile("gold/albedo.png"));
+    std::shared_ptr<Texture2D> goldAlbedoTexture = std::move(Texture2D::loadFromFile("gold/albedo.png", false, true));
     std::shared_ptr<Texture2D> goldNormalTexture = std::move(Texture2D::loadFromFile("gold/normal.png"));
     std::shared_ptr<Texture2D> goldRoughnessTexture = std::move(Texture2D::loadFromFile("gold/roughness.png"));
     std::shared_ptr<Texture2D> goldMetallicTexture = std::move(Texture2D::loadFromFile("gold/metallic.png"));
@@ -77,7 +77,7 @@ void Scene::init()
     goldMaterial->setAmbientOcclusionMap(goldAoTexture);
 
     //-----wall---------------------------------------------------------------------------
-    std::shared_ptr<Texture2D> wallAlbedoTexture = std::move(Texture2D::loadFromFile("wall/albedo.png"));
+    std::shared_ptr<Texture2D> wallAlbedoTexture = std::move(Texture2D::loadFromFile("wall/albedo.png", false, true));
     std::shared_ptr<Texture2D> wallNormalTexture = std::move(Texture2D::loadFromFile("wall/normal.png"));
     std::shared_ptr<Texture2D> wallRoughnessTexture = std::move(Texture2D::loadFromFile("wall/roughness.png"));
     std::shared_ptr<Texture2D> wallMetallicTexture = std::move(Texture2D::loadFromFile("wall/metallic.png"));
@@ -91,7 +91,7 @@ void Scene::init()
     wallMaterial->setAmbientOcclusionMap(wallAoTexture);
 
     //----grass-----------------------------------------------------------------------------
-    std::shared_ptr<Texture2D> grassAlbedoTexture = std::move(Texture2D::loadFromFile("grass/albedo.png"));
+    std::shared_ptr<Texture2D> grassAlbedoTexture = std::move(Texture2D::loadFromFile("grass/albedo.png", false, true));
     std::shared_ptr<Texture2D> grassNormalTexture = std::move(Texture2D::loadFromFile("grass/normal.png"));
     std::shared_ptr<Texture2D> grassRoughnessTexture = std::move(Texture2D::loadFromFile("grass/roughness.png"));
     std::shared_ptr<Texture2D> grassMetallicTexture = std::move(Texture2D::loadFromFile("grass/metallic.png"));
@@ -105,7 +105,7 @@ void Scene::init()
     grassMaterial->setAmbientOcclusionMap(grassAoTexture);
 
     //----plastic-----------------------------------------------------------------
-    std::shared_ptr<Texture2D> plasticAlbedoTexture = std::move(Texture2D::loadFromFile("plastic/albedo.png"));
+    std::shared_ptr<Texture2D> plasticAlbedoTexture = std::move(Texture2D::loadFromFile("plastic/albedo.png", false, true));
     std::shared_ptr<Texture2D> plasticNormalTexture = std::move(Texture2D::loadFromFile("plastic/normal.png"));
     std::shared_ptr<Texture2D> plasticRoughnessTexture = std::move(Texture2D::loadFromFile("plastic/roughness.png"));
     std::shared_ptr<Texture2D> plasticMetallicTexture = std::move(Texture2D::loadFromFile("plastic/metallic.png"));
@@ -119,7 +119,7 @@ void Scene::init()
     plasticMaterial->setAmbientOcclusionMap(plasticAoTexture);
 
     //----rusted_iron-------------------------------------------------
-    std::shared_ptr<Texture2D> rustedIronAlbedoTexture = std::move(Texture2D::loadFromFile("rusted_iron/albedo.png"));
+    std::shared_ptr<Texture2D> rustedIronAlbedoTexture = std::move(Texture2D::loadFromFile("rusted_iron/albedo.png", false, true));
     std::shared_ptr<Texture2D> rustedIronNormalTexture = std::move(Texture2D::loadFromFile("rusted_iron/normal.png"));
     std::shared_ptr<Texture2D> rustedIronRoughnessTexture = std::move(Texture2D::loadFromFile("rusted_iron/roughness.png"));
     std::shared_ptr<Texture2D> rustedIronMetallicTexture = std::move(Texture2D::loadFromFile("rusted_iron/metallic.png"));
@@ -135,7 +135,7 @@ void Scene::init()
     //--------------------------------------------------------------------------------------------------------
 
     //---gun--------------------------------------------------------------------------------------------------
-    std::shared_ptr<Texture2D> gunAlbedoTexture = std::move(Texture2D::loadFromFile("gun/Textures/Cerberus_A.tga"));
+    std::shared_ptr<Texture2D> gunAlbedoTexture = std::move(Texture2D::loadFromFile("gun/Textures/Cerberus_A.tga", false, true));
     std::shared_ptr<Texture2D> gunNormalTexture = std::move(Texture2D::loadFromFile("gun/Textures/Cerberus_N.tga"));
     std::shared_ptr<Texture2D> gunRoughnessTexture = std::move(Texture2D::loadFromFile("gun/Textures/Cerberus_R.tga"));
     std::shared_ptr<Texture2D> gunMetallicTexture = std::move(Texture2D::loadFromFile("gun/Textures/Cerberus_M.tga"));
