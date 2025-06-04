@@ -13,5 +13,8 @@ void main()
     float gray = dot(color.rgb, vec3(0.299, 0.587, 0.114));
     vec4 grayColor = vec4(gray, gray, gray, color.a);
 
-    FragColor = grayColor;
+    vec3 corrected = pow(color.rgb, vec3(1.0/2.2));
+    vec4 correctedColor = vec4(corrected, 1.0);
+
+    FragColor = correctedColor;
 }
