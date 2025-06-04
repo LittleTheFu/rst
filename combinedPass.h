@@ -1,5 +1,5 @@
-#ifndef _SCREEN_PASS_H_
-#define _SCREEN_PASS_H_
+#ifndef _COMBINED_PASS_H_
+#define _COMBINED_PASS_H_
 
 #include "RenderPass.h"
 #include "Shader.h"
@@ -42,4 +42,4 @@ private:
     GLuint gpassDepthTextureID_;
 };
 
-#endif // _SCREEN_PASS_H_
+#endif

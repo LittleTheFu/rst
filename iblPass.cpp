@@ -15,28 +15,29 @@ IBLPass::IBLPass(int width, int height,
 {
     shader_.load("shader/ibl.vert", "shader/ibl.frag"); // IBL 着色器路径
 
-    // 创建 IBL Pass 的输出 Framebuffer
-    frameBuffer_ = std::make_unique<Framebuffer>(width_, height_);
-
-    // 创建一个颜色附件纹理并附加到 FBO
-    auto colorOutputTex = std::make_unique<Texture2D>(width_, height_, GL_RGBA32F, 1);
-    outputTexture_ = colorOutputTex->id(); // 获取其 OpenGL ID
-    // 假设 IBLPass 不会自己管理这个 Texture2D 对象的生命周期，只获取 ID
-    // 如果需要管理，这里需要一个成员来持有 unique_ptr/shared_ptr
-
-    frameBuffer_->attachColorTexture(outputTexture_, GL_COLOR_ATTACHMENT0, 0);
-
-    // 设置绘制缓冲区
-    std::vector<GLenum> drawBuffers = {GL_COLOR_ATTACHMENT0};
-    frameBuffer_->setDrawBuffers(drawBuffers);
-
-    // 检查 FBO 完整性
-    frameBuffer_->checkCompleteness();
-
-    // initScreenQuad();
+    init();
 }
 
-// 移除不再需要的 Render(SceneData&, Camera&) 方法
+GLuint IBLPass::getColorTextureId() const
+{
+    assert(colorTexture_ && "Color texture not initialized!");
+    return colorTexture_->id();
+}
+
+void IBLPass::setIrradianceMap(std::shared_ptr<TextureCubeMap> texture)
+{
+    irradianceMap_ = texture;
+}
+
+void IBLPass::setPrefilterMap(std::shared_ptr<TextureCubeMap> texture)
+{
+    prefilterMap_ = texture;
+}
+
+void IBLPass::setBrdfLUT(std::shared_ptr<Texture2D> texture)
+{
+    brdfLUT_ = texture;
+}
 
 // 实现基类的纯虚函数 Render()，不带参数
 void IBLPass::Render(GLuint gPositionID, GLuint gNormalID, GLuint gAlbedoID,
@@ -119,55 +120,22 @@ void IBLPass::Resize(int width, int height)
     // 重新创建 Framebuffer 和附件纹理
     deactivateFramebuffer(); // 首先解绑 FBO
 
-    // 重新创建 Framebuffer 对象 (这将生成新的 ID 并释放旧的)
+    init();
+}
+
+void IBLPass::init()
+{
+    // 创建 IBL Pass 的输出 Framebuffer
     frameBuffer_ = std::make_unique<Framebuffer>(width_, height_);
 
-    // 重新创建并附加颜色输出纹理
-    // 这里我们假设 outputTexture_ 是 IBLPass 内部创建并管理的唯一输出纹理
-    auto colorOutputTex = std::make_unique<Texture2D>(width_, height_, GL_RGBA16F, 1);
-    outputTexture_ = colorOutputTex->id(); // 更新 ID
-    // 同样，如果需要管理此 Texture2D 对象的生命周期，这里需要一个成员来持有 unique_ptr/shared_ptr
+    // 创建一个颜色附件纹理并附加到 FBO
+    colorTexture_ = std::make_unique<Texture2D>(width_, height_, GL_RGBA32F, 1);
+    frameBuffer_->attachColorTexture(colorTexture_->id(), GL_COLOR_ATTACHMENT0, 0);
 
-    frameBuffer_->attachColorTexture(outputTexture_, GL_COLOR_ATTACHMENT0, 0);
-
-    // 重新设置绘制缓冲区
+    // 设置绘制缓冲区
     std::vector<GLenum> drawBuffers = {GL_COLOR_ATTACHMENT0};
     frameBuffer_->setDrawBuffers(drawBuffers);
 
     // 检查 FBO 完整性
     frameBuffer_->checkCompleteness();
 }
-
-// void IBLPass::initScreenQuad()
-// {
-//     float quadVertices[] = {
-//         // positions   // texCoords
-//         -1.0f, 1.0f, 0.0f, 1.0f,
-//         -1.0f, -1.0f, 0.0f, 0.0f,
-//         1.0f, -1.0f, 1.0f, 0.0f,
-
-//         -1.0f, 1.0f, 0.0f, 1.0f,
-//         1.0f, -1.0f, 1.0f, 0.0f,
-//         1.0f, 1.0f, 1.0f, 1.0f};
-
-//     glGenVertexArrays(1, &quadVAO_);
-//     glGenBuffers(1, &quadVBO_);
-
-//     glBindVertexArray(quadVAO_);
-//     glBindBuffer(GL_ARRAY_BUFFER, quadVBO_);
-//     glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
-
-//     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *)0);
-//     glEnableVertexAttribArray(0);
-//     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *)(2 * sizeof(float)));
-//     glEnableVertexAttribArray(1);
-
-//     glBindVertexArray(0);
-// }
-
-// void IBLPass::renderQuad()
-// {
-//     glBindVertexArray(quadVAO_);
-//     glDrawArrays(GL_TRIANGLES, 0, 6);
-//     glBindVertexArray(0);
-// }

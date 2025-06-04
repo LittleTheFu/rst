@@ -39,6 +39,7 @@ void Scene::init()
     }
 
     // 6. 初始化渲染 Pass (构造函数现在更简洁，只负责Pass自身的FBO等初始化)
+    skyPass_ = std::make_unique<SkyPass>(sceneData_.screenWidth, sceneData_.screenHeight, prefilterMapTex_);
     gBufferPass_ = std::make_unique<GBufferPass>(sceneData_.screenWidth, sceneData_.screenHeight);
     shadowPass_ = std::make_unique<ShadowPass>(sceneData_.shadowMapWidth, sceneData_.shadowMapHeight);
     lightPass_ = std::make_unique<LightPass>(sceneData_.screenWidth, sceneData_.screenHeight);
@@ -58,9 +59,9 @@ void Scene::init()
         prefilterMapTex_,
         brdfLUTTex_);
 
-    skyPass_ = std::make_unique<SkyPass>(sceneData_.screenWidth, sceneData_.screenHeight, prefilterMapTex_);
     combinedPass_ = std::make_unique<CombinedPass>(sceneData_.screenWidth, sceneData_.screenHeight);
     postPass_ = std::make_unique<PostPass>(sceneData_.screenWidth, sceneData_.screenHeight);
+    screenPass_ = std::make_unique<ScreenPass>(sceneData_.screenWidth, sceneData_.screenHeight);
 
     //---gold-------------------------------------------------
     std::shared_ptr<Texture2D> goldAlbedoTexture = std::move(Texture2D::loadFromFile("gold/albedo.png", false, true));
@@ -246,14 +247,17 @@ void Scene::run()
     GL_CHECK_ERROR();
 
     combinedPass_->Render(lightPass_->getOutputTextureId(),
-                        iblPass_->getOutputTexture(),
+                        iblPass_->getColorTextureId(),
                         gBufferPass_->getDepthTextureId(),
                         oitPass_->getAccumTextureId(),
                         oitPass_->getRevealTextureId(),
                         skyPass_->getColorTextureId());
+    GL_CHECK_ERROR();
 
     postPass_->Render(combinedPass_->getColorTextureId());
+    GL_CHECK_ERROR();
 
+    screenPass_->Render(postPass_->getColorTextureId());
     GL_CHECK_ERROR();
 }
 
@@ -282,6 +286,19 @@ void Scene::resize(int width, int height)
     // if (shadowPass_) {
     //     shadowPass_->Resize(sceneData_.shadowMapWidth, sceneData_.shadowMapHeight);
     // }
+
+    if (postPass_) {
+        postPass_->Resize(width, height); 
+    }
+
+    if (screenPass_) {
+        screenPass_->Resize(width, height); 
+    }
+
+    if (oitPass_) {
+        oitPass_->Resize(width, height); 
+    }
+
 
     // 更新主相机的投影矩阵，以适应新的屏幕宽高比
     camera_.setAspectRatio(static_cast<float>(width) / height);

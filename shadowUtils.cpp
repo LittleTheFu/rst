@@ -1,10 +1,13 @@
+#define _USE_MATH_DEFINES // 必须在 #include <cmath> 之前定义
+
 #include "ShadowUtils.h"
 #include <iostream> // For potential debug output
+#include <cmath>    // For M_PI definition if not already included
 
 // Ensure M_PI is defined, if not already by <cmath> with certain flags
-#ifndef M_PI
-#define M_PI 3.14159265358979323846f
-#endif
+// #ifndef M_PI
+// #define M_PI 3.14159265358979323846f
+// #endif
 
 // Private static helper function implementation
 Eigen::Matrix4f ShadowUtils::CreatePerspectiveProjectionMatrix(float fovRadians, float aspectRatio, float nearPlane, float farPlane) {

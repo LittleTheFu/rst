@@ -25,6 +25,7 @@
 #include "IBLPass.h"
 #include "OitPass.h"
 #include "postPass.h"
+#include "screenPass.h"
 
 #include "SceneData.h"
 
@@ -57,6 +58,7 @@ private:
 
     std::unique_ptr<CombinedPass> combinedPass_;
     std::unique_ptr<PostPass> postPass_;
+    std::unique_ptr<ScreenPass> screenPass_;
 
     // IBL 预计算纹理，由 Scene 管理其生命周期并注入给 IBLPass 和 SkyPass
     std::shared_ptr<TextureCubeMap> irradianceMapTex_;

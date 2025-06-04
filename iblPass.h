@@ -31,32 +31,26 @@ public:
     void Resize(int width, int height) override;
 
     // 获取输出纹理 ID
-    GLuint getOutputTexture() const { return outputTexture_; }
+    GLuint getColorTextureId() const;
 
     // 修改 set 方法，接收 TextureCubeMap 的共享指针，以便管理生命周期
-    void setIrradianceMap(std::shared_ptr<TextureCubeMap> texture) { irradianceMap_ = texture; }
-    void setPrefilterMap(std::shared_ptr<TextureCubeMap> texture) { prefilterMap_ = texture; }
-    void setBrdfLUT(std::shared_ptr<Texture2D> texture) { brdfLUT_ = texture; }
+    void setIrradianceMap(std::shared_ptr<TextureCubeMap> texture);
+    void setPrefilterMap(std::shared_ptr<TextureCubeMap> texture);
+    void setBrdfLUT(std::shared_ptr<Texture2D> texture);
+
+private:
+    void init();
 
 private:
     Shader shader_;
-
     ScreenQuad screenQuad_;
 
-    // GLuint quadVAO_ = 0;
-    // GLuint quadVBO_ = 0;
-
-    // void initScreenQuad();
-    // void renderQuad();
-
-    GLuint outputTexture_; // IBLPass 自身的输出纹理 ID (由其 FBO 管理)
+    std::unique_ptr<Texture2D> colorTexture_;
 
     // IBL 所需的预计算纹理对象
-    std::shared_ptr<TextureCubeMap> irradianceMap_; // 辐照度图 (HDR立方体贴图)
-    std::shared_ptr<TextureCubeMap> prefilterMap_;  // 预过滤环境贴图 (HDR立方体贴图，带mipmaps)
-    std::shared_ptr<Texture2D> brdfLUT_;           // BRDF积分贴图 (2D纹理)
-
-    // MAX_REFLECTION_LOD 将从 prefilterMap_ 的实际 mip 级别中获取
+    std::shared_ptr<TextureCubeMap> irradianceMap_;
+    std::shared_ptr<TextureCubeMap> prefilterMap_;
+    std::shared_ptr<Texture2D> brdfLUT_;
 };
 
 #endif // IBL_PASS_H
