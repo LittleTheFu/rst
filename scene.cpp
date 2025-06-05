@@ -60,6 +60,9 @@ void Scene::init()
         brdfLUTTex_);
 
     combinedPass_ = std::make_unique<CombinedPass>(sceneData_.screenWidth, sceneData_.screenHeight);
+    blurHorizontalPass_ = std::make_unique<BlurHorizontalPass>(sceneData_.screenWidth, sceneData_.screenHeight);
+    blurVerticalPass_ = std::make_unique<BlurVerticalPass>(sceneData_.screenWidth, sceneData_.screenHeight);
+
     postPass_ = std::make_unique<PostPass>(sceneData_.screenWidth, sceneData_.screenHeight);
     screenPass_ = std::make_unique<ScreenPass>(sceneData_.screenWidth, sceneData_.screenHeight);
 
@@ -254,7 +257,13 @@ void Scene::run()
                         skyPass_->getColorTextureId());
     GL_CHECK_ERROR();
 
-    postPass_->Render(combinedPass_->getColorTextureId());
+    blurHorizontalPass_->Render(combinedPass_->getColorTextureId());
+    GL_CHECK_ERROR();
+
+    blurVerticalPass_->Render(blurHorizontalPass_->getColorTextureId());
+    GL_CHECK_ERROR();
+
+    postPass_->Render(blurVerticalPass_->getColorTextureId());
     GL_CHECK_ERROR();
 
     screenPass_->Render(postPass_->getColorTextureId());
@@ -268,37 +277,55 @@ void Scene::resize(int width, int height)
     sceneData_.screenHeight = height;
 
     // 逐个调用所有 Pass 的 resize 方法
-    if (gBufferPass_) {
+    if (gBufferPass_)
+    {
         gBufferPass_->Resize(width, height);
     }
-    if (lightPass_) {
+
+    if (lightPass_)
+    {
         lightPass_->Resize(width, height);
     }
-    if (skyPass_) {
+
+    if (skyPass_)
+    {
         skyPass_->Resize(width, height);
     }
-    if (combinedPass_) {
+
+    if (combinedPass_)
+    {
         combinedPass_->Resize(width, height);
     }
-    if (iblPass_) {
+
+    if (blurHorizontalPass_)
+    {
+        blurHorizontalPass_->Resize(width, height);
+    }
+
+    if (blurVerticalPass_)
+    {
+        blurVerticalPass_->Resize(width, height);
+    }
+    
+    if (iblPass_)
+    {
         iblPass_->Resize(width, height);
     }
-    // if (shadowPass_) {
-    //     shadowPass_->Resize(sceneData_.shadowMapWidth, sceneData_.shadowMapHeight);
-    // }
 
-    if (postPass_) {
-        postPass_->Resize(width, height); 
+    if (postPass_)
+    {
+        postPass_->Resize(width, height);
     }
 
-    if (screenPass_) {
-        screenPass_->Resize(width, height); 
+    if (screenPass_)
+    {
+        screenPass_->Resize(width, height);
     }
 
-    if (oitPass_) {
-        oitPass_->Resize(width, height); 
+    if (oitPass_)
+    {
+        oitPass_->Resize(width, height);
     }
-
 
     // 更新主相机的投影矩阵，以适应新的屏幕宽高比
     camera_.setAspectRatio(static_cast<float>(width) / height);

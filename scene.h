@@ -19,11 +19,13 @@
 // 所有的渲染Pass
 #include "GBufferPass.h"
 #include "lightPass.h"
-#include "combinedPass.h"
 #include "skyPass.h"
 #include "shadowPass.h"
 #include "IBLPass.h"
 #include "OitPass.h"
+#include "combinedPass.h"
+#include "blurHorizontalPass.h"
+#include "blurVerticalPass.h"
 #include "postPass.h"
 #include "screenPass.h"
 
@@ -57,6 +59,9 @@ private:
     std::unique_ptr<IBLPass> iblPass_;
 
     std::unique_ptr<CombinedPass> combinedPass_;
+    std::unique_ptr<BlurHorizontalPass> blurHorizontalPass_;
+    std::unique_ptr<BlurVerticalPass> blurVerticalPass_;
+
     std::unique_ptr<PostPass> postPass_;
     std::unique_ptr<ScreenPass> screenPass_;
 
