@@ -102,7 +102,7 @@ void Scene::init()
 
     // 创建网格并设置材质和变换
     std::unique_ptr<Mesh> mesh_teapot = std::make_unique<Mesh>("teapot.obj");
-    mesh_teapot->setMaterial(silverMaterial);
+    mesh_teapot->setMaterial(rustedIronMaterial);
     mesh_teapot->setScale(Eigen::Vector3f(1.0f, 1.0f, 1.0f));
     mesh_teapot->setPosition(Eigen::Vector3f(0.0f, 0.0f, 0.0f));
     sceneData_.opaqueObjects.push_back(std::move(mesh_teapot));
@@ -195,23 +195,23 @@ void Scene::run()
                         skyPass_->getColorTextureId());
     GL_CHECK_ERROR();
 
-    blurHorizontalPass_->Render(combinedPass_->getColorTextureId());
-    GL_CHECK_ERROR();
+    // blurHorizontalPass_->Render(combinedPass_->getColorTextureId());
+    // GL_CHECK_ERROR();
 
-    blurVerticalPass_->Render(blurHorizontalPass_->getColorTextureId());
-    GL_CHECK_ERROR();
+    // blurVerticalPass_->Render(blurHorizontalPass_->getColorTextureId());
+    // GL_CHECK_ERROR();
 
-    depthOfFieldPass_->Render(combinedPass_->getColorTextureId(),
-                              blurVerticalPass_->getColorTextureId(),
-                              gBufferPass_->getDepthTextureId(),
-                              18.0f,
-                              10.0f,
-                              camera_.nearClip,
-                              camera_.farClip);
+    // depthOfFieldPass_->Render(combinedPass_->getColorTextureId(),
+    //                           blurVerticalPass_->getColorTextureId(),
+    //                           gBufferPass_->getDepthTextureId(),
+    //                           18.0f,
+    //                           10.0f,
+    //                           camera_.nearClip,
+    //                           camera_.farClip);
 
-    postPass_->Render(depthOfFieldPass_->getColorTextureId());
+    // postPass_->Render(depthOfFieldPass_->getColorTextureId());
 
-    // postPass_->Render(combinedPass_->getColorTextureId());
+    postPass_->Render(combinedPass_->getColorTextureId());
     GL_CHECK_ERROR();
 
     screenPass_->Render(postPass_->getColorTextureId());
