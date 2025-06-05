@@ -62,6 +62,7 @@ void Scene::init()
     combinedPass_ = std::make_unique<CombinedPass>(sceneData_.screenWidth, sceneData_.screenHeight);
     blurHorizontalPass_ = std::make_unique<BlurHorizontalPass>(sceneData_.screenWidth, sceneData_.screenHeight);
     blurVerticalPass_ = std::make_unique<BlurVerticalPass>(sceneData_.screenWidth, sceneData_.screenHeight);
+    depthOfFieldPass_ = std::make_unique<DepthOfFieldPass>(sceneData_.screenWidth, sceneData_.screenHeight);
 
     postPass_ = std::make_unique<PostPass>(sceneData_.screenWidth, sceneData_.screenHeight);
     screenPass_ = std::make_unique<ScreenPass>(sceneData_.screenWidth, sceneData_.screenHeight);
@@ -263,7 +264,15 @@ void Scene::run()
     blurVerticalPass_->Render(blurHorizontalPass_->getColorTextureId());
     GL_CHECK_ERROR();
 
-    postPass_->Render(blurVerticalPass_->getColorTextureId());
+    depthOfFieldPass_->Render(combinedPass_->getColorTextureId(),
+                              blurVerticalPass_->getColorTextureId(),
+                              gBufferPass_->getDepthTextureId(),
+                              48.0f,
+                              10.0f,
+                              camera_.nearClip,
+                              camera_.farClip);
+
+    postPass_->Render(depthOfFieldPass_->getColorTextureId());
     GL_CHECK_ERROR();
 
     screenPass_->Render(postPass_->getColorTextureId());
@@ -305,6 +314,11 @@ void Scene::resize(int width, int height)
     if (blurVerticalPass_)
     {
         blurVerticalPass_->Resize(width, height);
+    }
+
+    if (depthOfFieldPass_)
+    {
+        depthOfFieldPass_->Resize(width, height);
     }
     
     if (iblPass_)

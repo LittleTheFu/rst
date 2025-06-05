@@ -30,6 +30,7 @@
 #include "screenPass.h"
 
 #include "SceneData.h"
+#include "depthOfFieldPass.h"
 
 class Scene
 {
@@ -61,6 +62,7 @@ private:
     std::unique_ptr<CombinedPass> combinedPass_;
     std::unique_ptr<BlurHorizontalPass> blurHorizontalPass_;
     std::unique_ptr<BlurVerticalPass> blurVerticalPass_;
+    std::unique_ptr<DepthOfFieldPass> depthOfFieldPass_;
 
     std::unique_ptr<PostPass> postPass_;
     std::unique_ptr<ScreenPass> screenPass_;

@@ -49,6 +49,7 @@ add_executable(OpenGL_GLAD_SDL2
     material.cpp
     mesh.cpp
     oitPass.cpp
+    depthOfFieldPass.cpp
     blurHorizontalPass.cpp
     blurVerticalPass.cpp
     shadowPass.cpp
