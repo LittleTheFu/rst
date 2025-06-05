@@ -108,18 +108,24 @@ void Scene::init()
     sceneData_.opaqueObjects.push_back(std::move(mesh_teapot));
     // sceneData_.transparentObjects.push_back(std::move(mesh_teapot));
 
-    // std::unique_ptr<Mesh> mesh_box = std::make_unique<Mesh>("bx.obj");
-    // mesh_box->setMaterial(wallMaterial);
-    // mesh_box->setPosition(Eigen::Vector3f(0.0f, 0.0f, -12.0f));
-    // mesh_box->setScale(Eigen::Vector3f(10.0f, 10.0f, 10.0f));
-    // sceneData_.opaqueObjects.push_back(std::move(mesh_box));
+    std::unique_ptr<Mesh> mesh_box = std::make_unique<Mesh>("bx.obj");
+    mesh_box->setMaterial(wallMaterial);
+    mesh_box->setPosition(Eigen::Vector3f(0.0f, 0.0f, -18.0f));
+    mesh_box->setScale(Eigen::Vector3f(12.0f, 12.0f, 12.0f));
+    sceneData_.opaqueObjects.push_back(std::move(mesh_box));
 
     std::unique_ptr<Mesh> mesh_transparent_teapot = std::make_unique<Mesh>("teapot.obj");
     mesh_transparent_teapot->setMaterial(grassMaterial);
-    mesh_transparent_teapot->setScale(Eigen::Vector3f(5, 5, 5));
+    mesh_transparent_teapot->setScale(Eigen::Vector3f(4, 4, 4));
     mesh_transparent_teapot->setPosition(Eigen::Vector3f(0.0f, 0.0f, -30.0f));
     sceneData_.opaqueObjects.push_back(std::move(mesh_transparent_teapot));
     // sceneData_.transparentObjects.push_back(std::move(mesh_transparent_teapot));
+
+    std::unique_ptr<Mesh> mesh_plane = std::make_unique<Mesh>("plane.obj");
+    mesh_plane->setMaterial(goldMaterial);
+    mesh_plane->setScale(Eigen::Vector3f(7.0f, 7.0f, 12.0f));
+    mesh_plane->setPosition(Eigen::Vector3f(0.0f, -2.0f, -10.0f));
+    sceneData_.opaqueObjects.push_back(std::move(mesh_plane));
 
     std::unique_ptr<Mesh> mesh_cursor = std::make_unique<Mesh>("bx.obj");
     mesh_cursor->setMaterial(goldMaterial);
@@ -140,7 +146,7 @@ void Scene::run()
     x_light *= 0.5;
     mainLight_->position = Eigen::Vector3f(x_light, x_light, 7.0f);
     // mainLight_->position = Eigen::Vector3f(5, 5, 7.0f);
-    mainLight_->intensity = 15.0f;
+    mainLight_->intensity = 8.0f;
 
     // 调试光标位置
     Eigen::Vector3f offset = Eigen::Vector3f(0.0f, 0.5f, 0.0f);
