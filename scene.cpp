@@ -1,7 +1,8 @@
 #include "scene.h"
 #include <iostream>
 #include <glad/glad.h>
-#include "debug_utils.h" // 确保包含调试工具
+#include "debug_utils.h"
+#include "materialFactory.h"
 
 void Scene::init()
 {
@@ -67,78 +68,14 @@ void Scene::init()
     postPass_ = std::make_unique<PostPass>(sceneData_.screenWidth, sceneData_.screenHeight);
     screenPass_ = std::make_unique<ScreenPass>(sceneData_.screenWidth, sceneData_.screenHeight);
 
-    //---gold-------------------------------------------------
-    std::shared_ptr<Texture2D> goldAlbedoTexture = std::move(Texture2D::loadFromFile("gold/albedo.png", false, true));
-    std::shared_ptr<Texture2D> goldNormalTexture = std::move(Texture2D::loadFromFile("gold/normal.png"));
-    std::shared_ptr<Texture2D> goldRoughnessTexture = std::move(Texture2D::loadFromFile("gold/roughness.png"));
-    std::shared_ptr<Texture2D> goldMetallicTexture = std::move(Texture2D::loadFromFile("gold/metallic.png"));
-    std::shared_ptr<Texture2D> goldAoTexture = std::move(Texture2D::loadFromFile("gold/ao.png"));
-
-    std::shared_ptr<Material> goldMaterial = std::make_shared<Material>("goldMaterial");
-    goldMaterial->setAlbedoMap(goldAlbedoTexture);
-    goldMaterial->setNormalMap(goldNormalTexture);
-    goldMaterial->setRoughnessMap(goldRoughnessTexture);
-    goldMaterial->setMetallicMap(goldMetallicTexture);
-    goldMaterial->setAmbientOcclusionMap(goldAoTexture);
-
-    //-----wall---------------------------------------------------------------------------
-    std::shared_ptr<Texture2D> wallAlbedoTexture = std::move(Texture2D::loadFromFile("wall/albedo.png", false, true));
-    std::shared_ptr<Texture2D> wallNormalTexture = std::move(Texture2D::loadFromFile("wall/normal.png"));
-    std::shared_ptr<Texture2D> wallRoughnessTexture = std::move(Texture2D::loadFromFile("wall/roughness.png"));
-    std::shared_ptr<Texture2D> wallMetallicTexture = std::move(Texture2D::loadFromFile("wall/metallic.png"));
-    std::shared_ptr<Texture2D> wallAoTexture = std::move(Texture2D::loadFromFile("wall/ao.png"));
-
-    std::shared_ptr<Material> wallMaterial = std::make_shared<Material>("wallMaterial");
-    wallMaterial->setAlbedoMap(wallAlbedoTexture);
-    wallMaterial->setNormalMap(wallNormalTexture);
-    wallMaterial->setRoughnessMap(wallRoughnessTexture);
-    wallMaterial->setMetallicMap(wallMetallicTexture);
-    wallMaterial->setAmbientOcclusionMap(wallAoTexture);
-
-    //----grass-----------------------------------------------------------------------------
-    std::shared_ptr<Texture2D> grassAlbedoTexture = std::move(Texture2D::loadFromFile("grass/albedo.png", false, true));
-    std::shared_ptr<Texture2D> grassNormalTexture = std::move(Texture2D::loadFromFile("grass/normal.png"));
-    std::shared_ptr<Texture2D> grassRoughnessTexture = std::move(Texture2D::loadFromFile("grass/roughness.png"));
-    std::shared_ptr<Texture2D> grassMetallicTexture = std::move(Texture2D::loadFromFile("grass/metallic.png"));
-    std::shared_ptr<Texture2D> grassAoTexture = std::move(Texture2D::loadFromFile("grass/ao.png"));
-
-    std::shared_ptr<Material> grassMaterial = std::make_shared<Material>("grassMaterial");
-    grassMaterial->setAlbedoMap(grassAlbedoTexture);
-    grassMaterial->setNormalMap(grassNormalTexture);
-    grassMaterial->setRoughnessMap(grassRoughnessTexture);
-    grassMaterial->setMetallicMap(grassMetallicTexture);
-    grassMaterial->setAmbientOcclusionMap(grassAoTexture);
-
-    //----plastic-----------------------------------------------------------------
-    std::shared_ptr<Texture2D> plasticAlbedoTexture = std::move(Texture2D::loadFromFile("plastic/albedo.png", false, true));
-    std::shared_ptr<Texture2D> plasticNormalTexture = std::move(Texture2D::loadFromFile("plastic/normal.png"));
-    std::shared_ptr<Texture2D> plasticRoughnessTexture = std::move(Texture2D::loadFromFile("plastic/roughness.png"));
-    std::shared_ptr<Texture2D> plasticMetallicTexture = std::move(Texture2D::loadFromFile("plastic/metallic.png"));
-    std::shared_ptr<Texture2D> plasticAoTexture = std::move(Texture2D::loadFromFile("plastic/ao.png"));
-
-    std::shared_ptr<Material> plasticMaterial = std::make_shared<Material>("plasticMaterial");
-    plasticMaterial->setAlbedoMap(plasticAlbedoTexture);
-    plasticMaterial->setNormalMap(plasticNormalTexture);
-    plasticMaterial->setRoughnessMap(plasticRoughnessTexture);
-    plasticMaterial->setMetallicMap(plasticMetallicTexture);
-    plasticMaterial->setAmbientOcclusionMap(plasticAoTexture);
-
-    //----rusted_iron-------------------------------------------------
-    std::shared_ptr<Texture2D> rustedIronAlbedoTexture = std::move(Texture2D::loadFromFile("rusted_iron/albedo.png", false, true));
-    std::shared_ptr<Texture2D> rustedIronNormalTexture = std::move(Texture2D::loadFromFile("rusted_iron/normal.png"));
-    std::shared_ptr<Texture2D> rustedIronRoughnessTexture = std::move(Texture2D::loadFromFile("rusted_iron/roughness.png"));
-    std::shared_ptr<Texture2D> rustedIronMetallicTexture = std::move(Texture2D::loadFromFile("rusted_iron/metallic.png"));
-    std::shared_ptr<Texture2D> rustedIronAoTexture = std::move(Texture2D::loadFromFile("rusted_iron/ao.png"));
-
-    std::shared_ptr<Material> rustedIronMaterial = std::make_shared<Material>("rustedIronMaterial");
-    rustedIronMaterial->setAlbedoMap(rustedIronAlbedoTexture);
-    rustedIronMaterial->setNormalMap(rustedIronNormalTexture);
-    rustedIronMaterial->setRoughnessMap(rustedIronRoughnessTexture);
-    rustedIronMaterial->setMetallicMap(rustedIronMetallicTexture);
-    rustedIronMaterial->setAmbientOcclusionMap(rustedIronAoTexture);
-
-    //--------------------------------------------------------------------------------------------------------
-
+    //---create materials-----
+    std::shared_ptr<Material> goldMaterial = MaterialFactory::CreateMaterialFromDirectory("goldMaterial", "gold");
+    std::shared_ptr<Material> plasticMaterial = MaterialFactory::CreateMaterialFromDirectory("plasticMaterial", "plastic");
+    std::shared_ptr<Material> rustedIronMaterial = MaterialFactory::CreateMaterialFromDirectory("rustedIronMaterial", "rusted_iron");
+    std::shared_ptr<Material> grassMaterial = MaterialFactory::CreateMaterialFromDirectory("grassMaterial", "grass");
+    std::shared_ptr<Material> wallMaterial = MaterialFactory::CreateMaterialFromDirectory("wallMaterial", "wall");
+    std::shared_ptr<Material> silverMaterial = MaterialFactory::CreateMaterialFromDirectory("silverMaterial", "silver");
+    
     //---gun--------------------------------------------------------------------------------------------------
     std::shared_ptr<Texture2D> gunAlbedoTexture = std::move(Texture2D::loadFromFile("gun/Textures/Cerberus_A.tga", false, true));
     std::shared_ptr<Texture2D> gunNormalTexture = std::move(Texture2D::loadFromFile("gun/Textures/Cerberus_N.tga"));
