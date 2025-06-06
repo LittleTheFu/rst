@@ -13,7 +13,7 @@ void Scene::init()
     sceneData_.shadowMapHeight = 1024;
 
     // 2. 初始化相机
-    camera_.Position = Eigen::Vector3f(0.0f, 2.0f, 8.0f);
+    camera_.Position = Eigen::Vector3f(0.0f, 2.0f, 14.0f);
     camera_.lookAt(Eigen::Vector3f(0.0f, 0.0f, 0.0f));
     camera_.updateCameraVectors();
 
@@ -137,7 +137,7 @@ void Scene::init()
     sceneData_.opaqueObjects.push_back(std::move(mesh_plane_bottom));
 
     std::unique_ptr<Mesh> mesh_cursor = std::make_unique<Mesh>("bx.obj");
-    mesh_cursor->setMaterial(grassMaterial);
+    mesh_cursor->setMaterial(plasticMaterial);
     mesh_cursor->setScale(Eigen::Vector3f(0.2f, 0.2f, 0.2f));
     sceneData_.opaqueObjects.push_back(std::move(mesh_cursor));
 }
@@ -150,9 +150,9 @@ void Scene::run()
     // 光源调试动画
     static int count = 0;
     count++;
-    count %= 8000;
-    float x_light = count / 1200.0f - 1.0f;
-    x_light *= 0.8;
+    count %= 6000;
+    float x_light = count / 1200.0f - 3.0f;
+    x_light *= 1.0f;
     mainLight_->position = Eigen::Vector3f(x_light, x_light, 3.0f);
     // mainLight_->position = Eigen::Vector3f(5, 5, 7.0f);
     mainLight_->intensity = 8.0f;

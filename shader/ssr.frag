@@ -57,8 +57,8 @@ void main()
     vec3 ray = reflDir;
     vec3 origin = viewPos;
 
-    const int maxSteps = 64;
-    const float stepSize = 0.1;
+    const int maxSteps = 64 * 10;
+    const float stepSize = 0.1 / 10.0;
 
     vec3 hitPos = origin;
     vec2 hitUV = vec2(0.0);
@@ -79,7 +79,7 @@ void main()
         vec3 scenePos = reconstructViewPos(hitUV, sceneDepth);
         float dist = length(scenePos - hitPos);
 
-        if (dist < 0.1)
+        if (dist < 0.01)
         {
             hit = true;
             break;
