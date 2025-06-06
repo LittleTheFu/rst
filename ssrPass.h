@@ -5,6 +5,8 @@
 #include "Shader.h"
 #include "screenQuad.h"
 #include "texture2D.h"
+#include <Eigen/Dense>
+
 
 class SSRPass : public RenderPass {
 public:
@@ -14,8 +16,10 @@ public:
     void Render(GLuint normalTextureID,
                 GLuint depthTextureID,
                 GLuint colorTextureID,
-                const glm::mat4& projectionMatrix,
-                const glm::mat4& viewMatrix);
+                GLuint metallicTextureID,
+                GLuint roughnessTextureID,
+                const Eigen::Matrix4f &projectionMatrix,
+                const Eigen::Matrix4f &viewMatrix);
 
     void Resize(int width, int height) override;
     GLuint getReflectionTextureId() const;

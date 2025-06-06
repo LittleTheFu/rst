@@ -20,7 +20,8 @@ public:
                 GLuint gpassDepthTextureID,
                 GLuint oitAccumTextureID,
                 GLuint oitRevealTextureID,
-                GLuint skyboxTextureID);
+                GLuint skyboxTextureID,
+                GLuint ssrTextureID);
 
     // 维持 Resize 方法
     void Resize(int width, int height) override;

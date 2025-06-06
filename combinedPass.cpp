@@ -12,11 +12,12 @@ CombinedPass::CombinedPass(int width, int height)
 }
 
 void CombinedPass::Render(GLuint directLightTextureID,
-                        GLuint iblTextureID,
-                        GLuint gpassDepthTextureID,
-                        GLuint oitAccumTextureID,
-                        GLuint oitRevealTextureID,
-                        GLuint skyboxTextureID)
+                          GLuint iblTextureID,
+                          GLuint gpassDepthTextureID,
+                          GLuint oitAccumTextureID,
+                          GLuint oitRevealTextureID,
+                          GLuint skyboxTextureID,
+                          GLuint ssrTextureID)
 {
     activateFramebuffer();
 
@@ -50,6 +51,9 @@ void CombinedPass::Render(GLuint directLightTextureID,
 
     glBindTextureUnit(5, skyboxTextureID);
     shader_.setInt("skyboxTexture", 5);
+
+    glBindTextureUnit(6, ssrTextureID);
+    shader_.setInt("ssrTexture", 6);
 
     screenQuad_.render(); 
 

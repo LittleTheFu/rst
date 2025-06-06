@@ -13,7 +13,7 @@ void Scene::init()
     sceneData_.shadowMapHeight = 1024;
 
     // 2. 初始化相机
-    camera_.Position = Eigen::Vector3f(0.0f, 2.0f, 18.0f);
+    camera_.Position = Eigen::Vector3f(0.0f, 2.0f, 8.0f);
     camera_.lookAt(Eigen::Vector3f(0.0f, 0.0f, 0.0f));
     camera_.updateCameraVectors();
 
@@ -61,6 +61,8 @@ void Scene::init()
         brdfLUTTex_);
 
     combinedPass_ = std::make_unique<CombinedPass>(sceneData_.screenWidth, sceneData_.screenHeight);
+    ssrPass_ = std::make_unique<SSRPass>(sceneData_.screenWidth, sceneData_.screenHeight);
+
     blurHorizontalPass_ = std::make_unique<BlurHorizontalPass>(sceneData_.screenWidth, sceneData_.screenHeight);
     blurVerticalPass_ = std::make_unique<BlurVerticalPass>(sceneData_.screenWidth, sceneData_.screenHeight);
     depthOfFieldPass_ = std::make_unique<DepthOfFieldPass>(sceneData_.screenWidth, sceneData_.screenHeight);
@@ -124,18 +126,18 @@ void Scene::init()
     std::unique_ptr<Mesh> mesh_plane_top = std::make_unique<Mesh>("plane.obj");
     mesh_plane_top->setMaterial(goldMaterial);
     mesh_plane_top->setScale(Eigen::Vector3f(7.0f, 7.0f, 12.0f));
-    mesh_plane_top->setPosition(Eigen::Vector3f(0.0f, -2.0f, -10.0f));
+    mesh_plane_top->setPosition(Eigen::Vector3f(0.0f, -0.8f, -10.0f));
     sceneData_.opaqueObjects.push_back(std::move(mesh_plane_top));
 
     //a trick to make the plane shadow
     std::unique_ptr<Mesh> mesh_plane_bottom = std::make_unique<Mesh>("plane.obj");
     mesh_plane_bottom->setMaterial(goldMaterial);
     mesh_plane_bottom->setScale(Eigen::Vector3f(-7.0f, 7.0f, 12.0f));
-    mesh_plane_bottom->setPosition(Eigen::Vector3f(0.0f, -2.0f, -10.0f));
+    mesh_plane_bottom->setPosition(Eigen::Vector3f(0.0f, -0.8f, -10.0f));
     sceneData_.opaqueObjects.push_back(std::move(mesh_plane_bottom));
 
     std::unique_ptr<Mesh> mesh_cursor = std::make_unique<Mesh>("bx.obj");
-    mesh_cursor->setMaterial(goldMaterial);
+    mesh_cursor->setMaterial(plasticMaterial);
     mesh_cursor->setScale(Eigen::Vector3f(0.2f, 0.2f, 0.2f));
     sceneData_.opaqueObjects.push_back(std::move(mesh_cursor));
 }
@@ -151,7 +153,7 @@ void Scene::run()
     count %= 24000;
     float x_light = count / 1200.0f - 10.0f;
     x_light *= 0.5;
-    mainLight_->position = Eigen::Vector3f(x_light, x_light, 7.0f);
+    mainLight_->position = Eigen::Vector3f(x_light, x_light, 3.0f);
     // mainLight_->position = Eigen::Vector3f(5, 5, 7.0f);
     mainLight_->intensity = 8.0f;
 
@@ -205,8 +207,17 @@ void Scene::run()
                         gBufferPass_->getDepthTextureId(),
                         oitPass_->getAccumTextureId(),
                         oitPass_->getRevealTextureId(),
-                        skyPass_->getColorTextureId());
+                        skyPass_->getColorTextureId(),
+                        ssrPass_->getReflectionTextureId());
     GL_CHECK_ERROR();
+
+    ssrPass_->Render(gBufferPass_->getNormalTextureId(),
+                    gBufferPass_->getDepthTextureId(),
+                    gBufferPass_->getAlbedoTextureId(),
+                    gBufferPass_->getMetallicTextureId(),
+                    gBufferPass_->getRoughnessTextureId(),
+                    camera_.GetProjectionMatrix(),
+                    camera_.GetViewMatrix());
 
     // blurHorizontalPass_->Render(combinedPass_->getColorTextureId());
     // GL_CHECK_ERROR();
@@ -228,6 +239,7 @@ void Scene::run()
     GL_CHECK_ERROR();
 
     screenPass_->Render(postPass_->getColorTextureId());
+    // screenPass_->Render(ssrPass_->getReflectionTextureId());
     GL_CHECK_ERROR();
 }
 
@@ -286,6 +298,11 @@ void Scene::resize(int width, int height)
     if (screenPass_)
     {
         screenPass_->Resize(width, height);
+    }
+
+    if (ssrPass_)
+    {
+        ssrPass_->Resize(width, height);
     }
 
     if (oitPass_)

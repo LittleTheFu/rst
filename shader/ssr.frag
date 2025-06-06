@@ -6,6 +6,8 @@ out vec4 FragColor;
 uniform sampler2D gNormal;
 uniform sampler2D gDepth;
 uniform sampler2D sceneColor;
+uniform sampler2D gMetallic;
+uniform sampler2D gRoughness;
 
 uniform mat4 uProjectionMatrix;
 uniform mat4 uViewMatrix;
@@ -32,6 +34,19 @@ void main()
         FragColor = vec4(0.0);
         return;
     }
+
+    float metallic = texture(gMetallic, vTexCoords).r;
+    if (metallic < 0.5) {
+        FragColor = vec4(0.0);
+        return; 
+    }
+
+    float roughness = texture(gRoughness, vTexCoords).r;
+    if (roughness > 0.3) {
+        FragColor = vec4(0.0);
+        return;
+    }
+
 
     vec3 normal = normalize(texture(gNormal, vTexCoords).xyz * 2.0 - 1.0);
     vec3 viewPos = reconstructViewPos(vTexCoords, depth);

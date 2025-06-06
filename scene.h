@@ -24,6 +24,7 @@
 #include "IBLPass.h"
 #include "OitPass.h"
 #include "combinedPass.h"
+#include "ssrPass.h"
 #include "blurHorizontalPass.h"
 #include "blurVerticalPass.h"
 #include "postPass.h"
@@ -60,6 +61,8 @@ private:
     std::unique_ptr<IBLPass> iblPass_;
 
     std::unique_ptr<CombinedPass> combinedPass_;
+    std::unique_ptr<SSRPass> ssrPass_;
+    
     std::unique_ptr<BlurHorizontalPass> blurHorizontalPass_;
     std::unique_ptr<BlurVerticalPass> blurVerticalPass_;
     std::unique_ptr<DepthOfFieldPass> depthOfFieldPass_;

@@ -14,8 +14,10 @@ SSRPass::SSRPass(int width, int height)
 void SSRPass::Render(GLuint normalTextureID,
                      GLuint depthTextureID,
                      GLuint colorTextureID,
-                     const glm::mat4& projectionMatrix,
-                     const glm::mat4& viewMatrix)
+                     GLuint metallicTextureID,
+                     GLuint roughnessTextureID,
+                     const Eigen::Matrix4f &projectionMatrix,
+                     const Eigen::Matrix4f &viewMatrix)
 {
     activateFramebuffer();
     setViewport(width_, height_);
@@ -28,7 +30,7 @@ void SSRPass::Render(GLuint normalTextureID,
     // 设置矩阵
     shader_.setMat4("uProjectionMatrix", projectionMatrix);
     shader_.setMat4("uViewMatrix", viewMatrix);
-    shader_.setVec2("uScreenSize", glm::vec2(width_, height_));
+    shader_.setVec2("uScreenSize", Eigen::Vector2f(width_, height_));
 
     // 绑定纹理
     glBindTextureUnit(0, normalTextureID);
@@ -39,6 +41,12 @@ void SSRPass::Render(GLuint normalTextureID,
 
     glBindTextureUnit(2, colorTextureID);
     shader_.setInt("sceneColor", 2);
+
+    glBindTextureUnit(3, metallicTextureID);
+    shader_.setInt("gMetallic", 3);
+
+    glBindTextureUnit(4, roughnessTextureID);
+    shader_.setInt("gRoughness", 4);
 
     screenQuad_.render();
     deactivateFramebuffer();
