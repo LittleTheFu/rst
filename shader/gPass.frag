@@ -44,7 +44,7 @@ void main()
     out_Roughness = texture(roughnessMap, fs_in.texCoords);
     out_Metallic = texture(metallicMap, fs_in.texCoords);
 
-    float ndcZ = fs_in.clipPos.z / fs_in.clipPos.w;
-    float depthValue = (ndcZ + 1.0) / 2.0;
-    gl_FragDepth = depthValue;
+    // float ndcZ = fs_in.clipPos.z / fs_in.clipPos.w;
+    // float depthValue = (ndcZ + 1.0) / 2.0;
+    // gl_FragDepth = depthValue;
 }
