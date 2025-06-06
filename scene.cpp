@@ -150,7 +150,7 @@ void Scene::run()
     // 光源调试动画
     static int count = 0;
     count++;
-    count %= 6000;
+    count %= 8000;
     float x_light = count / 1200.0f - 3.0f;
     x_light *= 1.0f;
     mainLight_->position = Eigen::Vector3f(x_light, x_light, 3.0f);
