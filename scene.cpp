@@ -13,7 +13,7 @@ void Scene::init()
     sceneData_.shadowMapHeight = 1024;
 
     // 2. 初始化相机
-    camera_.Position = Eigen::Vector3f(0.0f, 2.0f, 18.0f);
+    camera_.Position = Eigen::Vector3f(0.0f, 2.0f, 8.0f);
     camera_.lookAt(Eigen::Vector3f(0.0f, 0.0f, 0.0f));
     camera_.updateCameraVectors();
 
@@ -126,7 +126,7 @@ void Scene::init()
     std::unique_ptr<Mesh> mesh_plane_top = std::make_unique<Mesh>("plane.obj");
     mesh_plane_top->setMaterial(silverMaterial);
     mesh_plane_top->setScale(Eigen::Vector3f(7.0f, 7.0f, 16.0f));
-    mesh_plane_top->setPosition(Eigen::Vector3f(0.0f, -0.8f, -10.0f));
+    mesh_plane_top->setPosition(Eigen::Vector3f(0.0f, -0.5f, -10.0f));
     sceneData_.opaqueObjects.push_back(std::move(mesh_plane_top));
 
     //a trick to make the plane shadow
@@ -151,8 +151,8 @@ void Scene::run()
     static int count = 0;
     count++;
     count %= 24000;
-    float x_light = count / 1200.0f - 10.0f;
-    x_light *= 0.5;
+    float x_light = count / 1200.0f - 3.0f;
+    x_light *= 0.8;
     mainLight_->position = Eigen::Vector3f(x_light, x_light, 3.0f);
     // mainLight_->position = Eigen::Vector3f(5, 5, 7.0f);
     mainLight_->intensity = 8.0f;
