@@ -103,11 +103,11 @@ void Scene::init()
     //----------------------------------------------------------------------------------------
 
     // 创建网格并设置材质和变换
-    std::unique_ptr<Mesh> mesh_teapot = std::make_unique<Mesh>("teapot.obj");
-    mesh_teapot->setMaterial(rustedIronMaterial);
-    mesh_teapot->setScale(Eigen::Vector3f(1.0f, 1.0f, 1.0f));
-    mesh_teapot->setPosition(Eigen::Vector3f(0.0f, 0.0f, 0.0f));
-    sceneData_.opaqueObjects.push_back(std::move(mesh_teapot));
+    std::unique_ptr<Mesh> mesh_teapot_1 = std::make_unique<Mesh>("teapot.obj");
+    mesh_teapot_1->setMaterial(rustedIronMaterial);
+    mesh_teapot_1->setScale(Eigen::Vector3f(1.0f, 1.0f, 1.0f));
+    mesh_teapot_1->setPosition(Eigen::Vector3f(0.0f, 0.0f, 0.0f));
+    sceneData_.opaqueObjects.push_back(std::move(mesh_teapot_1));
     // sceneData_.transparentObjects.push_back(std::move(mesh_teapot));
 
     std::unique_ptr<Mesh> mesh_box = std::make_unique<Mesh>("bx.obj");
@@ -116,11 +116,11 @@ void Scene::init()
     mesh_box->setScale(Eigen::Vector3f(12.0f, 12.0f, 12.0f));
     sceneData_.opaqueObjects.push_back(std::move(mesh_box));
 
-    std::unique_ptr<Mesh> mesh_transparent_teapot = std::make_unique<Mesh>("teapot.obj");
-    mesh_transparent_teapot->setMaterial(grassMaterial);
-    mesh_transparent_teapot->setScale(Eigen::Vector3f(4, 4, 4));
-    mesh_transparent_teapot->setPosition(Eigen::Vector3f(0.0f, 0.0f, -30.0f));
-    sceneData_.opaqueObjects.push_back(std::move(mesh_transparent_teapot));
+    std::unique_ptr<Mesh> mesh_teapot_2 = std::make_unique<Mesh>("teapot.obj");
+    mesh_teapot_2->setMaterial(grassMaterial);
+    mesh_teapot_2->setScale(Eigen::Vector3f(4, 4, 4));
+    mesh_teapot_2->setPosition(Eigen::Vector3f(0.0f, 0.0f, -30.0f));
+    sceneData_.opaqueObjects.push_back(std::move(mesh_teapot_2));
     // sceneData_.transparentObjects.push_back(std::move(mesh_transparent_teapot));
 
     std::unique_ptr<Mesh> mesh_plane_top = std::make_unique<Mesh>("plane.obj");
