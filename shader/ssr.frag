@@ -47,8 +47,9 @@ void main()
         return;
     }
 
+    vec3 worldNormal = texture(gNormal, vTexCoords).xyz * 2.0 - 1.0;
+    vec3 normal = normalize((uViewMatrix * vec4(worldNormal, 0.0)).xyz); // 注意 w=0 表示方向向量
 
-    vec3 normal = normalize(texture(gNormal, vTexCoords).xyz * 2.0 - 1.0);
     vec3 viewPos = reconstructViewPos(vTexCoords, depth);
     vec3 viewDir = normalize(-viewPos);
     vec3 reflDir = reflectDirection(viewDir, normal);
