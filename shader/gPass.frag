@@ -38,7 +38,7 @@ void main()
 
     vec4 normalMapValue = texture(normalMap, fs_in.texCoords);
     vec3 normal = normalize(fs_in.TBN * (normalMapValue.xyz * 2.0 - 1.0));
-    out_Normal = vec4(normal, 1.0);
+    out_Normal = vec4(normal, 0.0);
     out_Albedo = texture(albedoMap, fs_in.texCoords);
     out_Ao = texture(aoMap, fs_in.texCoords);
     out_Roughness = texture(roughnessMap, fs_in.texCoords);
