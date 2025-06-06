@@ -37,7 +37,7 @@ void main()
     // FragColor = lightColor + iblColor;
     // FragColor = iblColor;
 
-    vec4 gPassFinalColor = lightColor * 0.7 + iblColor * 0.1 + ssrColor * 0.2;
+    vec4 gPassFinalColor = lightColor * 0.7 + iblColor * 0.0 + ssrColor * 0.3;
 
     //patch: sky box
     if(depth >= 1.0)
