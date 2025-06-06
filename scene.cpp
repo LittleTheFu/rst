@@ -13,7 +13,7 @@ void Scene::init()
     sceneData_.shadowMapHeight = 1024;
 
     // 2. 初始化相机
-    camera_.Position = Eigen::Vector3f(0.0f, 2.0f, 8.0f);
+    camera_.Position = Eigen::Vector3f(0.0f, 2.0f, 18.0f);
     camera_.lookAt(Eigen::Vector3f(0.0f, 0.0f, 0.0f));
     camera_.updateCameraVectors();
 
@@ -124,7 +124,7 @@ void Scene::init()
     // sceneData_.transparentObjects.push_back(std::move(mesh_transparent_teapot));
 
     std::unique_ptr<Mesh> mesh_plane_top = std::make_unique<Mesh>("plane.obj");
-    mesh_plane_top->setMaterial(goldMaterial);
+    mesh_plane_top->setMaterial(silverMaterial);
     mesh_plane_top->setScale(Eigen::Vector3f(7.0f, 7.0f, 16.0f));
     mesh_plane_top->setPosition(Eigen::Vector3f(0.0f, -0.8f, -10.0f));
     sceneData_.opaqueObjects.push_back(std::move(mesh_plane_top));
@@ -137,7 +137,7 @@ void Scene::init()
     sceneData_.opaqueObjects.push_back(std::move(mesh_plane_bottom));
 
     std::unique_ptr<Mesh> mesh_cursor = std::make_unique<Mesh>("bx.obj");
-    mesh_cursor->setMaterial(plasticMaterial);
+    mesh_cursor->setMaterial(grassMaterial);
     mesh_cursor->setScale(Eigen::Vector3f(0.2f, 0.2f, 0.2f));
     sceneData_.opaqueObjects.push_back(std::move(mesh_cursor));
 }

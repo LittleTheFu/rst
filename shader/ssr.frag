@@ -79,7 +79,7 @@ void main()
         vec3 scenePos = reconstructViewPos(hitUV, sceneDepth);
         float dist = length(scenePos - hitPos);
 
-        if (dist < 0.1)
+        if (dist < 0.05)
         {
             hit = true;
             break;
