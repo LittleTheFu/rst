@@ -108,7 +108,7 @@ void Scene::init()
     mesh_teapot_1->setScale(Eigen::Vector3f(1.0f, 1.0f, 1.0f));
     mesh_teapot_1->setPosition(Eigen::Vector3f(0.0f, 0.0f, 0.0f));
     sceneData_.opaqueObjects.push_back(std::move(mesh_teapot_1));
-    // sceneData_.transparentObjects.push_back(std::move(mesh_teapot));
+    // sceneData_.transparentObjects.push_back(std::move(mesh_teapot_1));
 
     std::unique_ptr<Mesh> mesh_box = std::make_unique<Mesh>("bx.obj");
     mesh_box->setMaterial(wallMaterial);
@@ -128,6 +128,7 @@ void Scene::init()
     mesh_plane_top->setScale(Eigen::Vector3f(7.0f, 7.0f, 16.0f));
     mesh_plane_top->setPosition(Eigen::Vector3f(0.0f, -0.5f, -10.0f));
     sceneData_.opaqueObjects.push_back(std::move(mesh_plane_top));
+    // sceneData_.transparentObjects.push_back(std::move(mesh_plane_top));
 
     //a trick to make the plane shadow
     std::unique_ptr<Mesh> mesh_plane_bottom = std::make_unique<Mesh>("plane.obj");

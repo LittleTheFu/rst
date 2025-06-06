@@ -108,7 +108,7 @@ void main()
     roughness = clamp(roughness, 0.05, 1.0);  // 不要为0，也不要大于1
 
     //bug???take care of the direction
-    vec3 viewDir = -normalize(cameraPos - world_position);
+    vec3 viewDir = normalize(cameraPos - world_position);
 
     vec3 lightDir = normalize(uPointLight.position - world_position);
     vec3 halfwayDir = normalize(lightDir + viewDir);

@@ -88,7 +88,7 @@ void LightPass::Render(GLuint positionTextureID,
     shader_.setInt("shadowMapTexture", 6);
 
     // 7. 设置 Uniform 变量
-    shader_.setVec3("viewPos", camera.Position);
+    shader_.setVec3("cameraPos", camera.Position);
     shader_.setFloat("shadowCameraFarClip", 100.0f); // 应该与 ShadowPass 中的 far_plane 一致
 
     PointLightDataForUBO lightData;
