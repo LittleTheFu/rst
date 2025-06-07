@@ -2,7 +2,6 @@
 #include <Eigen/Dense>
 #include <corecrt_math_defines.h>
 
-// 构造函数
 Camera::Camera(const Eigen::Vector3f &position, const Eigen::Vector3f &worldUp, float yaw, float pitch)
     : Position(position), WorldUp(worldUp), Yaw(yaw), Pitch(pitch)
 {
@@ -22,17 +21,16 @@ Eigen::Matrix4f Camera::GetViewMatrix() const
     return view;
 }
 
-// 获取投影矩阵 (观察空间到裁剪空间的变换 - 透视投影)
 Eigen::Matrix4f Camera::GetProjectionMatrix() const
 {
-    float tanHalfFOV = tan(fov * M_PI / 360.0f); // 使用 Eigen 的 M_PI
+    float tanHalfFOV = tan(fov * M_PI / 360.0f);
     Eigen::Matrix4f projectionMatrix = Eigen::Matrix4f::Zero();
     projectionMatrix(0, 0) = 1.0f / (aspectRatio * tanHalfFOV);
     projectionMatrix(1, 1) = 1.0f / tanHalfFOV;
     projectionMatrix(2, 2) = -(farClip + nearClip) / (farClip - nearClip);
     projectionMatrix(2, 3) = -(2.0f * farClip * nearClip) / (farClip - nearClip);
     projectionMatrix(3, 2) = -1.0f;
-    projectionMatrix(3, 3) = 0.0f; // 关键的修改
+    projectionMatrix(3, 3) = 0.0f;
     return projectionMatrix;
 }
 
@@ -41,7 +39,6 @@ void Camera::setFOV(float fov)
     this->fov = fov;
 }
 
-// 处理键盘输入
 void Camera::ProcessKeyboard(CameraMovement direction, float deltaTime)
 {
     float velocity = movementSpeed * deltaTime;
@@ -59,7 +56,6 @@ void Camera::ProcessKeyboard(CameraMovement direction, float deltaTime)
         Position -= Up * velocity;
 }
 
-// 处理鼠标移动输入
 void Camera::ProcessMouseMovement(float xoffset, float yoffset, bool constrainPitch)
 {
     xoffset *= mouseSensitivity;
@@ -81,7 +77,6 @@ void Camera::ProcessMouseMovement(float xoffset, float yoffset, bool constrainPi
     updateCameraVectors();
 }
 
-// 处理鼠标滚轮输入 (用于缩放，改变 FOV)
 void Camera::ProcessMouseScroll(float yoffset)
 {
     fov -= (float)yoffset * zoomSensitivity;
@@ -91,19 +86,16 @@ void Camera::ProcessMouseScroll(float yoffset)
         fov = 45.0f;
 }
 
-// 设置宽高比
 void Camera::setAspectRatio(float width, float height)
 {
     aspectRatio = width / height;
 }
 
-// 获取相机的位置
 Eigen::Vector3f Camera::getPosition() const
 {
     return Position;
 }
 
-// 获取相机的朝向 (Front 向量)
 Eigen::Vector3f Camera::getFront() const
 {
     return Front;
@@ -127,40 +119,6 @@ void Camera::lookAt(const Eigen::Vector3f &target)
 
 #include <vector>
 
-// 返回6个视图矩阵，顺序对应立方体贴图六个面
-// std::vector<Eigen::Matrix4f> GeneratePointLightViews(const Eigen::Vector3f& pos)
-// {
-//     std::vector<Eigen::Matrix4f> views;
-    
-//     // 6个面方向
-//     const Eigen::Vector3f targets[6] = {
-//         pos + Eigen::Vector3f(1, 0, 0),   // +X
-//         pos + Eigen::Vector3f(-1, 0, 0),  // -X
-//         pos + Eigen::Vector3f(0, 1, 0),   // +Y
-//         pos + Eigen::Vector3f(0, -1, 0),  // -Y
-//         pos + Eigen::Vector3f(0, 0, 1),   // +Z
-//         pos + Eigen::Vector3f(0, 0, -1)   // -Z
-//     };
-
-//     // 对应的up向量
-//     const Eigen::Vector3f ups[6] = {
-//         Eigen::Vector3f(0, -1, 0),  // +X
-//         Eigen::Vector3f(0, -1, 0),  // -X
-//         Eigen::Vector3f(0, 0, 1),   // +Y
-//         Eigen::Vector3f(0, 0, -1),  // -Y
-//         Eigen::Vector3f(0, -1, 0),  // +Z
-//         Eigen::Vector3f(0, -1, 0)   // -Z
-//     };
-
-//     for (int i = 0; i < 6; ++i)
-//     {
-//         views.push_back(LookAt(pos, targets[i], ups[i]));
-//     }
-
-//     return views;
-// }
-
-// 自定义LookAt函数，类似你的GetViewMatrix
 Eigen::Matrix4f Camera::LookAtCube(const Eigen::Vector3f &eye, const Eigen::Vector3f &center, const Eigen::Vector3f &up)
 {
     Eigen::Vector3f f = (center - eye).normalized();
@@ -185,18 +143,15 @@ Eigen::Matrix4f Camera::LookAtCube(const Eigen::Vector3f &eye, const Eigen::Vect
 
 
 
-// 更新 Front, Right 和 Up 向量
 void Camera::updateCameraVectors()
 {
-    // 计算新的 Front 向量
     Eigen::Vector3f front;
     front.x() = cos(Yaw * M_PI / 180.0f) * cos(Pitch * M_PI / 180.0f);
     front.y() = sin(Pitch * M_PI / 180.0f);
     front.z() = sin(Yaw * M_PI / 180.0f) * cos(Pitch * M_PI / 180.0f);
     Front = front.normalized();
 
-    // 计算 Right 向量 (与世界空间上方向和 Front 向量叉乘得到)
     Right = (Front.cross(WorldUp)).normalized();
-    // 重新计算 Up 向量 (与 Front 和 Right 向量叉乘得到)
+    
     Up = (Right.cross(Front)).normalized();
 }

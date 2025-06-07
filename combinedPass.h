@@ -9,12 +9,10 @@
 class CombinedPass : public RenderPass
 {
 public:
-    // 通过构造函数注入要显示的纹理 ID
     CombinedPass(int width, int height);
 
     ~CombinedPass() override = default;
 
-    // 实现基类的纯虚函数，不带参数
     void Render(GLuint directLightTextureID,
                 GLuint iblTextureID,
                 GLuint gpassDepthTextureID,
@@ -23,9 +21,7 @@ public:
                 GLuint skyboxTextureID,
                 GLuint ssrTextureID);
 
-    // 维持 Resize 方法
     void Resize(int width, int height) override;
-
     GLuint getColorTextureId() const;
 
 private:
@@ -33,8 +29,8 @@ private:
 
 private:
     Shader shader_;
-    std::unique_ptr<Texture2D> colorTexture_; // 存储世界空间位置
-    std::unique_ptr<Texture2D> depthTexture_; // 存储深度信息（作为纹理）
+    std::unique_ptr<Texture2D> colorTexture_;
+    std::unique_ptr<Texture2D> depthTexture_;
 
     ScreenQuad screenQuad_;
 
