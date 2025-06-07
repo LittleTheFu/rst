@@ -167,9 +167,33 @@ void Scene::run()
     {
         screenPass_->Render(gBufferPass_->getMetallicTextureId());
     }
-    else 
+    else if(flag_ == 6)
     {
         screenPass_->Render(gBufferPass_->getAOTextureId());
+    }
+    else if(flag_ == 7)
+    {
+        screenPass_->Render(lightPass_->getOutputTextureId());
+    }
+    else if(flag_ == 8)
+    {
+        screenPass_->Render(iblPass_->getColorTextureId());
+    }
+    else if(flag_ == 9)
+    {
+        screenPass_->Render(combinedPass_->getColorTextureId());
+    }
+    else if(flag_ == 10)
+    {
+        screenPass_->Render(ssrPass_->getReflectionTextureId());
+    }
+    else if(flag_ == 11)
+    {
+        screenPass_->Render(lightPass_->getDebugCurrentDepthTextureId());
+    }
+    else if(flag_ == 12)
+    {
+        screenPass_->Render(lightPass_->getDebugClosestDepthTextureId());
     }
 
     GL_CHECK_ERROR();

@@ -33,9 +33,8 @@ public:
 
     GLuint getOutputTextureId() const { return outputTexture_->id(); }
 
-    // (可选) 如果你仍然需要调试纹理的 getter，可以提供
-    // const Texture2D& getDebugCurrentDepthTexture() const { return *debugCurrentDepthTexture_; }
-    // const Texture2D& getDebugClosestDepthTexture() const { return *debugClosestDepthTexture_; }
+    GLuint getDebugCurrentDepthTextureId() const { return debugCurrentDepthTexture_->id(); }
+    GLuint getDebugClosestDepthTextureId() const { return debugClosestDepthTexture_->id(); }
 
 private:
     Shader shader_;

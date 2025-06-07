@@ -114,7 +114,10 @@ void UiSystem::DrawUI(int currentFPS)
         }
         ImGui::PopID();
 
-        ImGui::SameLine();
+        if( i % 5 != 0)
+        {
+            ImGui::SameLine();
+        }
     }
 
     // ***************************************************************
