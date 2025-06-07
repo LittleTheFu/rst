@@ -14,7 +14,7 @@ add_library(imgui STATIC ${IMGUI_SOURCES})
 target_include_directories(imgui PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/backends
-    ${CMAKE_SOURCE_DIR}/third/sdl/include/SDL2
+    # ${CMAKE_SOURCE_DIR}/third/sdl/include/SDL2
 )
 
-target_link_libraries(imgui PUBLIC SDL2::SDL2) # <-- 建议添加这一行
+target_link_libraries(imgui PUBLIC SDL2::SDL2)
