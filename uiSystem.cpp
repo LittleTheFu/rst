@@ -102,6 +102,12 @@ void UiSystem::DrawUI(int currentFPS)
         const std::string &name = std::get<0>(item);
         int value = std::get<1>(item);
 
+        if (name == "")
+        {
+            ImGui::Separator();
+            continue;
+        }
+
         ImGui::PushID(i); // 使用索引作为唯一ID
         if (ImGui::RadioButton(name.c_str(), &selectedRenderMode, value))
         {
@@ -113,11 +119,7 @@ void UiSystem::DrawUI(int currentFPS)
             }
         }
         ImGui::PopID();
-
-        if( i % 5 != 0)
-        {
-            ImGui::SameLine();
-        }
+        ImGui::SameLine(); // 在同一行显示下一个按钮
     }
 
     // ***************************************************************
