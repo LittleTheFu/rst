@@ -37,7 +37,6 @@ class Scene
 {
 public:
     void blur(bool isOn);
-private:
     bool isBlurOn_ = true;
 
 public:

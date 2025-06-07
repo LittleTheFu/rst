@@ -80,10 +80,11 @@ Window::Window(const char* title, int width, int height)
     // ----------------------------------------------------
     // 初始化 UiSystem <-- 新增
     uiSystem = new UiSystem(window, glContext);
-    
+
     uiSystem->onBlurClicked = [this](bool isOn) {
-        this->scene_.blur(isOn); // 假设 Scene 有 blur 方法 
+        this->scene_.blur(isOn);
     };
+    uiSystem->isBlurOn = this->scene_.isBlurOn_;
 
     // ----------------------------------------------------
     // 其他初始化
