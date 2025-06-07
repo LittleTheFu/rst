@@ -77,11 +77,13 @@ void UiSystem::DrawUI(int currentFPS) {
     ImGui::Text("应用平均 FPS: %d", currentFPS);
     ImGui::Checkbox("显示 ImGui Demo 窗口", &showDemoWindow);
 
-    // 示例：控制场景参数
-    // 如果你的 Scene 类有 set/get 方法来控制光照强度等，可以这样写：
-    // ImGui::SliderFloat("环境光强度", &sceneRef.ambientIntensity, 0.0f, 5.0f);
-    // ImGui::ColorEdit3("主光源颜色", (float*)&sceneRef.mainLightColor);
-    // ImGui::SliderFloat("摄像机移动速度", &sceneRef.cameraSpeed, 1.0f, 10.0f);
+     if(ImGui::Checkbox("blur", &isBlurOn))
+     {
+        if(onBlurClicked)
+        {
+            onBlurClicked(isBlurOn);
+        }
+     }
 
     ImGui::End();
 

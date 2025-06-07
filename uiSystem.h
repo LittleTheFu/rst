@@ -9,11 +9,16 @@
 #include "imgui.h"
 #include "backends/imgui_impl_sdl2.h"
 #include "backends/imgui_impl_opengl3.h"
+#include <functional>
 
 // 引入你的 Scene 类，如果 UiSystem 需要访问 Scene 的参数
 // #include "scene.h" // 如果需要，请取消注释
 
 class UiSystem {
+public:
+    std::function<void(bool)> onBlurClicked;
+    
+
 public:
     // 构造函数：初始化 ImGui 后端
     // 传入 SDL 窗口和 OpenGL 上下文
@@ -38,6 +43,7 @@ public:
 
     // 示例：可以添加控制 UI 窗口是否显示的标志
     bool showDemoWindow = false;
+    bool isBlurOn = false;
 
     // 示例：可以添加一些将来在 UI 中控制的变量
     // float exampleFloat = 0.5f;

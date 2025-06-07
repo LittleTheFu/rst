@@ -36,6 +36,11 @@
 class Scene
 {
 public:
+    void blur(bool isOn);
+private:
+    bool isBlurOn_ = true;
+
+public:
     void init();
     void run();
     void resize(int width, int height); // 处理窗口尺寸变化

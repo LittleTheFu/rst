@@ -4,6 +4,11 @@
 #include "debug_utils.h"
 #include "materialFactory.h"
 
+void Scene::blur(bool isOn)
+{
+    isBlurOn_ = isOn;
+}
+
 void Scene::init()
 {
     // 1. 初始化场景数据 (屏幕/阴影尺寸等，可以根据需要精简SceneData)
@@ -220,27 +225,32 @@ void Scene::run()
                     camera_.GetProjectionMatrix(),
                     camera_.GetViewMatrix());
 
-    // blurHorizontalPass_->Render(combinedPass_->getColorTextureId());
-    // GL_CHECK_ERROR();
+    if (isBlurOn_)
+    {
+        blurHorizontalPass_->Render(combinedPass_->getColorTextureId());
+        GL_CHECK_ERROR();
 
-    // blurVerticalPass_->Render(blurHorizontalPass_->getColorTextureId());
-    // GL_CHECK_ERROR();
+        blurVerticalPass_->Render(blurHorizontalPass_->getColorTextureId());
+        GL_CHECK_ERROR();
 
-    // depthOfFieldPass_->Render(combinedPass_->getColorTextureId(),
-    //                           blurVerticalPass_->getColorTextureId(),
-    //                           gBufferPass_->getDepthTextureId(),
-    //                           18.0f,
-    //                           10.0f,
-    //                           camera_.nearClip,
-    //                           camera_.farClip);
+        depthOfFieldPass_->Render(combinedPass_->getColorTextureId(),
+                                  blurVerticalPass_->getColorTextureId(),
+                                  gBufferPass_->getDepthTextureId(),
+                                  18.0f,
+                                  10.0f,
+                                  camera_.nearClip,
+                                  camera_.farClip);
 
-    // postPass_->Render(depthOfFieldPass_->getColorTextureId());
-
-    postPass_->Render(combinedPass_->getColorTextureId());
-    GL_CHECK_ERROR();
+        postPass_->Render(depthOfFieldPass_->getColorTextureId());
+        GL_CHECK_ERROR();
+    }
+    else
+    {
+        postPass_->Render(combinedPass_->getColorTextureId());
+        GL_CHECK_ERROR();
+    }
 
     screenPass_->Render(postPass_->getColorTextureId());
-    // screenPass_->Render(ssrPass_->getReflectionTextureId());
     GL_CHECK_ERROR();
 }
 
