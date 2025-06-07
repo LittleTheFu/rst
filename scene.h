@@ -40,13 +40,17 @@ public:
     bool isBlurOn_ = true;
 
 public:
+    void setRenderFlag(int flag) { flag_ = flag; };
+    int flag_ = 0;
+
+public:
     void init();
     void run();
     void resize(int width, int height); // 处理窗口尺寸变化
 
 private:
     void updateScene();
-    
+
 private:
     std::unique_ptr<SceneData> sceneData_; // 暂时保留，根据实际需求决定是否完全移除或精简
 

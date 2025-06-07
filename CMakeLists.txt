@@ -70,6 +70,7 @@ add_executable(OpenGL_GLAD_SDL2
     rendererConfig.cpp
     shader.cpp
     camera.cpp
+    uiSceneData.cpp
     sceneData.cpp
     scene.cpp)
 

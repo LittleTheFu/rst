@@ -86,6 +86,8 @@ Window::Window(const char* title, int width, int height)
     };
     uiSystem->isBlurOn = this->scene_.isBlurOn_;
 
+    uiSystem->uiSceneData = UiSceneData::create(this->scene_);
+
     // ----------------------------------------------------
     // 其他初始化
     lastTime = std::chrono::high_resolution_clock::now();

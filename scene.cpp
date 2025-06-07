@@ -143,7 +143,35 @@ void Scene::run()
         GL_CHECK_ERROR();
     }
 
-    screenPass_->Render(postPass_->getColorTextureId());
+    if(flag_ == 0)
+    {
+        screenPass_->Render(postPass_->getColorTextureId());
+    }
+    else if(flag_ == 1)
+    {
+        screenPass_->Render(gBufferPass_->getPositionTextureId());
+    }
+    else if(flag_ == 2)
+    {
+        screenPass_->Render(gBufferPass_->getNormalTextureId());
+    }
+    else if(flag_ == 3)
+    {
+        screenPass_->Render(gBufferPass_->getAlbedoTextureId());
+    }
+    else if(flag_ == 4)
+    {
+        screenPass_->Render(gBufferPass_->getRoughnessTextureId());
+    }
+    else if(flag_ == 5)
+    {
+        screenPass_->Render(gBufferPass_->getMetallicTextureId());
+    }
+    else 
+    {
+        screenPass_->Render(gBufferPass_->getAOTextureId());
+    }
+
     GL_CHECK_ERROR();
 }
 

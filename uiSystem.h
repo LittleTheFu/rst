@@ -10,6 +10,7 @@
 #include "backends/imgui_impl_sdl2.h"
 #include "backends/imgui_impl_opengl3.h"
 #include <functional>
+#include "uiSceneData.h"
 
 // 引入你的 Scene 类，如果 UiSystem 需要访问 Scene 的参数
 // #include "scene.h" // 如果需要，请取消注释
@@ -17,6 +18,15 @@
 class UiSystem {
 public:
     std::function<void(bool)> onBlurClicked;
+    bool isBlurOn = false;
+
+public:
+    UiSceneData uiSceneData;
+    int selectedRenderMode = 0;
+
+
+
+
     
 
 public:
@@ -43,7 +53,6 @@ public:
 
     // 示例：可以添加控制 UI 窗口是否显示的标志
     bool showDemoWindow = false;
-    bool isBlurOn = false;
 
     // 示例：可以添加一些将来在 UI 中控制的变量
     // float exampleFloat = 0.5f;
