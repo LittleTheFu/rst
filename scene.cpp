@@ -11,37 +11,9 @@ void Scene::blur(bool isOn)
 
 void Scene::init()
 {
-    // 1. 初始化场景数据 (屏幕/阴影尺寸等，可以根据需要精简SceneData)
     sceneData_ = std::move(sceneFactory::createScene());
 
-    camera_.Position = Eigen::Vector3f(0.0f, 2.0f, 14.0f);
-    camera_.lookAt(Eigen::Vector3f(0.0f, 0.0f, 0.0f));
-    camera_.updateCameraVectors();
-
-    // 3. 初始化主光源
-    mainLight_ = std::make_shared<PointLight>();
-    mainLight_->position = Eigen::Vector3f(0.0f, 0.0f, -30.0f);
-    mainLight_->color = Eigen::Vector3f(1.0f, 1.0f, 1.0f);
-    mainLight_->intensity = 8.0f;
-
-    // 5. 加载 IBL 纹理 (在创建 IBLPass 和 SkyPass 之前加载)
-    std::shared_ptr<TextureCubeMap> irradianceMapTex_ = TextureCubeMap::loadDDS("ibl/house/houseDiffuseHDR.dds");
-    if (!irradianceMapTex_) {
-        std::cerr << "ERROR::SCENE::Failed to load irradiance map! Check path and DDS format." << std::endl;
-    }
-
-    std::shared_ptr<TextureCubeMap> prefilterMapTex_ = TextureCubeMap::loadDDS("ibl/house/houseSpecularHDR.dds");
-    if (!prefilterMapTex_) {
-        std::cerr << "ERROR::SCENE::Failed to load prefilter map! Check path and DDS format." << std::endl;
-    }
-
-    std::shared_ptr<Texture2D> brdfLUTTex_ = Texture2D::loadDDS("ibl/house/houseBrdf.dds");
-    if (!brdfLUTTex_) {
-        std::cerr << "ERROR::SCENE::Failed to load BRDF LUT! Check path and DDS format." << std::endl;
-    }
-
-    // 6. 初始化渲染 Pass (构造函数现在更简洁，只负责Pass自身的FBO等初始化)
-    skyPass_ = std::make_unique<SkyPass>(sceneData_->screenWidth, sceneData_->screenHeight, prefilterMapTex_);
+    skyPass_ = std::make_unique<SkyPass>(sceneData_->screenWidth, sceneData_->screenHeight, sceneData_->prefilterMapTex_);
     gBufferPass_ = std::make_unique<GBufferPass>(sceneData_->screenWidth, sceneData_->screenHeight);
     shadowPass_ = std::make_unique<ShadowPass>(sceneData_->shadowMapWidth, sceneData_->shadowMapHeight);
     lightPass_ = std::make_unique<LightPass>(sceneData_->screenWidth, sceneData_->screenHeight);
@@ -49,17 +21,16 @@ void Scene::init()
     oitPass_ = std::make_unique<OitPass>(
         sceneData_->screenWidth,
         sceneData_->screenHeight,
-        irradianceMapTex_,
-        prefilterMapTex_,
-        brdfLUTTex_);
+        sceneData_->irradianceMapTex_,
+        sceneData_->prefilterMapTex_,
+        sceneData_->brdfLUTTex_);
 
-    // IBLPass 和 SkyPass 的构造函数仍然可以注入其不变的IBL纹理
     iblPass_ = std::make_unique<IBLPass>(
         sceneData_->screenWidth,
         sceneData_->screenHeight,
-        irradianceMapTex_,
-        prefilterMapTex_,
-        brdfLUTTex_);
+        sceneData_->irradianceMapTex_,
+        sceneData_->prefilterMapTex_,
+        sceneData_->brdfLUTTex_);
 
     combinedPass_ = std::make_unique<CombinedPass>(sceneData_->screenWidth, sceneData_->screenHeight);
     ssrPass_ = std::make_unique<SSRPass>(sceneData_->screenWidth, sceneData_->screenHeight);
@@ -83,32 +54,32 @@ void Scene::run()
     count %= 8000;
     float x_light = count / 1200.0f - 3.0f;
     x_light *= 1.0f;
-    mainLight_->position = Eigen::Vector3f(x_light, x_light, 3.0f);
+    sceneData_->light->position = Eigen::Vector3f(x_light, x_light, 3.0f);
     // mainLight_->position = Eigen::Vector3f(5, 5, 7.0f);
-    mainLight_->intensity = 8.0f;
+    sceneData_->light->intensity = 8.0f;
 
     // 调试光标位置
     Eigen::Vector3f offset = Eigen::Vector3f(0.0f, 0.5f, 0.0f);
     if(!sceneData_->opaqueObjects.empty())
     {
-        sceneData_->opaqueObjects.back()->setPosition(mainLight_->position + offset);
+        sceneData_->opaqueObjects.back()->setPosition(sceneData_->light->position + offset);
     }
 
     // --- 渲染管线执行 ---
 
-    skyPass_->Render(camera_);
+    skyPass_->Render(*sceneData_->camera);
     GL_CHECK_ERROR();
 
 
-    shadowPass_->Render(sceneData_->opaqueObjects, *mainLight_);
+    shadowPass_->Render(sceneData_->opaqueObjects, *sceneData_->light);
     GL_CHECK_ERROR();
 
-    gBufferPass_->Render(sceneData_->opaqueObjects, camera_);
+    gBufferPass_->Render(sceneData_->opaqueObjects, *sceneData_->camera);
     GL_CHECK_ERROR();
 
     oitPass_->Render(sceneData_->transparentObjects,
-                     *mainLight_,
-                     camera_,
+                     *sceneData_->light,
+                     *sceneData_->camera,
                      gBufferPass_->getDepthTextureId());
     GL_CHECK_ERROR();
 
@@ -118,8 +89,8 @@ void Scene::run()
                        gBufferPass_->getRoughnessTextureId(), // gRoughness
                        gBufferPass_->getMetallicTextureId(), // gMetallic
                        gBufferPass_->getAOTextureId(), // gAO
-                       *mainLight_,
-                       camera_,
+                       *sceneData_->light,
+                       *sceneData_->camera,
                        shadowPass_->getShadowMapDepthOutputTextureId());
     GL_CHECK_ERROR();
 
@@ -129,7 +100,7 @@ void Scene::run()
                      gBufferPass_->getRoughnessTextureId(), // gRoughness
                      gBufferPass_->getMetallicTextureId(), // gMetallic
                      gBufferPass_->getAOTextureId(), // gAO
-                     camera_);
+                     *sceneData_->camera);
     GL_CHECK_ERROR();
 
     combinedPass_->Render(lightPass_->getOutputTextureId(),
@@ -146,8 +117,8 @@ void Scene::run()
                     gBufferPass_->getAlbedoTextureId(),
                     gBufferPass_->getMetallicTextureId(),
                     gBufferPass_->getRoughnessTextureId(),
-                    camera_.GetProjectionMatrix(),
-                    camera_.GetViewMatrix());
+                    sceneData_->camera->GetProjectionMatrix(),
+                    sceneData_->camera->GetViewMatrix());
 
     if (isBlurOn_)
     {
@@ -162,8 +133,8 @@ void Scene::run()
                                   gBufferPass_->getDepthTextureId(),
                                   18.0f,
                                   10.0f,
-                                  camera_.nearClip,
-                                  camera_.farClip);
+                                  sceneData_->camera->nearClip,
+                                  sceneData_->camera->farClip);
 
         postPass_->Render(depthOfFieldPass_->getColorTextureId());
         GL_CHECK_ERROR();
@@ -181,8 +152,8 @@ void Scene::run()
 void Scene::resize(int width, int height)
 {
     // 更新 SceneData 的尺寸
-    sceneData_.screenWidth = width;
-    sceneData_.screenHeight = height;
+    sceneData_->screenWidth = width;
+    sceneData_->screenHeight = height;
 
     // 逐个调用所有 Pass 的 resize 方法
     if (gBufferPass_)
@@ -246,6 +217,6 @@ void Scene::resize(int width, int height)
     }
 
     // 更新主相机的投影矩阵，以适应新的屏幕宽高比
-    camera_.setAspectRatio(static_cast<float>(width) / height);
+    sceneData_->camera->setAspectRatio(static_cast<float>(width) / height);
     // camera_.updateProjectionMatrix();
 }

@@ -44,16 +44,8 @@ public:
     void run();
     void resize(int width, int height); // 处理窗口尺寸变化
 
-    // 可以添加获取相机或灯光的函数，以便外部（如ImGui）控制
-    Camera& getCamera() { return camera_; }
-    PointLight& getMainLight() { return *mainLight_; }
-
 private:
     std::unique_ptr<SceneData> sceneData_; // 暂时保留，根据实际需求决定是否完全移除或精简
-
-    // 场景中的核心对象
-    Camera camera_;
-    std::shared_ptr<PointLight> mainLight_; // 主光源
 
     // 渲染 Pass 实例
     std::unique_ptr<SkyPass> skyPass_;
@@ -73,11 +65,6 @@ private:
 
     std::unique_ptr<PostPass> postPass_;
     std::unique_ptr<ScreenPass> screenPass_;
-
-    // IBL 预计算纹理，由 Scene 管理其生命周期并注入给 IBLPass 和 SkyPass
-    std::shared_ptr<TextureCubeMap> irradianceMapTex_;
-    std::shared_ptr<TextureCubeMap> prefilterMapTex_;
-    std::shared_ptr<Texture2D> brdfLUTTex_;
 };
 
 #endif // _SCENE_H_

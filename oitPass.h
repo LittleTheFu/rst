@@ -24,7 +24,7 @@ public:
     ~OitPass() override = default;
 
     // Render 方法现在明确接收其动态输入：网格列表和相机
-    void Render(const std::vector<std::shared_ptr<Mesh>> &meshes,
+    void Render(const std::vector<std::unique_ptr<Mesh>> &meshes,
                 const PointLight &light,
                 const Camera &camera,
                 GLuint gPassDepthTextureID);

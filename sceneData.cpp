@@ -5,7 +5,7 @@
 
 std::unique_ptr<SceneData> sceneFactory::createScene()
 {
-    std::unique_ptr<SceneData> sceneData;
+    std::unique_ptr<SceneData> sceneData = std::make_unique<SceneData>();
 
     sceneData->screenWidth = 800;
     sceneData->screenHeight = 600;
@@ -13,9 +13,7 @@ std::unique_ptr<SceneData> sceneFactory::createScene()
     sceneData->shadowMapWidth = 1024;
     sceneData->shadowMapHeight = 1024;
 
-    sceneData->camera = std::make_unique<Camera>(Eigen::Vector3f(0.0f, 0.0f, 3.0f),
-                                                 Eigen::Vector3f(0.0f, 0.0f, 0.0f),
-                                                 Eigen::Vector3f(0.0f, 1.0f, 0.0f));
+    sceneData->camera = std::make_unique<Camera>();
     sceneData->camera->Position = Eigen::Vector3f(0.0f, 2.0f, 14.0f);
     sceneData->camera->lookAt(Eigen::Vector3f(0.0f, 0.0f, 0.0f));
     sceneData->camera->updateCameraVectors();
@@ -27,18 +25,18 @@ std::unique_ptr<SceneData> sceneFactory::createScene()
 
 
     // 5. 加载 IBL 纹理 (在创建 IBLPass 和 SkyPass 之前加载)
-    std::shared_ptr<TextureCubeMap> irradianceMapTex_ = TextureCubeMap::loadDDS("ibl/house/houseDiffuseHDR.dds");
-    if (!irradianceMapTex_) {
+    sceneData->irradianceMapTex_ = std::move(TextureCubeMap::loadDDS("ibl/house/houseDiffuseHDR.dds"));
+    if (sceneData->irradianceMapTex_== nullptr) {
         std::cerr << "ERROR::SCENE::Failed to load irradiance map! Check path and DDS format." << std::endl;
     }
 
-    std::shared_ptr<TextureCubeMap> prefilterMapTex_ = TextureCubeMap::loadDDS("ibl/house/houseSpecularHDR.dds");
-    if (!prefilterMapTex_) {
+    sceneData->prefilterMapTex_ = std::move(TextureCubeMap::loadDDS("ibl/house/houseSpecularHDR.dds"));
+    if (sceneData->prefilterMapTex_ == nullptr) {
         std::cerr << "ERROR::SCENE::Failed to load prefilter map! Check path and DDS format." << std::endl;
     }
 
-    std::shared_ptr<Texture2D> brdfLUTTex_ = Texture2D::loadDDS("ibl/house/houseBrdf.dds");
-    if (!brdfLUTTex_) {
+    sceneData->brdfLUTTex_ = std::move(Texture2D::loadDDS("ibl/house/houseBrdf.dds"));
+    if (sceneData->brdfLUTTex_ == nullptr) {
         std::cerr << "ERROR::SCENE::Failed to load BRDF LUT! Check path and DDS format." << std::endl;
     }
 

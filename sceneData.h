@@ -8,6 +8,9 @@
 #include "mesh.h"
 #include "pointLight.h"
 #include "camera.h"
+#include "textureCubeMap.h"
+#include "texture2D.h"
+
 
 
 struct ObjectData {
@@ -25,6 +28,10 @@ struct SceneData {
     std::unique_ptr<Mesh> skybox;
     std::unique_ptr<PointLight> light;
     std::unique_ptr<Camera> camera;
+
+    std::shared_ptr<TextureCubeMap> irradianceMapTex_;
+    std::shared_ptr<TextureCubeMap> prefilterMapTex_;
+    std::shared_ptr<Texture2D> brdfLUTTex_;
 
     int shadowMapWidth;
     int shadowMapHeight;

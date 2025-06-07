@@ -9,7 +9,7 @@ GBufferPass::GBufferPass(int width, int height)
     initGBuffer(); // 初始化 G-Buffer FBO 和纹理
 }
 
-void GBufferPass::Render(const std::vector<std::shared_ptr<Mesh>>& meshes, const Camera& camera)
+void GBufferPass::Render(const std::vector<std::unique_ptr<Mesh>>& meshes, const Camera& camera)
 {
     // 1. 绑定 G-Buffer Pass 的 Framebuffer
     activateFramebuffer();
