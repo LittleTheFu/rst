@@ -50,7 +50,7 @@ Window::Window(const char* title, int width, int height)
         exit(-1);
     }
 
-    SDL_GL_SetSwapInterval(1); // VSync
+    SDL_GL_SetSwapInterval(0); // VSync
 
     // ImGui 初始化
     IMGUI_CHECKVERSION();
