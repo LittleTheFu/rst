@@ -70,6 +70,7 @@ add_executable(OpenGL_GLAD_SDL2
     rendererConfig.cpp
     shader.cpp
     camera.cpp
+    sceneData.cpp
     scene.cpp)
 
 # 给可执行文件加 include 目录

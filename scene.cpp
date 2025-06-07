@@ -2,7 +2,7 @@
 #include <iostream>
 #include <glad/glad.h>
 #include "debug_utils.h"
-#include "materialFactory.h"
+
 
 void Scene::blur(bool isOn)
 {
@@ -12,12 +12,8 @@ void Scene::blur(bool isOn)
 void Scene::init()
 {
     // 1. 初始化场景数据 (屏幕/阴影尺寸等，可以根据需要精简SceneData)
-    sceneData_.screenWidth = 800;
-    sceneData_.screenHeight = 600;
-    sceneData_.shadowMapWidth = 1024;
-    sceneData_.shadowMapHeight = 1024;
+    sceneData_ = std::move(sceneFactory::createScene());
 
-    // 2. 初始化相机
     camera_.Position = Eigen::Vector3f(0.0f, 2.0f, 14.0f);
     camera_.lookAt(Eigen::Vector3f(0.0f, 0.0f, 0.0f));
     camera_.updateCameraVectors();
@@ -45,107 +41,35 @@ void Scene::init()
     }
 
     // 6. 初始化渲染 Pass (构造函数现在更简洁，只负责Pass自身的FBO等初始化)
-    skyPass_ = std::make_unique<SkyPass>(sceneData_.screenWidth, sceneData_.screenHeight, prefilterMapTex_);
-    gBufferPass_ = std::make_unique<GBufferPass>(sceneData_.screenWidth, sceneData_.screenHeight);
-    shadowPass_ = std::make_unique<ShadowPass>(sceneData_.shadowMapWidth, sceneData_.shadowMapHeight);
-    lightPass_ = std::make_unique<LightPass>(sceneData_.screenWidth, sceneData_.screenHeight);
+    skyPass_ = std::make_unique<SkyPass>(sceneData_->screenWidth, sceneData_->screenHeight, prefilterMapTex_);
+    gBufferPass_ = std::make_unique<GBufferPass>(sceneData_->screenWidth, sceneData_->screenHeight);
+    shadowPass_ = std::make_unique<ShadowPass>(sceneData_->shadowMapWidth, sceneData_->shadowMapHeight);
+    lightPass_ = std::make_unique<LightPass>(sceneData_->screenWidth, sceneData_->screenHeight);
 
     oitPass_ = std::make_unique<OitPass>(
-        sceneData_.screenWidth,
-        sceneData_.screenHeight,
+        sceneData_->screenWidth,
+        sceneData_->screenHeight,
         irradianceMapTex_,
         prefilterMapTex_,
         brdfLUTTex_);
 
     // IBLPass 和 SkyPass 的构造函数仍然可以注入其不变的IBL纹理
     iblPass_ = std::make_unique<IBLPass>(
-        sceneData_.screenWidth,
-        sceneData_.screenHeight,
+        sceneData_->screenWidth,
+        sceneData_->screenHeight,
         irradianceMapTex_,
         prefilterMapTex_,
         brdfLUTTex_);
 
-    combinedPass_ = std::make_unique<CombinedPass>(sceneData_.screenWidth, sceneData_.screenHeight);
-    ssrPass_ = std::make_unique<SSRPass>(sceneData_.screenWidth, sceneData_.screenHeight);
+    combinedPass_ = std::make_unique<CombinedPass>(sceneData_->screenWidth, sceneData_->screenHeight);
+    ssrPass_ = std::make_unique<SSRPass>(sceneData_->screenWidth, sceneData_->screenHeight);
 
-    blurHorizontalPass_ = std::make_unique<BlurHorizontalPass>(sceneData_.screenWidth, sceneData_.screenHeight);
-    blurVerticalPass_ = std::make_unique<BlurVerticalPass>(sceneData_.screenWidth, sceneData_.screenHeight);
-    depthOfFieldPass_ = std::make_unique<DepthOfFieldPass>(sceneData_.screenWidth, sceneData_.screenHeight);
+    blurHorizontalPass_ = std::make_unique<BlurHorizontalPass>(sceneData_->screenWidth, sceneData_->screenHeight);
+    blurVerticalPass_ = std::make_unique<BlurVerticalPass>(sceneData_->screenWidth, sceneData_->screenHeight);
+    depthOfFieldPass_ = std::make_unique<DepthOfFieldPass>(sceneData_->screenWidth, sceneData_->screenHeight);
 
-    postPass_ = std::make_unique<PostPass>(sceneData_.screenWidth, sceneData_.screenHeight);
-    screenPass_ = std::make_unique<ScreenPass>(sceneData_.screenWidth, sceneData_.screenHeight);
-
-    //---create materials-----
-    std::shared_ptr<Material> goldMaterial = MaterialFactory::CreateMaterialFromDirectory("goldMaterial", "gold");
-    std::shared_ptr<Material> plasticMaterial = MaterialFactory::CreateMaterialFromDirectory("plasticMaterial", "plastic");
-    std::shared_ptr<Material> rustedIronMaterial = MaterialFactory::CreateMaterialFromDirectory("rustedIronMaterial", "rusted_iron");
-    std::shared_ptr<Material> grassMaterial = MaterialFactory::CreateMaterialFromDirectory("grassMaterial", "grass");
-    std::shared_ptr<Material> wallMaterial = MaterialFactory::CreateMaterialFromDirectory("wallMaterial", "wall");
-    std::shared_ptr<Material> silverMaterial = MaterialFactory::CreateMaterialFromDirectory("silverMaterial", "silver");
-    
-    //---gun--------------------------------------------------------------------------------------------------
-    std::shared_ptr<Texture2D> gunAlbedoTexture = std::move(Texture2D::loadFromFile("gun/Textures/Cerberus_A.tga", false, true));
-    std::shared_ptr<Texture2D> gunNormalTexture = std::move(Texture2D::loadFromFile("gun/Textures/Cerberus_N.tga"));
-    std::shared_ptr<Texture2D> gunRoughnessTexture = std::move(Texture2D::loadFromFile("gun/Textures/Cerberus_R.tga"));
-    std::shared_ptr<Texture2D> gunMetallicTexture = std::move(Texture2D::loadFromFile("gun/Textures/Cerberus_M.tga"));
-    std::shared_ptr<Texture2D> gunAoTexture = std::move(Texture2D::loadFromFile("gun/Textures/raw/Cerberus_AO.tga"));
-
-    std::shared_ptr<Material> gunMaterial = std::make_shared<Material>("gunMaterial");
-    gunMaterial->setAlbedoMap(gunAlbedoTexture);
-    gunMaterial->setNormalMap(gunNormalTexture);
-    gunMaterial->setRoughnessMap(gunRoughnessTexture);
-    gunMaterial->setMetallicMap(gunMetallicTexture);
-    gunMaterial->setAmbientOcclusionMap(gunAoTexture);
-
-    // float scale = 0.06f; // 调整缩放比例
-    // std::unique_ptr<Mesh> mesh_gun = std::make_unique<Mesh>("gun/Cerberus_LP.FBX");
-    // mesh_gun->setMaterial(gunMaterial);
-    // mesh_gun->setRotation(Eigen::Quaternionf(M_PI/4, 0.0f, 1.0f, 0.0f));
-    // mesh_gun->setScale(Eigen::Vector3f(scale, scale, scale));
-    // mesh_gun->setPosition(Eigen::Vector3f(0.0f, 5.0f, 0.0f));
-    // sceneData_.opaqueObjects.push_back(std::move(mesh_gun));
-
-    //----------------------------------------------------------------------------------------
-
-    // 创建网格并设置材质和变换
-    std::unique_ptr<Mesh> mesh_teapot_1 = std::make_unique<Mesh>("teapot.obj");
-    mesh_teapot_1->setMaterial(rustedIronMaterial);
-    mesh_teapot_1->setScale(Eigen::Vector3f(1.0f, 1.0f, 1.0f));
-    mesh_teapot_1->setPosition(Eigen::Vector3f(0.0f, 0.0f, 0.0f));
-    sceneData_.opaqueObjects.push_back(std::move(mesh_teapot_1));
-    // sceneData_.transparentObjects.push_back(std::move(mesh_teapot_1));
-
-    std::unique_ptr<Mesh> mesh_box = std::make_unique<Mesh>("bx.obj");
-    mesh_box->setMaterial(wallMaterial);
-    mesh_box->setPosition(Eigen::Vector3f(0.0f, 0.0f, -18.0f));
-    mesh_box->setScale(Eigen::Vector3f(12.0f, 12.0f, 12.0f));
-    sceneData_.opaqueObjects.push_back(std::move(mesh_box));
-
-    std::unique_ptr<Mesh> mesh_teapot_2 = std::make_unique<Mesh>("teapot.obj");
-    mesh_teapot_2->setMaterial(grassMaterial);
-    mesh_teapot_2->setScale(Eigen::Vector3f(4, 4, 4));
-    mesh_teapot_2->setPosition(Eigen::Vector3f(0.0f, 0.0f, -30.0f));
-    sceneData_.opaqueObjects.push_back(std::move(mesh_teapot_2));
-    // sceneData_.transparentObjects.push_back(std::move(mesh_transparent_teapot));
-
-    std::unique_ptr<Mesh> mesh_plane_top = std::make_unique<Mesh>("plane.obj");
-    mesh_plane_top->setMaterial(silverMaterial);
-    mesh_plane_top->setScale(Eigen::Vector3f(7.0f, 7.0f, 16.0f));
-    mesh_plane_top->setPosition(Eigen::Vector3f(0.0f, -0.5f, -10.0f));
-    sceneData_.opaqueObjects.push_back(std::move(mesh_plane_top));
-    // sceneData_.transparentObjects.push_back(std::move(mesh_plane_top));
-
-    //a trick to make the plane shadow
-    std::unique_ptr<Mesh> mesh_plane_bottom = std::make_unique<Mesh>("plane.obj");
-    mesh_plane_bottom->setMaterial(goldMaterial);
-    mesh_plane_bottom->setScale(Eigen::Vector3f(-7.0f, 7.0f, 16.0f));
-    mesh_plane_bottom->setPosition(Eigen::Vector3f(0.0f, -0.8f, -10.0f));
-    sceneData_.opaqueObjects.push_back(std::move(mesh_plane_bottom));
-
-    std::unique_ptr<Mesh> mesh_cursor = std::make_unique<Mesh>("bx.obj");
-    mesh_cursor->setMaterial(plasticMaterial);
-    mesh_cursor->setScale(Eigen::Vector3f(0.2f, 0.2f, 0.2f));
-    sceneData_.opaqueObjects.push_back(std::move(mesh_cursor));
+    postPass_ = std::make_unique<PostPass>(sceneData_->screenWidth, sceneData_->screenHeight);
+    screenPass_ = std::make_unique<ScreenPass>(sceneData_->screenWidth, sceneData_->screenHeight);
 }
 
 void Scene::run()
@@ -165,9 +89,9 @@ void Scene::run()
 
     // 调试光标位置
     Eigen::Vector3f offset = Eigen::Vector3f(0.0f, 0.5f, 0.0f);
-    if(!sceneData_.opaqueObjects.empty())
+    if(!sceneData_->opaqueObjects.empty())
     {
-        sceneData_.opaqueObjects.back()->setPosition(mainLight_->position + offset);
+        sceneData_->opaqueObjects.back()->setPosition(mainLight_->position + offset);
     }
 
     // --- 渲染管线执行 ---
@@ -176,13 +100,13 @@ void Scene::run()
     GL_CHECK_ERROR();
 
 
-    shadowPass_->Render(sceneData_.opaqueObjects, *mainLight_);
+    shadowPass_->Render(sceneData_->opaqueObjects, *mainLight_);
     GL_CHECK_ERROR();
 
-    gBufferPass_->Render(sceneData_.opaqueObjects, camera_);
+    gBufferPass_->Render(sceneData_->opaqueObjects, camera_);
     GL_CHECK_ERROR();
 
-    oitPass_->Render(sceneData_.transparentObjects,
+    oitPass_->Render(sceneData_->transparentObjects,
                      *mainLight_,
                      camera_,
                      gBufferPass_->getDepthTextureId());

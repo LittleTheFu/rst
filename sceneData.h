@@ -3,28 +3,36 @@
 
 #include <vector>
 #include <Eigen/Dense>
-#include "Renderable.h" // 使用 Renderable 接口
-#include "transformAble.h" // 使用 Transformable 接口
-#include "mesh.h" // 假设 Mesh 是可渲染对象的具体实现
-#include "pointLight.h" // 假设 PointLight 是光源的具体实现
+#include "Renderable.h"
+#include "transformAble.h"
+#include "mesh.h"
+#include "pointLight.h"
+#include "camera.h"
 
 
 struct ObjectData {
     Renderable* renderable; // 指向可渲染对象的指针
     Transformable* transformable; // 指向可变换对象的指针
-    // Material material; 
 };
 
 struct SceneData {
     int screenWidth;
     int screenHeight;
-    std::vector<std::shared_ptr<Mesh>> opaqueObjects;
-    std::vector<std::shared_ptr<Mesh>> transparentObjects;
-    std::shared_ptr<Mesh> skybox;
-    std::shared_ptr<PointLight> light;
+
+    std::vector<std::unique_ptr<Mesh>> opaqueObjects;
+    std::vector<std::unique_ptr<Mesh>> transparentObjects;
+    std::unique_ptr<Mesh> cursor;
+    std::unique_ptr<Mesh> skybox;
+    std::unique_ptr<PointLight> light;
+    std::unique_ptr<Camera> camera;
 
     int shadowMapWidth;
     int shadowMapHeight;
+};
+
+class sceneFactory {
+public:
+    static std::unique_ptr<SceneData> createScene(); 
 };
 
 #endif // SCENEDATA_H
