@@ -16,12 +16,15 @@ add_subdirectory(third/sdl)
 add_subdirectory(third/assimp)
 add_subdirectory(third/lodepng)
 add_subdirectory(third/gli)
+add_subdirectory(third/imgui)
+
 
 # 禁用 Eigen 自带的测试
 set(BUILD_TESTING OFF CACHE BOOL "Disable Eigen tests")
 
 # 添加 Eigen 子目录
 add_subdirectory(third/eigen)
+
 
 # 查找 OpenGL
 find_package(OpenGL REQUIRED)
@@ -72,7 +75,6 @@ add_executable(OpenGL_GLAD_SDL2
 target_include_directories(OpenGL_GLAD_SDL2 PRIVATE
     ${CMAKE_SOURCE_DIR}/third/glad/include
     ${CMAKE_SOURCE_DIR}/third/sdl/include
-    ${CMAKE_SOURCE_DIR}/third/SDL/include
     ${CMAKE_SOURCE_DIR}/third/eigen
     ${CMAKE_SOURCE_DIR}/third/lodepng/include
     ${CMAKE_SOURCE_DIR}/third/stb_image/include
@@ -87,6 +89,7 @@ target_link_libraries(OpenGL_GLAD_SDL2
     ${OPENGL_LIBRARIES}
     assimp
     gli
+    imgui
 )
 
 add_custom_command(
