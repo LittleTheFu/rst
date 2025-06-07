@@ -57,6 +57,7 @@ add_executable(OpenGL_GLAD_SDL2
     blurVerticalPass.cpp
     shadowPass.cpp
     shadowUtils.cpp
+    uiSystem.cpp
     lightPass.cpp
     ssrPass.cpp
     stb_image_wrapper.cpp

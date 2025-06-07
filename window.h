@@ -1,3 +1,4 @@
+// Window.h (修改后)
 #ifndef WINDOW_H
 #define WINDOW_H
 
@@ -7,11 +8,7 @@
 #include <iostream>
 
 #include "scene.h"
-
-// ImGui 头文件
-#include "imgui.h"
-#include "backends/imgui_impl_sdl2.h"
-#include "backends/imgui_impl_opengl3.h"
+#include "UiSystem.h" // <-- 包含新的 UiSystem 头文件
 
 class Window {
 public:
@@ -20,7 +17,7 @@ public:
 
     void updateFPS();
     void render();
-    bool isRunning();
+    bool isRunning(); // 这个函数现在只处理 SDL_QUIT，其他事件将通过 main 循环直接传递
 
 private:
     SDL_Window* window = nullptr;
@@ -31,6 +28,7 @@ private:
     std::chrono::time_point<std::chrono::high_resolution_clock> lastTime;
 
     Scene scene_;
+    UiSystem* uiSystem = nullptr; // <-- 添加 UiSystem 成员变量
 };
 
 #endif // WINDOW_H
