@@ -45,6 +45,9 @@ public:
     void resize(int width, int height); // 处理窗口尺寸变化
 
 private:
+    void updateScene();
+    
+private:
     std::unique_ptr<SceneData> sceneData_; // 暂时保留，根据实际需求决定是否完全移除或精简
 
     // 渲染 Pass 实例

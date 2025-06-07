@@ -3,7 +3,6 @@
 #include <glad/glad.h>
 #include "debug_utils.h"
 
-
 void Scene::blur(bool isOn)
 {
     isBlurOn_ = isOn;
@@ -43,11 +42,8 @@ void Scene::init()
     screenPass_ = std::make_unique<ScreenPass>(sceneData_->screenWidth, sceneData_->screenHeight);
 }
 
-void Scene::run()
+void Scene::updateScene()
 {
-    glEnable(GL_CULL_FACE);
-    glCullFace(GL_BACK); // 背面剔除
-
     // 光源调试动画
     static int count = 0;
     count++;
@@ -60,16 +56,18 @@ void Scene::run()
 
     // 调试光标位置
     Eigen::Vector3f offset = Eigen::Vector3f(0.0f, 0.5f, 0.0f);
-    if(!sceneData_->opaqueObjects.empty())
+    if (!sceneData_->opaqueObjects.empty())
     {
         sceneData_->opaqueObjects.back()->setPosition(sceneData_->light->position + offset);
     }
+}
 
-    // --- 渲染管线执行 ---
+void Scene::run()
+{
+    updateScene();
 
     skyPass_->Render(*sceneData_->camera);
     GL_CHECK_ERROR();
-
 
     shadowPass_->Render(sceneData_->opaqueObjects, *sceneData_->light);
     GL_CHECK_ERROR();
@@ -83,42 +81,42 @@ void Scene::run()
                      gBufferPass_->getDepthTextureId());
     GL_CHECK_ERROR();
 
-    lightPass_->Render(gBufferPass_->getPositionTextureId(), // gPosition
-                       gBufferPass_->getNormalTextureId(), // gNormal
-                       gBufferPass_->getAlbedoTextureId(), // gAlbedo
+    lightPass_->Render(gBufferPass_->getPositionTextureId(),  // gPosition
+                       gBufferPass_->getNormalTextureId(),    // gNormal
+                       gBufferPass_->getAlbedoTextureId(),    // gAlbedo
                        gBufferPass_->getRoughnessTextureId(), // gRoughness
-                       gBufferPass_->getMetallicTextureId(), // gMetallic
-                       gBufferPass_->getAOTextureId(), // gAO
+                       gBufferPass_->getMetallicTextureId(),  // gMetallic
+                       gBufferPass_->getAOTextureId(),        // gAO
                        *sceneData_->light,
                        *sceneData_->camera,
                        shadowPass_->getShadowMapDepthOutputTextureId());
     GL_CHECK_ERROR();
 
-    iblPass_->Render(gBufferPass_->getPositionTextureId(), // gPosition
-                     gBufferPass_->getNormalTextureId(), // gNormal
-                     gBufferPass_->getAlbedoTextureId(), // gAlbedo
+    iblPass_->Render(gBufferPass_->getPositionTextureId(),  // gPosition
+                     gBufferPass_->getNormalTextureId(),    // gNormal
+                     gBufferPass_->getAlbedoTextureId(),    // gAlbedo
                      gBufferPass_->getRoughnessTextureId(), // gRoughness
-                     gBufferPass_->getMetallicTextureId(), // gMetallic
-                     gBufferPass_->getAOTextureId(), // gAO
+                     gBufferPass_->getMetallicTextureId(),  // gMetallic
+                     gBufferPass_->getAOTextureId(),        // gAO
                      *sceneData_->camera);
     GL_CHECK_ERROR();
 
     combinedPass_->Render(lightPass_->getOutputTextureId(),
-                        iblPass_->getColorTextureId(),
-                        gBufferPass_->getDepthTextureId(),
-                        oitPass_->getAccumTextureId(),
-                        oitPass_->getRevealTextureId(),
-                        skyPass_->getColorTextureId(),
-                        ssrPass_->getReflectionTextureId());
+                          iblPass_->getColorTextureId(),
+                          gBufferPass_->getDepthTextureId(),
+                          oitPass_->getAccumTextureId(),
+                          oitPass_->getRevealTextureId(),
+                          skyPass_->getColorTextureId(),
+                          ssrPass_->getReflectionTextureId());
     GL_CHECK_ERROR();
 
     ssrPass_->Render(gBufferPass_->getNormalTextureId(),
-                    gBufferPass_->getDepthTextureId(),
-                    gBufferPass_->getAlbedoTextureId(),
-                    gBufferPass_->getMetallicTextureId(),
-                    gBufferPass_->getRoughnessTextureId(),
-                    sceneData_->camera->GetProjectionMatrix(),
-                    sceneData_->camera->GetViewMatrix());
+                     gBufferPass_->getDepthTextureId(),
+                     gBufferPass_->getAlbedoTextureId(),
+                     gBufferPass_->getMetallicTextureId(),
+                     gBufferPass_->getRoughnessTextureId(),
+                     sceneData_->camera->GetProjectionMatrix(),
+                     sceneData_->camera->GetViewMatrix());
 
     if (isBlurOn_)
     {
@@ -190,7 +188,7 @@ void Scene::resize(int width, int height)
     {
         depthOfFieldPass_->Resize(width, height);
     }
-    
+
     if (iblPass_)
     {
         iblPass_->Resize(width, height);
