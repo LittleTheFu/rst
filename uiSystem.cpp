@@ -104,7 +104,7 @@ void UiSystem::DrawUI(int currentFPS)
 
         if (name == "")
         {
-            ImGui::Separator();
+            ImGui::NewLine();
             continue;
         }
 
