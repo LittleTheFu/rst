@@ -58,6 +58,9 @@ public:
     void setOitWeight(float weight) { oitWeight_ = weight; };
     float oitWeight_ = 1.0f;
 
+    void setGodRayWeight(float weight) { godRayWeight_ = weight; };
+    float godRayWeight_ = 0.1f;
+
 public:
     void init();
     void run();

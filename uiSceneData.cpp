@@ -4,7 +4,7 @@ UiSceneData UiSceneData::create(Scene &scene)
 {
     UiSceneData data;
 
-    data.sceneData.push_back({"reset", 0});
+    data.sceneData.push_back({"final", 0});
     data.sceneData.push_back({"", -1});// 分隔线
     data.sceneData.push_back({"pos", 1});
     data.sceneData.push_back({"norm", 2});

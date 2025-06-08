@@ -36,8 +36,9 @@ public:
 
     std::function<void(float)> onOitWeightBarChanged;
     float oitWeight = 0.0f;
-    
 
+    std::function<void(float)> onGodRayWeightBarChanged;
+    float godRayWeight = 0.0f;
     
 
 public:

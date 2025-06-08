@@ -108,7 +108,7 @@ void UiSystem::DrawUI(int currentFPS)
             continue;
         }
 
-        ImGui::PushID(i); // 使用索引作为唯一ID
+        ImGui::PushID(static_cast<int>(i)); // 使用索引作为唯一ID
         if (ImGui::RadioButton(name.c_str(), &selectedRenderMode, value))
         {
             // selectedRenderMode 已经被 ImGui::RadioButton 更新为 value
@@ -162,6 +162,13 @@ void UiSystem::DrawUI(int currentFPS)
     }
     // ImGui::NewLine();
 
+    if (ImGui::SliderFloat("god ray weight", &godRayWeight, 0.0f, max, "%.2f")) {
+        std::cout << "god ray weight！新值: " << godRayWeight << std::endl;
+        if (onGodRayWeightBarChanged) {
+            onGodRayWeightBarChanged(godRayWeight);
+        } 
+    }
+    // ImGui::NewLine();
 
     // ***************************************************************
 

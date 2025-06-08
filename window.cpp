@@ -108,6 +108,11 @@ Window::Window(const char* title, int width, int height)
     };
     uiSystem->oitWeight = this->scene_.oitWeight_;
 
+    uiSystem->onGodRayWeightBarChanged = [this](float weight) {
+        this->scene_.setGodRayWeight(weight); 
+    };
+    uiSystem->godRayWeight = this->scene_.godRayWeight_;
+
     // ----------------------------------------------------
     // 其他初始化
     lastTime = std::chrono::high_resolution_clock::now();

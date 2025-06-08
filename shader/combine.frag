@@ -9,11 +9,13 @@ uniform sampler2D accumTexture;
 uniform sampler2D revealTexture;
 uniform sampler2D skyboxTexture;
 uniform sampler2D ssrTexture;
+uniform sampler2D godRayTexture;
 
 uniform float ssrWeight;
 uniform float iblWeight;
 uniform float lightWeight;
 uniform float oitWeight;
+uniform float godRayWeight;
 
 void main()
 {
@@ -23,6 +25,8 @@ void main()
     vec4 ssrColor = texture(ssrTexture, TexCoords);
     vec4 lightColor = texture(lightTexture, TexCoords);
     vec4 iblColor = texture(iblTexture, TexCoords);
+    vec4 godRayColor = texture(godRayTexture, TexCoords);
+
     // 读取深度纹理
     float depth = texture(gpassDepthTexture, TexCoords).r;
 
@@ -42,7 +46,10 @@ void main()
     // FragColor = lightColor + iblColor;
     // FragColor = iblColor;
 
-    vec4 gPassFinalColor = lightColor * lightWeight + iblColor * iblWeight + ssrColor * ssrWeight;
+    vec4 gPassFinalColor = lightColor * lightWeight + 
+                            iblColor * iblWeight + 
+                            ssrColor * ssrWeight + 
+                            godRayColor * godRayWeight;
 
     //patch: sky box
     if(depth >= 1.0)
