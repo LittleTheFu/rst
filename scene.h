@@ -30,6 +30,7 @@
 #include "postPass.h"
 #include "screenPass.h"
 #include "brightnessMaskPass.h"
+#include "godRayPass.h"
 
 #include "SceneData.h"
 #include "depthOfFieldPass.h"
@@ -78,6 +79,7 @@ private:
     std::unique_ptr<IBLPass> iblPass_;
 
     std::unique_ptr<BrightnessMaskPass> brightnessMaskPass_;
+    std::unique_ptr<GodRayPass> godRayPass_;
 
     std::unique_ptr<CombinedPass> combinedPass_;
     std::unique_ptr<SSRPass> ssrPass_;

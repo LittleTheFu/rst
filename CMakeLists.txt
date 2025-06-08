@@ -70,7 +70,9 @@ add_executable(OpenGL_GLAD_SDL2
     rendererConfig.cpp
     brightnessMaskPass.cpp
     shader.cpp
+    godRayPass.cpp
     camera.cpp
+    utilities.cpp
     uiSceneData.cpp
     sceneData.cpp
     scene.cpp)
