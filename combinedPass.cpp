@@ -17,7 +17,11 @@ void CombinedPass::Render(GLuint directLightTextureID,
                           GLuint oitAccumTextureID,
                           GLuint oitRevealTextureID,
                           GLuint skyboxTextureID,
-                          GLuint ssrTextureID)
+                          GLuint ssrTextureID,
+                          float ssrWeight,
+                          float iblWeight,
+                          float lightWeight,
+                          float oitWeight)
 {
     activateFramebuffer();
 
@@ -51,7 +55,13 @@ void CombinedPass::Render(GLuint directLightTextureID,
     glBindTextureUnit(6, ssrTextureID);
     shader_.setInt("ssrTexture", 6);
 
-    screenQuad_.render(); 
+    float max = 3.0f;
+    shader_.setFloat("ssrWeight", std::clamp(ssrWeight, 0.0f, max));
+    shader_.setFloat("iblWeight", std::clamp(iblWeight, 0.0f, max));
+    shader_.setFloat("lightWeight", std::clamp(lightWeight, 0.0f, max));
+    shader_.setFloat("oitWeight", std::clamp(oitWeight, 0.0f, max));
+
+    screenQuad_.render();
 
     deactivateFramebuffer();
 

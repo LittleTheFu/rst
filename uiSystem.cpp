@@ -121,6 +121,47 @@ void UiSystem::DrawUI(int currentFPS)
         ImGui::PopID();
         ImGui::SameLine(); // 在同一行显示下一个按钮
     }
+    ImGui::NewLine(); // 换行
+
+    // ***************************************************************
+
+    // ***************************************************************
+    // 新增：滑块
+    // ***************************************************************
+    float max = 5.0f;
+    if (ImGui::SliderFloat("ssr weight", &ssrWeight, 0.0f, max, "%.2f")) {
+        std::cout << "ssr weight！新值: " << ssrWeight << std::endl;
+
+        if (onSsrWeightBarChanged) {
+            onSsrWeightBarChanged(ssrWeight);
+        }
+    }
+    // ImGui::NewLine(); 
+
+    if (ImGui::SliderFloat("ibl weight", &iblWeight, 0.0f, max, "%.2f")) {
+        std::cout << "ibl weight！新值: " << iblWeight << std::endl; 
+        if (onIblWeightBarChanged) {
+            onIblWeightBarChanged(iblWeight);
+        }
+    }
+    // ImGui::NewLine();
+
+    if (ImGui::SliderFloat("light weight", &lightWeight, 0.0f, max, "%.2f")) {
+        std::cout << "light weight！新值: " << lightWeight << std::endl; 
+        if (onLightWeightBarChanged) {
+            onLightWeightBarChanged(lightWeight);
+        }
+    }
+    // ImGui::NewLine();
+
+    if (ImGui::SliderFloat("oit weight", &oitWeight, 0.0f, max, "%.2f")) {
+        std::cout << "oit weight！新值: " << oitWeight << std::endl;
+        if (onOitWeightBarChanged) {
+            onOitWeightBarChanged(oitWeight); 
+        } 
+    }
+    // ImGui::NewLine();
+
 
     // ***************************************************************
 

@@ -107,7 +107,11 @@ void Scene::run()
                           oitPass_->getAccumTextureId(),
                           oitPass_->getRevealTextureId(),
                           skyPass_->getColorTextureId(),
-                          ssrPass_->getReflectionTextureId());
+                          ssrPass_->getReflectionTextureId(),
+                          ssrWeight_,
+                          iblWeight_,
+                          lightWeight_,
+                          oitWeight_);
     GL_CHECK_ERROR();
 
     ssrPass_->Render(gBufferPass_->getNormalTextureId(),
@@ -143,55 +147,55 @@ void Scene::run()
         GL_CHECK_ERROR();
     }
 
-    if(flag_ == 0)
+    if (flag_ == 0)
     {
         screenPass_->Render(postPass_->getColorTextureId());
     }
-    else if(flag_ == 1)
+    else if (flag_ == 1)
     {
         screenPass_->Render(gBufferPass_->getPositionTextureId());
     }
-    else if(flag_ == 2)
+    else if (flag_ == 2)
     {
         screenPass_->Render(gBufferPass_->getNormalTextureId());
     }
-    else if(flag_ == 3)
+    else if (flag_ == 3)
     {
         screenPass_->Render(gBufferPass_->getAlbedoTextureId());
     }
-    else if(flag_ == 4)
+    else if (flag_ == 4)
     {
         screenPass_->Render(gBufferPass_->getRoughnessTextureId());
     }
-    else if(flag_ == 5)
+    else if (flag_ == 5)
     {
         screenPass_->Render(gBufferPass_->getMetallicTextureId());
     }
-    else if(flag_ == 6)
+    else if (flag_ == 6)
     {
         screenPass_->Render(gBufferPass_->getAOTextureId());
     }
-    else if(flag_ == 7)
+    else if (flag_ == 7)
     {
         screenPass_->Render(lightPass_->getOutputTextureId());
     }
-    else if(flag_ == 8)
+    else if (flag_ == 8)
     {
         screenPass_->Render(iblPass_->getColorTextureId());
     }
-    else if(flag_ == 9)
+    else if (flag_ == 9)
     {
         screenPass_->Render(combinedPass_->getColorTextureId());
     }
-    else if(flag_ == 10)
+    else if (flag_ == 10)
     {
         screenPass_->Render(ssrPass_->getReflectionTextureId());
     }
-    else if(flag_ == 11)
+    else if (flag_ == 11)
     {
         screenPass_->Render(lightPass_->getDebugCurrentDepthTextureId());
     }
-    else if(flag_ == 12)
+    else if (flag_ == 12)
     {
         screenPass_->Render(lightPass_->getDebugClosestDepthTextureId());
     }

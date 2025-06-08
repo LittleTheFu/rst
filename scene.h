@@ -44,6 +44,19 @@ public:
     int flag_ = 0;
 
 public:
+    void setSsrWeight(float weight) { ssrWeight_ = weight; };
+    float ssrWeight_ = 0.2f;
+
+    void setIblWeight(float weight) { iblWeight_ = weight; };
+    float iblWeight_ = 0.1f;
+
+    void setLightWeight(float weight) { lightWeight_ = weight; };
+    float lightWeight_ = 0.7f;
+
+    void setOitWeight(float weight) { oitWeight_ = weight; };
+    float oitWeight_ = 1.0f;
+
+public:
     void init();
     void run();
     void resize(int width, int height); // 处理窗口尺寸变化

@@ -19,7 +19,11 @@ public:
                 GLuint oitAccumTextureID,
                 GLuint oitRevealTextureID,
                 GLuint skyboxTextureID,
-                GLuint ssrTextureID);
+                GLuint ssrTextureID,
+                float ssrWeight,
+                float iblWeight,
+                float lightWeight,
+                float oitWeight);
 
     void Resize(int width, int height) override;
     GLuint getColorTextureId() const;

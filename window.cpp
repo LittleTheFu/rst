@@ -88,6 +88,26 @@ Window::Window(const char* title, int width, int height)
 
     uiSystem->uiSceneData = UiSceneData::create(this->scene_);
 
+    uiSystem->onSsrWeightBarChanged = [this](float weight) {
+        this->scene_.setSsrWeight(weight); 
+    };
+    uiSystem->ssrWeight = this->scene_.ssrWeight_;
+
+    uiSystem->onIblWeightBarChanged = [this](float weight) {
+        this->scene_.setIblWeight(weight);
+    };
+    uiSystem->iblWeight = this->scene_.iblWeight_;
+
+    uiSystem->onLightWeightBarChanged = [this](float weight) {
+        this->scene_.setLightWeight(weight);
+    };
+    uiSystem->lightWeight = this->scene_.lightWeight_;
+
+    uiSystem->onOitWeightBarChanged = [this](float weight) {
+        this->scene_.setOitWeight(weight); 
+    };
+    uiSystem->oitWeight = this->scene_.oitWeight_;
+
     // ----------------------------------------------------
     // 其他初始化
     lastTime = std::chrono::high_resolution_clock::now();

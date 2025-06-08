@@ -24,8 +24,19 @@ public:
     UiSceneData uiSceneData;
     int selectedRenderMode = 0;
 
+public:
+    std::function<void(float)> onSsrWeightBarChanged;
+    float ssrWeight = 0.0f;
 
+    std::function<void(float)> onIblWeightBarChanged;
+    float iblWeight = 0.0f;
 
+    std::function<void(float)> onLightWeightBarChanged;
+    float lightWeight = 0.0f;
+
+    std::function<void(float)> onOitWeightBarChanged;
+    float oitWeight = 0.0f;
+    
 
     
 
