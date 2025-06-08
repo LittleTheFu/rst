@@ -38,10 +38,6 @@
 class Scene
 {
 public:
-    void blur(bool isOn);
-    bool isBlurOn_ = true;
-
-public:
     void setRenderFlag(int flag) { flag_ = flag; };
     int flag_ = 0;
 
@@ -60,6 +56,9 @@ public:
 
     void setGodRayWeight(float weight) { godRayWeight_ = weight; };
     float godRayWeight_ = 0.1f;
+
+    void setFocusDistance(float distance) { focusDistance_ = distance; };
+    float focusDistance_ = 10.0f;
 
 public:
     void init();

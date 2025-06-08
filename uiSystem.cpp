@@ -84,14 +84,6 @@ void UiSystem::DrawUI(int currentFPS)
     ImGui::Text("应用平均 FPS: %d", currentFPS);
     ImGui::Checkbox("显示 ImGui Demo 窗口", &showDemoWindow);
 
-    if (ImGui::Checkbox("blur", &isBlurOn))
-    {
-        if (onBlurClicked)
-        {
-            onBlurClicked(isBlurOn);
-        }
-    }
-
     // ***************************************************************
     // 新增：单选按钮组
     // ***************************************************************
@@ -136,7 +128,6 @@ void UiSystem::DrawUI(int currentFPS)
             onSsrWeightBarChanged(ssrWeight);
         }
     }
-    // ImGui::NewLine(); 
 
     if (ImGui::SliderFloat("ibl weight", &iblWeight, 0.0f, max, "%.2f")) {
         std::cout << "ibl weight！新值: " << iblWeight << std::endl; 
@@ -144,7 +135,6 @@ void UiSystem::DrawUI(int currentFPS)
             onIblWeightBarChanged(iblWeight);
         }
     }
-    // ImGui::NewLine();
 
     if (ImGui::SliderFloat("light weight", &lightWeight, 0.0f, max, "%.2f")) {
         std::cout << "light weight！新值: " << lightWeight << std::endl; 
@@ -152,7 +142,6 @@ void UiSystem::DrawUI(int currentFPS)
             onLightWeightBarChanged(lightWeight);
         }
     }
-    // ImGui::NewLine();
 
     if (ImGui::SliderFloat("oit weight", &oitWeight, 0.0f, max, "%.2f")) {
         std::cout << "oit weight！新值: " << oitWeight << std::endl;
@@ -160,7 +149,6 @@ void UiSystem::DrawUI(int currentFPS)
             onOitWeightBarChanged(oitWeight); 
         } 
     }
-    // ImGui::NewLine();
 
     if (ImGui::SliderFloat("god ray weight", &godRayWeight, 0.0f, max, "%.2f")) {
         std::cout << "god ray weight！新值: " << godRayWeight << std::endl;
@@ -168,7 +156,13 @@ void UiSystem::DrawUI(int currentFPS)
             onGodRayWeightBarChanged(godRayWeight);
         } 
     }
-    // ImGui::NewLine();
+
+    if(ImGui::SliderFloat("focus distance", &focusDistance, 0.0f, 20.0f, "%.2f")) {
+        std::cout << "focus distance！新值: " << focusDistance << std::endl;
+        if (onFocusDistanceBarChanged) {
+            onFocusDistanceBarChanged(focusDistance);
+        }
+    }
 
     // ***************************************************************
 

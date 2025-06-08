@@ -17,10 +17,6 @@
 
 class UiSystem {
 public:
-    std::function<void(bool)> onBlurClicked;
-    bool isBlurOn = false;
-
-public:
     UiSceneData uiSceneData;
     int selectedRenderMode = 0;
 
@@ -39,8 +35,10 @@ public:
 
     std::function<void(float)> onGodRayWeightBarChanged;
     float godRayWeight = 0.0f;
-    
 
+    std::function<void(float)> onFocusDistanceBarChanged;
+    float focusDistance = 0.0f;
+    
 public:
     // 构造函数：初始化 ImGui 后端
     // 传入 SDL 窗口和 OpenGL 上下文

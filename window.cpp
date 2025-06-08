@@ -81,11 +81,6 @@ Window::Window(const char* title, int width, int height)
     // 初始化 UiSystem <-- 新增
     uiSystem = new UiSystem(window, glContext);
 
-    uiSystem->onBlurClicked = [this](bool isOn) {
-        this->scene_.blur(isOn);
-    };
-    uiSystem->isBlurOn = this->scene_.isBlurOn_;
-
     uiSystem->uiSceneData = UiSceneData::create(this->scene_);
 
     uiSystem->onSsrWeightBarChanged = [this](float weight) {
@@ -112,6 +107,11 @@ Window::Window(const char* title, int width, int height)
         this->scene_.setGodRayWeight(weight); 
     };
     uiSystem->godRayWeight = this->scene_.godRayWeight_;
+
+    uiSystem->onFocusDistanceBarChanged = [this](float distance) {
+        this->scene_.setFocusDistance(distance); 
+    };
+    uiSystem->focusDistance = this->scene_.focusDistance_;
 
     // ----------------------------------------------------
     // 其他初始化

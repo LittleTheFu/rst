@@ -3,10 +3,6 @@
 #include <glad/glad.h>
 #include "debug_utils.h"
 
-void Scene::blur(bool isOn)
-{
-    isBlurOn_ = isOn;
-}
 
 void Scene::init()
 {
@@ -142,31 +138,24 @@ void Scene::run()
                           godRayWeight_);
     GL_CHECK_ERROR();
 
-    if (isBlurOn_)
-    {
-        blurHorizontalPass_->Render(combinedPass_->getColorTextureId());
-        GL_CHECK_ERROR();
+    blurHorizontalPass_->Render(combinedPass_->getColorTextureId());
+    GL_CHECK_ERROR();
 
-        blurVerticalPass_->Render(blurHorizontalPass_->getColorTextureId());
-        GL_CHECK_ERROR();
+    blurVerticalPass_->Render(blurHorizontalPass_->getColorTextureId());
+    GL_CHECK_ERROR();
 
-        depthOfFieldPass_->Render(combinedPass_->getColorTextureId(),
-                                  blurVerticalPass_->getColorTextureId(),
-                                  gBufferPass_->getDepthTextureId(),
-                                  18.0f,
-                                  10.0f,
-                                  sceneData_->camera->nearClip,
-                                  sceneData_->camera->farClip);
+    depthOfFieldPass_->Render(combinedPass_->getColorTextureId(),
+                              blurVerticalPass_->getColorTextureId(),
+                              gBufferPass_->getDepthTextureId(),
+                              focusDistance_,
+                              4.0f,
+                              sceneData_->camera->nearClip,
+                              sceneData_->camera->farClip);
 
-        postPass_->Render(depthOfFieldPass_->getColorTextureId());
-        GL_CHECK_ERROR();
-    }
-    else
-    {
-        postPass_->Render(combinedPass_->getColorTextureId());
-        GL_CHECK_ERROR();
-    }
+    postPass_->Render(depthOfFieldPass_->getColorTextureId());
+    GL_CHECK_ERROR();
 
+    //for ui
     if (flag_ == 0)
     {
         screenPass_->Render(postPass_->getColorTextureId());
@@ -291,6 +280,16 @@ void Scene::resize(int width, int height)
     if (ssrPass_)
     {
         ssrPass_->Resize(width, height);
+    }
+
+    if (brightnessMaskPass_)
+    {
+        brightnessMaskPass_->Resize(width, height);
+    }
+
+    if (godRayPass_)
+    {
+        godRayPass_->Resize(width, height);
     }
 
     if (oitPass_)
