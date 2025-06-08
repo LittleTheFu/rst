@@ -21,9 +21,9 @@ void BrightnessMaskPass::Render(GLuint inputTexture)
     clearBuffers(GL_COLOR_BUFFER_BIT);
 
     shader_.use();
+
+    glBindTextureUnit(0, inputTexture);
     shader_.setInt("sceneTexture", 0);
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, inputTexture);
 
     screenQuad_.render();
 
