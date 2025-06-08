@@ -31,6 +31,8 @@ void Scene::init()
         sceneData_->prefilterMapTex_,
         sceneData_->brdfLUTTex_);
 
+    brightnessMaskPass_ = std::make_unique<BrightnessMaskPass>(sceneData_->screenWidth, sceneData_->screenHeight);
+
     combinedPass_ = std::make_unique<CombinedPass>(sceneData_->screenWidth, sceneData_->screenHeight);
     ssrPass_ = std::make_unique<SSRPass>(sceneData_->screenWidth, sceneData_->screenHeight);
 
@@ -112,6 +114,9 @@ void Scene::run()
                           iblWeight_,
                           lightWeight_,
                           oitWeight_);
+    GL_CHECK_ERROR();
+
+    brightnessMaskPass_->Render(combinedPass_->getColorTextureId());
     GL_CHECK_ERROR();
 
     ssrPass_->Render(gBufferPass_->getNormalTextureId(),
@@ -198,6 +203,10 @@ void Scene::run()
     else if (flag_ == 12)
     {
         screenPass_->Render(lightPass_->getDebugClosestDepthTextureId());
+    }
+    else if (flag_ == 13)
+    {
+        screenPass_->Render(brightnessMaskPass_->getOutputTextureId());
     }
 
     GL_CHECK_ERROR();

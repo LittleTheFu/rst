@@ -68,6 +68,7 @@ add_executable(OpenGL_GLAD_SDL2
     combinedPass.cpp
     postPass.cpp
     rendererConfig.cpp
+    brightnessMaskPass.cpp
     shader.cpp
     camera.cpp
     uiSceneData.cpp

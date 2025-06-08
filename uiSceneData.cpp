@@ -20,6 +20,7 @@ UiSceneData UiSceneData::create(Scene &scene)
     data.sceneData.push_back({"", -1});// 分隔线
     data.sceneData.push_back({"shd_cur_dep", 11});
     data.sceneData.push_back({"shd_closet_dep", 12});
+    data.sceneData.push_back({"brt_msk", 13});
 
     data.onRenderModeChanged = [&scene](int mode)
     { scene.setRenderFlag(mode); };
