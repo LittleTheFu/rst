@@ -1,5 +1,8 @@
 cmake_minimum_required(VERSION 3.10)
-project(OpenGL_GLAD_SDL2)
+project(rst)
+
+# set(CMAKE_Fortran_COMPILER_WORKS FALSE)
+set(CMAKE_Fortran_COMPILER "")
 
 enable_language(C CXX)
 
@@ -57,7 +60,7 @@ set(PASS_SOURCE_FILES
     ${PASS_DIR}/godRayPass.cpp
 )
 
-add_executable(OpenGL_GLAD_SDL2
+add_executable(rst
     main.cpp
     third/glad/src/glad.c
     skyBoxCube.cpp
@@ -85,7 +88,7 @@ add_executable(OpenGL_GLAD_SDL2
     ${SCENE_SOURCE_FILES}
 )
 
-target_include_directories(OpenGL_GLAD_SDL2 PRIVATE
+target_include_directories(rst PRIVATE
     ${CMAKE_SOURCE_DIR}
     ${CMAKE_SOURCE_DIR}/${PASS_DIR}
     ${CMAKE_SOURCE_DIR}/${UTILITIES_DIR}
@@ -101,7 +104,7 @@ target_include_directories(OpenGL_GLAD_SDL2 PRIVATE
     ${CMAKE_SOURCE_DIR}/third/gli
 )
 
-target_link_libraries(OpenGL_GLAD_SDL2
+target_link_libraries(rst
     SDL2::SDL2
     ${OPENGL_LIBRARIES}
     assimp
@@ -110,7 +113,7 @@ target_link_libraries(OpenGL_GLAD_SDL2
 )
 
 add_custom_command(
-    TARGET OpenGL_GLAD_SDL2 POST_BUILD
+    TARGET rst POST_BUILD
     COMMAND powershell -ExecutionPolicy Bypass -File "${CMAKE_SOURCE_DIR}/cp_res.ps1"
     COMMAND powershell -ExecutionPolicy Bypass -File "${CMAKE_SOURCE_DIR}/cp_shader.ps1"
     COMMENT "Running PowerShell scripts after build"
