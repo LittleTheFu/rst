@@ -81,6 +81,10 @@ Window::Window(const char* title, int width, int height)
     // 初始化 UiSystem <-- 新增
     uiSystem = new UiSystem(window, glContext);
 
+    uiSystem->onCaptureButtonClicked = [this]() {
+        this->scene_.saveTextures(); // 调用 Scene 的 saveTextures 方法
+    };
+
     uiSystem->uiSceneData = UiSceneData::create(this->scene_);
 
     uiSystem->onSsrWeightBarChanged = [this](float weight) {

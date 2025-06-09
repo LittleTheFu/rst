@@ -21,6 +21,8 @@ public:
     int selectedRenderMode = 0;
 
 public:
+    std::function<void(void)> onCaptureButtonClicked;
+    
     std::function<void(float)> onSsrWeightBarChanged;
     float ssrWeight = 0.0f;
 

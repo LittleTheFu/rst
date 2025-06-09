@@ -84,6 +84,14 @@ void UiSystem::DrawUI(int currentFPS)
     ImGui::Text("应用平均 FPS: %d", currentFPS);
     ImGui::Checkbox("显示 ImGui Demo 窗口", &showDemoWindow);
 
+    if (ImGui::Button("capture"))
+    {
+        std::cout << "capture button pressed!!!" << std::endl;
+        if(onCaptureButtonClicked) {
+            onCaptureButtonClicked(); 
+        }
+    }
+
     // ***************************************************************
     // 新增：单选按钮组
     // ***************************************************************

@@ -218,15 +218,6 @@ void Scene::run()
     }
 
     GL_CHECK_ERROR();
-
-    static bool isSave = false;
-
-    if(!isSave) {
-        saveTextures();
-        isSave = true;
-
-        return ;
-    }
 }
 
 void Scene::resize(int width, int height)
