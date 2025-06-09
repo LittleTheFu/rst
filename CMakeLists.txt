@@ -66,6 +66,7 @@ add_executable(OpenGL_GLAD_SDL2
     iblPass.cpp
     texture2D.cpp
     combinedPass.cpp
+    # ssaoPass.cpp
     postPass.cpp
     rendererConfig.cpp
     brightnessMaskPass.cpp
