@@ -23,8 +23,30 @@ add_subdirectory(third/eigen)
 
 find_package(OpenGL REQUIRED)
 
-add_executable(OpenGL_GLAD_SDL2 
-    main.cpp 
+set(PASS_DIR "pass")
+
+set(PASS_SOURCE_FILES
+    ${PASS_DIR}/renderPass.cpp
+    ${PASS_DIR}/gBufferpass.cpp
+    ${PASS_DIR}/lightPass.cpp
+    ${PASS_DIR}/screenPass.cpp
+    ${PASS_DIR}/oitPass.cpp
+    ${PASS_DIR}/depthOfFieldPass.cpp
+    ${PASS_DIR}/blurHorizontalPass.cpp
+    ${PASS_DIR}/blurVerticalPass.cpp
+    ${PASS_DIR}/shadowPass.cpp
+    ${PASS_DIR}/ssrPass.cpp
+    ${PASS_DIR}/skyPass.cpp
+    ${PASS_DIR}/iblPass.cpp
+    ${PASS_DIR}/combinedPass.cpp
+    # ${PASS_DIR}/ssaoPass.cpp # 如果你启用这个文件，记得加上 ${PASS_DIR}/
+    ${PASS_DIR}/postPass.cpp
+    ${PASS_DIR}/brightnessMaskPass.cpp
+    ${PASS_DIR}/godRayPass.cpp
+)
+
+add_executable(OpenGL_GLAD_SDL2
+    main.cpp
     third/glad/src/glad.c
     skyBoxCube.cpp
     window.cpp
@@ -33,45 +55,32 @@ add_executable(OpenGL_GLAD_SDL2
     indexBuffer.cpp
     vertexArray.cpp
     frameBuffer.cpp
-    renderPass.cpp
-    gBufferpass.cpp
     texture.cpp
     screenQuad.cpp
     uniformBuffer.cpp
     glResource.cpp
-    lightPass.cpp
-    screenPass.cpp
     textureCubeMap.cpp
     material.cpp
     mesh.cpp
-    oitPass.cpp
-    depthOfFieldPass.cpp
-    blurHorizontalPass.cpp
-    blurVerticalPass.cpp
-    shadowPass.cpp
     shadowUtils.cpp
     uiSystem.cpp
-    lightPass.cpp
-    ssrPass.cpp
     stb_image_wrapper.cpp
     materialFactory.cpp
-    skyPass.cpp
-    iblPass.cpp
     texture2D.cpp
-    combinedPass.cpp
-    # ssaoPass.cpp
-    postPass.cpp
     rendererConfig.cpp
-    brightnessMaskPass.cpp
     shader.cpp
-    godRayPass.cpp
     camera.cpp
     utilities.cpp
     uiSceneData.cpp
     sceneData.cpp
-    scene.cpp)
+    scene.cpp
+    ${PASS_SOURCE_FILES}
+)
 
 target_include_directories(OpenGL_GLAD_SDL2 PRIVATE
+    ${CMAKE_SOURCE_DIR}
+    ${CMAKE_SOURCE_DIR}/${PASS_DIR}
+
     ${CMAKE_SOURCE_DIR}/third/glad/include
     ${CMAKE_SOURCE_DIR}/third/sdl/include
     ${CMAKE_SOURCE_DIR}/third/eigen

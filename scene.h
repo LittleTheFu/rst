@@ -17,7 +17,7 @@
 #include "texture.h" // 通用LDR纹理
 
 // 所有的渲染Pass
-#include "GBufferPass.h"
+#include "gBufferPass.h"
 #include "lightPass.h"
 #include "skyPass.h"
 #include "shadowPass.h"

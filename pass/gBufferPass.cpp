@@ -1,4 +1,4 @@
-#include "GBufferPass.h"
+#include "gBufferPass.h"
 #include <iostream>
 #include "debug_utils.h" // 确保包含调试工具
 
