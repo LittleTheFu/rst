@@ -23,6 +23,12 @@ add_subdirectory(third/eigen)
 
 find_package(OpenGL REQUIRED)
 
+set(SCENE_DIR "scene")
+set(SCENE_SOURCE_FILES
+    ${SCENE_DIR}/scene.cpp
+    ${SCENE_DIR}/sceneData.cpp
+    ${SCENE_DIR}/uiSceneData.cpp
+)
 
 set(UTILITIES_DIR "utilities")
 set(UTILITIES_SOURCE_FILES
@@ -45,7 +51,7 @@ set(PASS_SOURCE_FILES
     ${PASS_DIR}/skyPass.cpp
     ${PASS_DIR}/iblPass.cpp
     ${PASS_DIR}/combinedPass.cpp
-    # ${PASS_DIR}/ssaoPass.cpp # 如果你启用这个文件，记得加上 ${PASS_DIR}/
+    # ${PASS_DIR}/ssaoPass.cpp
     ${PASS_DIR}/postPass.cpp
     ${PASS_DIR}/brightnessMaskPass.cpp
     ${PASS_DIR}/godRayPass.cpp
@@ -74,17 +80,16 @@ add_executable(OpenGL_GLAD_SDL2
     texture2D.cpp
     shader.cpp
     camera.cpp
-    uiSceneData.cpp
-    sceneData.cpp
-    scene.cpp
     ${PASS_SOURCE_FILES}
     ${UTILITIES_SOURCE_FILES}
+    ${SCENE_SOURCE_FILES}
 )
 
 target_include_directories(OpenGL_GLAD_SDL2 PRIVATE
     ${CMAKE_SOURCE_DIR}
     ${CMAKE_SOURCE_DIR}/${PASS_DIR}
     ${CMAKE_SOURCE_DIR}/${UTILITIES_DIR}
+    ${CMAKE_SOURCE_DIR}/${SCENE_DIR}
 
     ${CMAKE_SOURCE_DIR}/third/glad/include
     ${CMAKE_SOURCE_DIR}/third/sdl/include
