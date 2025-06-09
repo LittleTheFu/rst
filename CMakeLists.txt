@@ -23,8 +23,14 @@ add_subdirectory(third/eigen)
 
 find_package(OpenGL REQUIRED)
 
-set(PASS_DIR "pass")
 
+set(UTILITIES_DIR "utilities")
+set(UTILITIES_SOURCE_FILES
+    ${UTILITIES_DIR}/utilities.cpp
+    ${UTILITIES_DIR}/stb_image_wrapper.cpp
+)
+
+set(PASS_DIR "pass")
 set(PASS_SOURCE_FILES
     ${PASS_DIR}/renderPass.cpp
     ${PASS_DIR}/gBufferpass.cpp
@@ -64,22 +70,22 @@ add_executable(OpenGL_GLAD_SDL2
     mesh.cpp
     shadowUtils.cpp
     uiSystem.cpp
-    stb_image_wrapper.cpp
     materialFactory.cpp
     texture2D.cpp
     rendererConfig.cpp
     shader.cpp
     camera.cpp
-    utilities.cpp
     uiSceneData.cpp
     sceneData.cpp
     scene.cpp
     ${PASS_SOURCE_FILES}
+    ${UTILITIES_SOURCE_FILES}
 )
 
 target_include_directories(OpenGL_GLAD_SDL2 PRIVATE
     ${CMAKE_SOURCE_DIR}
     ${CMAKE_SOURCE_DIR}/${PASS_DIR}
+    ${CMAKE_SOURCE_DIR}/${UTILITIES_DIR}
 
     ${CMAKE_SOURCE_DIR}/third/glad/include
     ${CMAKE_SOURCE_DIR}/third/sdl/include
