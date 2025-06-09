@@ -63,7 +63,7 @@ void Scene::updateScene()
 
 void Scene::renderFinalPass()
 {
-       if (flag_ == 0)
+    if (flag_ == 0)
     {
         screenPass_->Render(postPass_->getColorTextureId());
     }
@@ -126,7 +126,6 @@ void Scene::renderFinalPass()
 
     GL_CHECK_ERROR();
 }
-
 
 void Scene::run()
 {
@@ -222,7 +221,7 @@ void Scene::run()
     postPass_->Render(depthOfFieldPass_->getColorTextureId());
     GL_CHECK_ERROR();
 
-    //the final pass which actually displays the image on the screen.
+    // the final pass which actually displays the image on the screen.
     renderFinalPass();
 }
 
@@ -308,47 +307,46 @@ void Scene::resize(int width, int height)
     // camera_.updateProjectionMatrix();
 }
 
-
 void Scene::saveTextures()
 {
     int w = sceneData_->screenWidth;
     int h = sceneData_->screenHeight;
 
-    //Gbuffer
+    // Gbuffer
     Utilities::SaveTextureToFile(gBufferPass_->getPositionTextureId(), w, h, GL_RGBA, GL_FLOAT, "position.png");
-    Utilities::SaveTextureToFile(gBufferPass_->getNormalTextureId(),   w, h, GL_RGBA, GL_FLOAT, "normal.png", true);
-    Utilities::SaveTextureToFile(gBufferPass_->getAlbedoTextureId(),   w, h, GL_RGBA, GL_UNSIGNED_BYTE, "albedo.png");
-    Utilities::SaveTextureToFile(gBufferPass_->getRoughnessTextureId(),w, h, GL_RGBA, GL_UNSIGNED_BYTE, "roughness.png");
+    Utilities::SaveTextureToFile(gBufferPass_->getNormalTextureId(), w, h, GL_RGBA, GL_FLOAT, "normal.png", true);
+    Utilities::SaveTextureToFile(gBufferPass_->getAlbedoTextureId(), w, h, GL_RGBA, GL_UNSIGNED_BYTE, "albedo.png");
+    Utilities::SaveTextureToFile(gBufferPass_->getRoughnessTextureId(), w, h, GL_RGBA, GL_UNSIGNED_BYTE, "roughness.png");
     Utilities::SaveTextureToFile(gBufferPass_->getMetallicTextureId(), w, h, GL_RGBA, GL_UNSIGNED_BYTE, "metallic.png");
-    Utilities::SaveTextureToFile(gBufferPass_->getAOTextureId(),       w, h, GL_RGBA, GL_UNSIGNED_BYTE, "ao.png");
+    Utilities::SaveTextureToFile(gBufferPass_->getAOTextureId(), w, h, GL_RGBA, GL_UNSIGNED_BYTE, "ao.png");
     Utilities::SaveTextureToFile(gBufferPass_->getDepthTextureId(), w, h, GL_DEPTH_COMPONENT, GL_FLOAT, "depth.png");
 
-    //skybox
+    // skybox
     Utilities::SaveTextureToFile(skyPass_->getColorTextureId(), w, h, GL_RGBA, GL_UNSIGNED_BYTE, "skybox.png");
 
-    //light
+    // light
     Utilities::SaveTextureToFile(lightPass_->getOutputTextureId(), w, h, GL_RGBA, GL_FLOAT, "light.png");
 
-    //combined
+    // combined
     Utilities::SaveTextureToFile(combinedPass_->getColorTextureId(), w, h, GL_RGBA, GL_FLOAT, "combined.png");
 
-    //brightnessMask
+    // brightnessMask
     Utilities::SaveTextureToFile(brightnessMaskPass_->getOutputTextureId(), w, h, GL_RGBA, GL_UNSIGNED_BYTE, "brightness_mask.png");
 
-    //godRay
+    // godRay
     Utilities::SaveTextureToFile(godRayPass_->getColorTextureId(), w, h, GL_RGBA, GL_FLOAT, "god_ray.png");
 
-    //ssr
+    // ssr
     Utilities::SaveTextureToFile(ssrPass_->getReflectionTextureId(), w, h, GL_RGBA, GL_FLOAT, "ssr.png");
 
-    //blur
+    // blur
     Utilities::SaveTextureToFile(blurHorizontalPass_->getColorTextureId(), w, h, GL_RGBA, GL_FLOAT, "blur_horizontal.png");
     Utilities::SaveTextureToFile(blurVerticalPass_->getColorTextureId(), w, h, GL_RGBA, GL_FLOAT, "blur_vertical.png");
 
-    //depthOfField
+    // depthOfField
     Utilities::SaveTextureToFile(depthOfFieldPass_->getColorTextureId(), w, h, GL_RGBA, GL_FLOAT, "depth_of_field.png");
 
-    //post
+    // post
     Utilities::SaveTextureToFile(postPass_->getColorTextureId(), w, h, GL_RGBA, GL_FLOAT, "post.png");
 
     // glBindFramebuffer(GL_FRAMEBUFFER, 0);
