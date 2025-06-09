@@ -61,13 +61,13 @@ std::unique_ptr<SceneData> sceneFactory::createScene()
     gunMaterial->setMetallicMap(gunMetallicTexture);
     gunMaterial->setAmbientOcclusionMap(gunAoTexture);
 
-    // float scale = 0.06f; // 调整缩放比例
-    // std::unique_ptr<Mesh> mesh_gun = std::make_unique<Mesh>("gun/Cerberus_LP.FBX");
-    // mesh_gun->setMaterial(gunMaterial);
-    // mesh_gun->setRotation(Eigen::Quaternionf(M_PI/4, 0.0f, 1.0f, 0.0f));
-    // mesh_gun->setScale(Eigen::Vector3f(scale, scale, scale));
-    // mesh_gun->setPosition(Eigen::Vector3f(0.0f, 5.0f, 0.0f));
-    // sceneData_.opaqueObjects.push_back(std::move(mesh_gun));
+    float scale = 0.02f; // 调整缩放比例
+    std::unique_ptr<Mesh> mesh_gun = std::make_unique<Mesh>("gun/Cerberus_LP.FBX");
+    mesh_gun->setMaterial(gunMaterial);
+    mesh_gun->setRotation(Eigen::Quaternionf(M_PI/4, 0.0f, 1.0f, 0.0f));
+    mesh_gun->setScale(Eigen::Vector3f(scale, scale, scale));
+    mesh_gun->setPosition(Eigen::Vector3f(4.0f, 3.0f, 2.0f));
+    sceneData->opaqueObjects.push_back(std::move(mesh_gun));
 
      // 创建网格并设置材质和变换
     std::unique_ptr<Mesh> mesh_teapot_1 = std::make_unique<Mesh>("teapot.obj");
