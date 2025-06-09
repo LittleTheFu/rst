@@ -26,6 +26,13 @@ add_subdirectory(third/eigen)
 
 find_package(OpenGL REQUIRED)
 
+set(TEXTURE_DIR "texture")
+set(TEXTURE_SOURCE_FILES
+    ${TEXTURE_DIR}/texture.cpp
+    ${TEXTURE_DIR}/texture2D.cpp
+    ${TEXTURE_DIR}/textureCubeMap.cpp
+)
+
 set(UI_DIR "ui")
 set(UI_SOURCE_FILES
     ${UI_DIR}/uiSystem.cpp
@@ -75,22 +82,20 @@ add_executable(rst
     indexBuffer.cpp
     vertexArray.cpp
     frameBuffer.cpp
-    texture.cpp
     screenQuad.cpp
     uniformBuffer.cpp
     glResource.cpp
-    textureCubeMap.cpp
     material.cpp
     mesh.cpp
     shadowUtils.cpp
     materialFactory.cpp
-    texture2D.cpp
     shader.cpp
     camera.cpp
     ${PASS_SOURCE_FILES}
     ${UTILITIES_SOURCE_FILES}
     ${SCENE_SOURCE_FILES}
     ${UI_SOURCE_FILES}
+    ${TEXTURE_SOURCE_FILES}
 )
 
 target_include_directories(rst PRIVATE
@@ -99,6 +104,7 @@ target_include_directories(rst PRIVATE
     ${CMAKE_SOURCE_DIR}/${UTILITIES_DIR}
     ${CMAKE_SOURCE_DIR}/${SCENE_DIR}
     ${CMAKE_SOURCE_DIR}/${UI_DIR}
+    ${CMAKE_SOURCE_DIR}/${TEXTURE_DIR}
 
     ${CMAKE_SOURCE_DIR}/third/glad/include
     ${CMAKE_SOURCE_DIR}/third/sdl/include
