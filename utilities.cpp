@@ -33,7 +33,7 @@ bool Utilities::SaveTextureToFile(GLuint textureID,
                                   bool normalize)
 {
     // 正确绑定 2D 纹理
-    glBindTexture(GL_TEXTURE_2D, textureID);
+    glBindTextureUnit(0, textureID);
 
     int channels = 4; // 默认是 RGBA
     if (format == GL_RED || format == GL_DEPTH_COMPONENT)
