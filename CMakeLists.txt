@@ -26,6 +26,15 @@ add_subdirectory(third/eigen)
 
 find_package(OpenGL REQUIRED)
 
+set(BUFFER_DIR "buffer")
+set(BUFFER_SOURCE_FILES
+    ${BUFFER_DIR}/vertexBuffer.cpp
+    ${BUFFER_DIR}/indexBuffer.cpp
+    ${BUFFER_DIR}/vertexArray.cpp
+    ${BUFFER_DIR}/frameBuffer.cpp
+    ${BUFFER_DIR}/uniformBuffer.cpp
+)
+
 set(TEXTURE_DIR "texture")
 set(TEXTURE_SOURCE_FILES
     ${TEXTURE_DIR}/texture.cpp
@@ -78,12 +87,7 @@ add_executable(rst
     skyBoxCube.cpp
     window.cpp
     vertex.cpp
-    vertexBuffer.cpp
-    indexBuffer.cpp
-    vertexArray.cpp
-    frameBuffer.cpp
     screenQuad.cpp
-    uniformBuffer.cpp
     glResource.cpp
     material.cpp
     mesh.cpp
@@ -96,6 +100,7 @@ add_executable(rst
     ${SCENE_SOURCE_FILES}
     ${UI_SOURCE_FILES}
     ${TEXTURE_SOURCE_FILES}
+    ${BUFFER_SOURCE_FILES}
 )
 
 target_include_directories(rst PRIVATE
@@ -105,6 +110,7 @@ target_include_directories(rst PRIVATE
     ${CMAKE_SOURCE_DIR}/${SCENE_DIR}
     ${CMAKE_SOURCE_DIR}/${UI_DIR}
     ${CMAKE_SOURCE_DIR}/${TEXTURE_DIR}
+    ${CMAKE_SOURCE_DIR}/${BUFFER_DIR}
 
     ${CMAKE_SOURCE_DIR}/third/glad/include
     ${CMAKE_SOURCE_DIR}/third/sdl/include
