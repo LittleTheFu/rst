@@ -2,7 +2,7 @@
 #include <iostream>
 #include <glad/glad.h>
 #include "debug_utils.h"
-
+#include "utilities.h"
 
 void Scene::init()
 {
@@ -218,6 +218,15 @@ void Scene::run()
     }
 
     GL_CHECK_ERROR();
+
+    static bool isSave = false;
+
+    if(!isSave) {
+        saveTextures();
+        isSave = true;
+
+        return ;
+    }
 }
 
 void Scene::resize(int width, int height)
@@ -300,4 +309,50 @@ void Scene::resize(int width, int height)
     // 更新主相机的投影矩阵，以适应新的屏幕宽高比
     sceneData_->camera->setAspectRatio(static_cast<float>(width) / height);
     // camera_.updateProjectionMatrix();
+}
+
+
+void Scene::saveTextures()
+{
+    int w = sceneData_->screenWidth;
+    int h = sceneData_->screenHeight;
+
+    //Gbuffer
+    Utilities::SaveTextureToFile(gBufferPass_->getPositionTextureId(), w, h, GL_RGBA, GL_FLOAT, "position.png");
+    Utilities::SaveTextureToFile(gBufferPass_->getNormalTextureId(),   w, h, GL_RGBA, GL_FLOAT, "normal.png", true);
+    Utilities::SaveTextureToFile(gBufferPass_->getAlbedoTextureId(),   w, h, GL_RGBA, GL_UNSIGNED_BYTE, "albedo.png");
+    Utilities::SaveTextureToFile(gBufferPass_->getRoughnessTextureId(),w, h, GL_RGBA, GL_UNSIGNED_BYTE, "roughness.png");
+    Utilities::SaveTextureToFile(gBufferPass_->getMetallicTextureId(), w, h, GL_RGBA, GL_UNSIGNED_BYTE, "metallic.png");
+    Utilities::SaveTextureToFile(gBufferPass_->getAOTextureId(),       w, h, GL_RGBA, GL_UNSIGNED_BYTE, "ao.png");
+    Utilities::SaveTextureToFile(gBufferPass_->getDepthTextureId(), w, h, GL_DEPTH_COMPONENT, GL_FLOAT, "depth.png");
+
+    //skybox
+    Utilities::SaveTextureToFile(skyPass_->getColorTextureId(), w, h, GL_RGBA, GL_UNSIGNED_BYTE, "skybox.png");
+
+    //light
+    Utilities::SaveTextureToFile(lightPass_->getOutputTextureId(), w, h, GL_RGBA, GL_FLOAT, "light.png");
+
+    //combined
+    Utilities::SaveTextureToFile(combinedPass_->getColorTextureId(), w, h, GL_RGBA, GL_FLOAT, "combined.png");
+
+    //brightnessMask
+    Utilities::SaveTextureToFile(brightnessMaskPass_->getOutputTextureId(), w, h, GL_RGBA, GL_UNSIGNED_BYTE, "brightness_mask.png");
+
+    //godRay
+    Utilities::SaveTextureToFile(godRayPass_->getColorTextureId(), w, h, GL_RGBA, GL_FLOAT, "god_ray.png");
+
+    //ssr
+    Utilities::SaveTextureToFile(ssrPass_->getReflectionTextureId(), w, h, GL_RGBA, GL_FLOAT, "ssr.png");
+
+    //blur
+    Utilities::SaveTextureToFile(blurHorizontalPass_->getColorTextureId(), w, h, GL_RGBA, GL_FLOAT, "blur_horizontal.png");
+    Utilities::SaveTextureToFile(blurVerticalPass_->getColorTextureId(), w, h, GL_RGBA, GL_FLOAT, "blur_vertical.png");
+
+    //depthOfField
+    Utilities::SaveTextureToFile(depthOfFieldPass_->getColorTextureId(), w, h, GL_RGBA, GL_FLOAT, "depth_of_field.png");
+
+    //post
+    Utilities::SaveTextureToFile(postPass_->getColorTextureId(), w, h, GL_RGBA, GL_FLOAT, "post.png");
+
+    // glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }

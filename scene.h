@@ -38,10 +38,12 @@
 class Scene
 {
 public:
+    void saveTextures();
+
+public:
     void setRenderFlag(int flag) { flag_ = flag; };
     int flag_ = 0;
 
-public:
     void setSsrWeight(float weight) { ssrWeight_ = weight; };
     float ssrWeight_ = 0.2f;
 
