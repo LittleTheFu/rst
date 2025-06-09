@@ -72,7 +72,6 @@ add_executable(OpenGL_GLAD_SDL2
     uiSystem.cpp
     materialFactory.cpp
     texture2D.cpp
-    rendererConfig.cpp
     shader.cpp
     camera.cpp
     uiSceneData.cpp
