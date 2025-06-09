@@ -47,8 +47,6 @@ void Shader::load(const std::string &vertexPath, const std::string &fragmentPath
 
     // 2. Compile shaders
     GLuint vertex, fragment;
-    int success;
-    char infoLog[512];
 
     // Vertex Shader
     vertex = glCreateShader(GL_VERTEX_SHADER);
