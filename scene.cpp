@@ -61,6 +61,73 @@ void Scene::updateScene()
     }
 }
 
+void Scene::renderFinalPass()
+{
+       if (flag_ == 0)
+    {
+        screenPass_->Render(postPass_->getColorTextureId());
+    }
+    else if (flag_ == 1)
+    {
+        screenPass_->Render(gBufferPass_->getPositionTextureId());
+    }
+    else if (flag_ == 2)
+    {
+        screenPass_->Render(gBufferPass_->getNormalTextureId());
+    }
+    else if (flag_ == 3)
+    {
+        screenPass_->Render(gBufferPass_->getAlbedoTextureId());
+    }
+    else if (flag_ == 4)
+    {
+        screenPass_->Render(gBufferPass_->getRoughnessTextureId());
+    }
+    else if (flag_ == 5)
+    {
+        screenPass_->Render(gBufferPass_->getMetallicTextureId());
+    }
+    else if (flag_ == 6)
+    {
+        screenPass_->Render(gBufferPass_->getAOTextureId());
+    }
+    else if (flag_ == 7)
+    {
+        screenPass_->Render(lightPass_->getOutputTextureId());
+    }
+    else if (flag_ == 8)
+    {
+        screenPass_->Render(iblPass_->getColorTextureId());
+    }
+    else if (flag_ == 9)
+    {
+        screenPass_->Render(combinedPass_->getColorTextureId());
+    }
+    else if (flag_ == 10)
+    {
+        screenPass_->Render(ssrPass_->getReflectionTextureId());
+    }
+    else if (flag_ == 11)
+    {
+        screenPass_->Render(lightPass_->getDebugCurrentDepthTextureId());
+    }
+    else if (flag_ == 12)
+    {
+        screenPass_->Render(lightPass_->getDebugClosestDepthTextureId());
+    }
+    else if (flag_ == 13)
+    {
+        screenPass_->Render(brightnessMaskPass_->getOutputTextureId());
+    }
+    else if (flag_ == 14)
+    {
+        screenPass_->Render(godRayPass_->getColorTextureId());
+    }
+
+    GL_CHECK_ERROR();
+}
+
+
 void Scene::run()
 {
     updateScene();
@@ -155,69 +222,8 @@ void Scene::run()
     postPass_->Render(depthOfFieldPass_->getColorTextureId());
     GL_CHECK_ERROR();
 
-    //for ui
-    if (flag_ == 0)
-    {
-        screenPass_->Render(postPass_->getColorTextureId());
-    }
-    else if (flag_ == 1)
-    {
-        screenPass_->Render(gBufferPass_->getPositionTextureId());
-    }
-    else if (flag_ == 2)
-    {
-        screenPass_->Render(gBufferPass_->getNormalTextureId());
-    }
-    else if (flag_ == 3)
-    {
-        screenPass_->Render(gBufferPass_->getAlbedoTextureId());
-    }
-    else if (flag_ == 4)
-    {
-        screenPass_->Render(gBufferPass_->getRoughnessTextureId());
-    }
-    else if (flag_ == 5)
-    {
-        screenPass_->Render(gBufferPass_->getMetallicTextureId());
-    }
-    else if (flag_ == 6)
-    {
-        screenPass_->Render(gBufferPass_->getAOTextureId());
-    }
-    else if (flag_ == 7)
-    {
-        screenPass_->Render(lightPass_->getOutputTextureId());
-    }
-    else if (flag_ == 8)
-    {
-        screenPass_->Render(iblPass_->getColorTextureId());
-    }
-    else if (flag_ == 9)
-    {
-        screenPass_->Render(combinedPass_->getColorTextureId());
-    }
-    else if (flag_ == 10)
-    {
-        screenPass_->Render(ssrPass_->getReflectionTextureId());
-    }
-    else if (flag_ == 11)
-    {
-        screenPass_->Render(lightPass_->getDebugCurrentDepthTextureId());
-    }
-    else if (flag_ == 12)
-    {
-        screenPass_->Render(lightPass_->getDebugClosestDepthTextureId());
-    }
-    else if (flag_ == 13)
-    {
-        screenPass_->Render(brightnessMaskPass_->getOutputTextureId());
-    }
-    else if (flag_ == 14)
-    {
-        screenPass_->Render(godRayPass_->getColorTextureId());
-    }
-
-    GL_CHECK_ERROR();
+    //the final pass which actually displays the image on the screen.
+    renderFinalPass();
 }
 
 void Scene::resize(int width, int height)

@@ -69,6 +69,7 @@ public:
 
 private:
     void updateScene();
+    void renderFinalPass();
 
 private:
     std::unique_ptr<SceneData> sceneData_; // 暂时保留，根据实际需求决定是否完全移除或精简
