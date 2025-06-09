@@ -26,6 +26,11 @@ add_subdirectory(third/eigen)
 
 find_package(OpenGL REQUIRED)
 
+set(UI_DIR "ui")
+set(UI_SOURCE_FILES
+    ${UI_DIR}/uiSystem.cpp
+)
+
 set(SCENE_DIR "scene")
 set(SCENE_SOURCE_FILES
     ${SCENE_DIR}/scene.cpp
@@ -78,7 +83,6 @@ add_executable(rst
     material.cpp
     mesh.cpp
     shadowUtils.cpp
-    uiSystem.cpp
     materialFactory.cpp
     texture2D.cpp
     shader.cpp
@@ -86,6 +90,7 @@ add_executable(rst
     ${PASS_SOURCE_FILES}
     ${UTILITIES_SOURCE_FILES}
     ${SCENE_SOURCE_FILES}
+    ${UI_SOURCE_FILES}
 )
 
 target_include_directories(rst PRIVATE
@@ -93,6 +98,7 @@ target_include_directories(rst PRIVATE
     ${CMAKE_SOURCE_DIR}/${PASS_DIR}
     ${CMAKE_SOURCE_DIR}/${UTILITIES_DIR}
     ${CMAKE_SOURCE_DIR}/${SCENE_DIR}
+    ${CMAKE_SOURCE_DIR}/${UI_DIR}
 
     ${CMAKE_SOURCE_DIR}/third/glad/include
     ${CMAKE_SOURCE_DIR}/third/sdl/include
