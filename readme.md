@@ -1,3 +1,5 @@
+暂时的简介：这个是用opengl写的一个延迟渲染引擎，大部分是通过和ai对话完成的，用的是免费版的chatgpt和gemini。还在进行中
+
 QUICK START GUIDE:
 
 mkdir build
