@@ -59,6 +59,11 @@ set(UTILITIES_SOURCE_FILES
     ${UTILITIES_DIR}/utilities.cpp
     ${UTILITIES_DIR}/stb_image_wrapper.cpp
 )
+set(MATERIAL_DIR "material")
+set(MATERIAL_SOURCE_FILES
+    ${MATERIAL_DIR}/material.cpp
+    ${MATERIAL_DIR}/materialFactory.cpp
+)
 
 set(PASS_DIR "pass")
 set(PASS_SOURCE_FILES
@@ -89,10 +94,8 @@ add_executable(rst
     vertex.cpp
     screenQuad.cpp
     glResource.cpp
-    material.cpp
     mesh.cpp
     shadowUtils.cpp
-    materialFactory.cpp
     shader.cpp
     camera.cpp
     ${PASS_SOURCE_FILES}
@@ -101,6 +104,7 @@ add_executable(rst
     ${UI_SOURCE_FILES}
     ${TEXTURE_SOURCE_FILES}
     ${BUFFER_SOURCE_FILES}
+    ${MATERIAL_SOURCE_FILES}
 )
 
 target_include_directories(rst PRIVATE
@@ -111,6 +115,8 @@ target_include_directories(rst PRIVATE
     ${CMAKE_SOURCE_DIR}/${UI_DIR}
     ${CMAKE_SOURCE_DIR}/${TEXTURE_DIR}
     ${CMAKE_SOURCE_DIR}/${BUFFER_DIR}
+    ${CMAKE_SOURCE_DIR}/${MATERIAL_DIR}
+
 
     ${CMAKE_SOURCE_DIR}/third/glad/include
     ${CMAKE_SOURCE_DIR}/third/sdl/include
