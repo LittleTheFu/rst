@@ -4,7 +4,11 @@
 #include "command.h"
 #include "camera.h"
 
-class CameraCommand : public Command {
+class CameraCommand : public Command 
+{
+public:
+    void setDeltaTime(float deltaTime);
+
 protected:
     Camera* camera_;
     float deltaTime_; // 命令可能需要 deltaTime 来进行时间相关的操作

@@ -8,9 +8,9 @@ enable_language(C CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 
-if (MSVC)
-    add_compile_options("/source-charset:utf-8")
-endif()
+# if (MSVC)
+#     add_compile_options("/source-charset:utf-8")
+# endif()
 
 
 add_subdirectory(third/sdl)
@@ -160,6 +160,8 @@ target_include_directories(rst PRIVATE
     ${CMAKE_SOURCE_DIR}/${LIGHT_DIR}
     ${CMAKE_SOURCE_DIR}/${INPUT_DIR}
     ${CMAKE_SOURCE_DIR}/${COMMAND_DIR}
+    ${CMAKE_SOURCE_DIR}/${CAMERA_COMMAND_DIR}
+    ${CMAKE_SOURCE_DIR}/${DEBUG_COMMAND_DIR}
 
     ${CMAKE_SOURCE_DIR}/third/glad/include
     ${CMAKE_SOURCE_DIR}/third/sdl/include
