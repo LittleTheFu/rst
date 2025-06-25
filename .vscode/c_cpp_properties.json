@@ -1,0 +1,34 @@
+{
+    "configurations": [
+        {
+            "name": "Win32",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "${workspaceFolder}/pass",
+                "${workspaceFolder}/utilities",
+                "${workspaceFolder}/scene",
+                "${workspaceFolder}/ui",
+                "${workspaceFolder}/texture",
+                "${workspaceFolder}/buffer",
+                "${workspaceFolder}/material",
+                "${workspaceFolder}/third/glad/include",
+                "${workspaceFolder}/third/sdl/include",
+                "${workspaceFolder}/third/eigen",
+                "${workspaceFolder}/third/lodepng/include",
+                "${workspaceFolder}/third/stb_image/include",
+                "${workspaceFolder}/third/assimp/include",
+                "${workspaceFolder}/build/third/assimp/include",
+                "${workspaceFolder}/third/gli"
+            ],
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE",
+            ],
+            "windowsSdkVersion": "10.0.22621.0",
+            "compilerPath": "cl.exe",
+            "intelliSenseMode": "windows-msvc-x64"
+        }
+    ],
+    "version": 4
+}
