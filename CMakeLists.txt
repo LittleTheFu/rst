@@ -148,6 +148,9 @@ add_executable(rst
     ${COMMAND_SOURCE_FILES}
 )
 
+target_compile_options(rst PRIVATE /wd4819)
+
+
 target_include_directories(rst PRIVATE
     ${CMAKE_SOURCE_DIR}
     ${CMAKE_SOURCE_DIR}/${PASS_DIR}
