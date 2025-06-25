@@ -95,6 +95,35 @@ set(INPUT_SOURCE_FILES
     ${INPUT_DIR}/inputManager.cpp
 )
 
+set(COMMAND_DIR "command")
+set(COMMAND_CORE_SOURCE_FILES
+    ${COMMAND_DIR}/command.cpp
+)
+
+set(CAMERA_COMMAND_DIR "${COMMAND_DIR}/cameraCommand")
+set(CAMERA_COMMAND_SOURCE_FILES
+    ${CAMERA_COMMAND_DIR}/cameraCommand.cpp
+    ${CAMERA_COMMAND_DIR}/moveCameraBackwardCommand.cpp
+    ${CAMERA_COMMAND_DIR}/moveCameraDownCommand.cpp
+    ${CAMERA_COMMAND_DIR}/moveCameraForwardCommand.cpp
+    ${CAMERA_COMMAND_DIR}/moveCameraLeftCommand.cpp
+    ${CAMERA_COMMAND_DIR}/moveCameraRightCommand.cpp
+    ${CAMERA_COMMAND_DIR}/moveCameraUpCommand.cpp
+    ${CAMERA_COMMAND_DIR}/processMouseMovementCommand.cpp
+    ${CAMERA_COMMAND_DIR}/processMouseScrollCommand.cpp
+)
+
+set(DEBUG_COMMAND_DIR "${COMMAND_DIR}/debugCommand")
+set(DEBUG_COMMAND_SOURCE_FILES
+    ${DEBUG_COMMAND_DIR}/toggleDebugModeCommand.cpp
+)
+
+set(COMMAND_SOURCE_FILES
+    ${COMMAND_CORE_SOURCE_FILES}
+    ${CAMERA_COMMAND_SOURCE_FILES}
+    ${DEBUG_COMMAND_SOURCE_FILES}
+)
+
 add_executable(rst
     main.cpp
     third/glad/src/glad.c
@@ -116,6 +145,7 @@ add_executable(rst
     ${MATERIAL_SOURCE_FILES}
     ${LIGHT_SOURCE_FILES}
     ${INPUT_SOURCE_FILES}
+    ${COMMAND_SOURCE_FILES}
 )
 
 target_include_directories(rst PRIVATE
@@ -129,6 +159,7 @@ target_include_directories(rst PRIVATE
     ${CMAKE_SOURCE_DIR}/${MATERIAL_DIR}
     ${CMAKE_SOURCE_DIR}/${LIGHT_DIR}
     ${CMAKE_SOURCE_DIR}/${INPUT_DIR}
+    ${CMAKE_SOURCE_DIR}/${COMMAND_DIR}
 
     ${CMAKE_SOURCE_DIR}/third/glad/include
     ${CMAKE_SOURCE_DIR}/third/sdl/include
