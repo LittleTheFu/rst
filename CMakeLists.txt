@@ -86,6 +86,10 @@ set(PASS_SOURCE_FILES
     ${PASS_DIR}/godRayPass.cpp
 )
 
+set(LIGHT_DIR "light")
+set(LIGHT_SOURCE_FILES
+)
+
 add_executable(rst
     main.cpp
     third/glad/src/glad.c
@@ -105,6 +109,7 @@ add_executable(rst
     ${TEXTURE_SOURCE_FILES}
     ${BUFFER_SOURCE_FILES}
     ${MATERIAL_SOURCE_FILES}
+    ${LIGHT_SOURCE_FILES}
 )
 
 target_include_directories(rst PRIVATE
@@ -116,7 +121,7 @@ target_include_directories(rst PRIVATE
     ${CMAKE_SOURCE_DIR}/${TEXTURE_DIR}
     ${CMAKE_SOURCE_DIR}/${BUFFER_DIR}
     ${CMAKE_SOURCE_DIR}/${MATERIAL_DIR}
-
+    ${CMAKE_SOURCE_DIR}/${LIGHT_DIR}
 
     ${CMAKE_SOURCE_DIR}/third/glad/include
     ${CMAKE_SOURCE_DIR}/third/sdl/include

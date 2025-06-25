@@ -11,7 +11,7 @@
                 "${workspaceFolder}/texture",
                 "${workspaceFolder}/buffer",
                 "${workspaceFolder}/material",
-                "${workspaceFolder}/third/glad/include",
+                "${workspaceFolder}/light",
                 "${workspaceFolder}/third/sdl/include",
                 "${workspaceFolder}/third/eigen",
                 "${workspaceFolder}/third/lodepng/include",
