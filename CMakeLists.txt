@@ -90,6 +90,11 @@ set(LIGHT_DIR "light")
 set(LIGHT_SOURCE_FILES
 )
 
+set(INPUT_DIR "input")
+set(INPUT_SOURCE_FILES
+    ${INPUT_DIR}/inputManager.cpp
+)
+
 add_executable(rst
     main.cpp
     third/glad/src/glad.c
@@ -110,6 +115,7 @@ add_executable(rst
     ${BUFFER_SOURCE_FILES}
     ${MATERIAL_SOURCE_FILES}
     ${LIGHT_SOURCE_FILES}
+    ${INPUT_SOURCE_FILES}
 )
 
 target_include_directories(rst PRIVATE
@@ -122,6 +128,7 @@ target_include_directories(rst PRIVATE
     ${CMAKE_SOURCE_DIR}/${BUFFER_DIR}
     ${CMAKE_SOURCE_DIR}/${MATERIAL_DIR}
     ${CMAKE_SOURCE_DIR}/${LIGHT_DIR}
+    ${CMAKE_SOURCE_DIR}/${INPUT_DIR}
 
     ${CMAKE_SOURCE_DIR}/third/glad/include
     ${CMAKE_SOURCE_DIR}/third/sdl/include
