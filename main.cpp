@@ -1,7 +1,7 @@
 #define SDL_MAIN_HANDLED
 // #define HAVE_M_PI 
 
-#include "Window.h"
+#include "window.h"
 
 int main(int argc, char* argv[]) {
     // 创建窗口对象
