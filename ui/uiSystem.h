@@ -39,7 +39,7 @@ public:
     std::function<void(float)> onFocusDistanceBarChanged;
     float focusDistance = 0.0f;
 
-    std::function<std::string()> onGetSelectedMeshName;
+    std::function<Mesh*()> onGetSelectedMesh;
     
 public:
     UiSystem(SDL_Window* window, SDL_GLContext glContext);

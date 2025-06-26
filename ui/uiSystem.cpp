@@ -137,23 +137,29 @@ void UiSystem::DrawUI(int currentFPS)
 
     //-----properties of the selected object------
     ImGui::Begin("Selected Object Properties");
-    if (onGetSelectedMeshName)
+    if (onGetSelectedMesh)
     {
         // 调用回调函数，获取选中物体的名称
-        std::string selectedName = onGetSelectedMeshName();
+        Mesh* selectedMesh = onGetSelectedMesh();
+        if(selectedMesh) {
+            ImGui::Text("Selected Object Name: %s", selectedMesh->getName().c_str());
 
-        // 在 ImGui 中显示名称
-        ImGui::Text("Selected Object Name: %s", selectedName.c_str());
+            const Eigen::Vector3f& position = selectedMesh->getPosition();
+            ImGui::Text("Position: X: %.2f Y: %.2f Z: %.2f", position.x(), position.y(), position.z());
+
+            const Eigen::Vector3f& scale = selectedMesh->getScale();
+            ImGui::Text("Scale: X: %.2f Y: %.2f Z: %.2f", scale.x(), scale.y(), scale.z());
+
+            Eigen::Quaternionf rotation = selectedMesh->getRotation();
+            Eigen::Vector3f euler = rotation.toRotationMatrix().eulerAngles(0, 1, 2) * 180.0f / M_PI;
+            ImGui::Text("Rotation (Euler): R: %.2f P: %.2f Y: %.2f", euler.x(), euler.y(), euler.z());
+        }
     }
     else
     {
         // 如果回调没有被设置，显示一个错误或提示信息
-        ImGui::Text("Selected Object Name: (Callback not set)");
+        ImGui::Text("null");
     }
-    ImGui::Text("properties");
-    ImGui::Text("position");
-    ImGui::Text("scale");
-    ImGui::Text("rotation");
     ImGui::End();
     //--------------------------------------------
 

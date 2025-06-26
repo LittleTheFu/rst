@@ -132,8 +132,8 @@ Window::Window(const char* title, int width, int height)
     };
     uiSystem_->focusDistance = this->scene_.focusDistance_;
 
-    uiSystem_->onGetSelectedMeshName = [this]() {
-        return this->scene_.getSelectedMeshName();
+    uiSystem_->onGetSelectedMesh = [this]() {
+        return this->scene_.getSelectedMesh();
     };
 
     // ----------------------------------------------------
