@@ -98,6 +98,7 @@ set(INPUT_SOURCE_FILES
 set(COLLISION_DIR "collision")
 set(COLLISION_SOURCE_FILES
     ${COLLISION_DIR}/boundingVolume.cpp
+    ${COLLISION_DIR}/debugBox.cpp
 )
 
 set(COMMAND_DIR "command")
