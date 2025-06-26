@@ -20,6 +20,11 @@ uniform bool hasRoughnessMap;
 uniform sampler2D aoMap;
 uniform bool hasAoMap;
 
+uniform vec3 albedoColor;
+uniform float roughnessFactor;
+uniform float metallicFactor;
+uniform float aoFactor;
+
 layout(location = 0) out vec4 out_Position;
 layout(location = 1) out vec4 out_Normal;
 layout(location = 2) out vec4 out_Albedo;
@@ -39,10 +44,10 @@ void main()
     vec4 normalMapValue = texture(normalMap, fs_in.texCoords);
     vec3 normal = normalize(fs_in.TBN * (normalMapValue.xyz * 2.0 - 1.0));
     out_Normal = vec4(normal, 0.0);
-    out_Albedo = texture(albedoMap, fs_in.texCoords);
-    out_Ao = texture(aoMap, fs_in.texCoords);
-    out_Roughness = texture(roughnessMap, fs_in.texCoords);
-    out_Metallic = texture(metallicMap, fs_in.texCoords);
+    out_Albedo = texture(albedoMap, fs_in.texCoords) * vec4(albedoColor, 1.0);
+    out_Ao = texture(aoMap, fs_in.texCoords) * aoFactor;
+    out_Roughness = texture(roughnessMap, fs_in.texCoords) * roughnessFactor;
+    out_Metallic = texture(metallicMap, fs_in.texCoords) * metallicFactor;
 
     // float ndcZ = fs_in.clipPos.z / fs_in.clipPos.w;
     // float depthValue = (ndcZ + 1.0) / 2.0;

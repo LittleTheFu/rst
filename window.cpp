@@ -332,12 +332,13 @@ void Window::update()
     // 示例：鼠标左键点击 (一次性点击触发)
     if (InputManager::GetInstance().IsMouseButtonPressed(SDL_BUTTON_LEFT))
     {
+        static Mesh *pickedMesh = nullptr;
         // 核心解决方案：检查 ImGui 是否想捕获鼠标
         if (!ImGui::GetIO().WantCaptureMouse)
         { // 只有当 ImGui 不需要鼠标时，才处理场景中的点击
             cmd_pickObject_->setMousePosition(InputManager::GetInstance().GetMouseX(), InputManager::GetInstance().GetMouseY());
             cmd_pickObject_->Execute();
-            static Mesh *pickedMesh = cmd_pickObject_->getPickedMesh();//save last picked mesh ptr
+            pickedMesh = cmd_pickObject_->getPickedMesh();//save last picked mesh ptr
             if (pickedMesh)
             {
                 scene_.setSelectedMesh(pickedMesh);
@@ -346,7 +347,14 @@ void Window::update()
         }
         else
         {
-            std::cout << "No mesh picked." << std::endl;
+            if(pickedMesh)
+            {
+                std::cout << "pickedMesh: " << pickedMesh->getName() << std::endl;
+            }
+            else
+            {
+                std::cout << "No mesh picked." << std::endl;
+            }
         }
         std::cout << "Left mouse button clicked (via command)!" << std::endl;
         // 可以在这里执行一个射击命令、交互命令等

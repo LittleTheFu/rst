@@ -76,7 +76,7 @@ private:
     // 材质参数
     Eigen::Vector3f albedoColor_ = Eigen::Vector3f(1.0f, 1.0f, 1.0f);
     float roughnessFactor_ = 1.0f;
-    float metallicFactor_ = 0.0f;
+    float metallicFactor_ = 1.0f;
     // ... 其他参数 ...
 };
 

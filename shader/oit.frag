@@ -10,6 +10,11 @@ layout(location = 0) out vec4 accum;   // 预乘颜色+alpha累计
 layout(location = 1) out float reveal; // revealage
 // layout(location = 1) out vec4 reveal; // revealage
 
+uniform vec3 albedoColor;
+uniform float roughnessFactor;
+uniform float metallicFactor;
+uniform float aoFactor;
+
 uniform sampler2D albedoMap;
 uniform bool hasAlbedoMap;
 
@@ -94,14 +99,14 @@ void main() {
     vec4 normalMapValue = texture(normalTexture, fs_in.texCoords);
     vec3 normal = normalize(fs_in.TBN * (normalMapValue.xyz * 2.0 - 1.0));
 
-    vec3 albedo = texture(albedoTexture, fs_in.texCoords).rgb;
+    vec3 albedo = texture(albedoTexture, fs_in.texCoords).rgb * albedoColor;
     // albedo = vec3(1.0);
 
     // float metallic = texture(metallicTexture, fs_in.texCoords).r;
-    float metallic = 0;
+    float metallic = metallicFactor * 0.0;//zero here
 
-    float roughness = texture(roughnessTexture, fs_in.texCoords).r;
-    vec3 ao = texture(aoTexture, fs_in.texCoords).rgb;
+    float roughness = texture(roughnessTexture, fs_in.texCoords).r * roughnessFactor;
+    vec3 ao = texture(aoTexture, fs_in.texCoords).rgb * aoFactor;
 
     // 确保粗糙度在0.05到1.0之间
     roughness = clamp(roughness, 0.05, 1.0);  // 不要为0，也不要大于1
