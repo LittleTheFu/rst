@@ -13,7 +13,7 @@ DebugRenderer::DebugRenderer() : debugBox_() {
 void DebugRenderer::InitShader(const std::string& vertexPath, const std::string& fragmentPath) {
     shader_ = std::make_unique<Shader>(vertexPath.c_str(), fragmentPath.c_str());
     GL_CHECK_ERROR();
-    if (!shader_ || shader_->ID == 0) {
+    if (!shader_ || !shader_->isValid()) {
         std::cerr << "ERROR: DebugRenderer shader initialization failed!" << std::endl;
     }
 }
@@ -63,7 +63,7 @@ void DebugRenderer::RestoreGLState() const {
 
 // 绘制 AABB
 void DebugRenderer::DrawAABB(const AABB& aabb, const Eigen::Vector3f& color) const {
-    if (!shader_ || shader_->ID == 0) {
+    if (!shader_ || !shader_->isValid()) {
         std::cerr << "DebugRenderer shader not initialized or invalid. Cannot draw AABB." << std::endl;
         return;
     }
@@ -96,7 +96,7 @@ void DebugRenderer::DrawAABB(const AABB& aabb, const Eigen::Vector3f& color) con
 
 // 绘制点光源
 void DebugRenderer::DrawPointLight(const PointLight& light, float size, const Eigen::Vector3f& color) const {
-    if (!shader_ || shader_->ID == 0) {
+    if (!shader_ || !shader_->isValid()) {
         std::cerr << "DebugRenderer shader not initialized or invalid. Cannot draw PointLight." << std::endl;
         return;
     }

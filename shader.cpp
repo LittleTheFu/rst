@@ -10,6 +10,11 @@ Shader::Shader(const std::string &vertexPath, const std::string &fragmentPath)
     load(vertexPath, fragmentPath); // 使用 load 函数
 }
 
+bool Shader::isValid() const
+{
+    return ID != 0;
+}
+
 void Shader::load(const std::string &vertexPath, const std::string &fragmentPath)
 {
     // 1. Retrieve the vertex/fragment source code from filePath

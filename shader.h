@@ -14,6 +14,8 @@ class Shader
 public:
     GLuint ID;
 
+    bool isValid() const;
+
     Shader(const std::string& vertexPath, const std::string& fragmentPath);
     Shader();
     void use();
