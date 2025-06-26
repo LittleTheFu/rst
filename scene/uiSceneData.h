@@ -13,6 +13,9 @@ public:
     std::vector<std::tuple<std::string, int>> sceneData;
     std::function<void(int)> onRenderModeChanged;
 
+    std::vector<Mesh*> allMeshes;
+    std::function<void(Mesh*)> onMeshSelectedFromUI;
+
     static UiSceneData create(Scene& scene);
 };
 

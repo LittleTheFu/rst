@@ -91,6 +91,8 @@ public:
         return "None Selected"; // 没有物体选中时的显示
     }
 
+    std::vector<Mesh*> getAllMeshes() const;
+
 private:
     Mesh* selectedMesh_ = nullptr;
 

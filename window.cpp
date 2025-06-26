@@ -105,9 +105,6 @@ Window::Window(const char *title, int width, int height)
         this->scene_.toggleDebugDraw(); // 调用 Scene 的 toggleDebugDraw 方法
     };
 
-    // 假设 UiSceneData::create 方法存在，用于从 Scene 初始化 UI 数据
-    uiSystem_->uiSceneData = UiSceneData::create(this->scene_);
-
     // 绑定各种 UI 滑块的回调函数，以调整场景参数
     uiSystem_->onSsrWeightBarChanged = [this](float weight)
     {
@@ -156,6 +153,9 @@ Window::Window(const char *title, int width, int height)
     lastFrameTime_ = std::chrono::high_resolution_clock::now(); // 初始化 deltaTime 计时器
 
     scene_.init(); // 初始化你的场景（例如加载模型、着色器等）
+
+    // 假设 UiSceneData::create 方法存在，用于从 Scene 初始化 UI 数据
+    uiSystem_->uiSceneData = UiSceneData::create(this->scene_);
 
     // --- 初始化命令对象 ---
     // 这里创建具体的命令实例，并将 camera_ 实例的地址作为接收者传递给它们。

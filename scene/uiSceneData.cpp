@@ -26,5 +26,10 @@ UiSceneData UiSceneData::create(Scene &scene)
     data.onRenderModeChanged = [&scene](int mode)
     { scene.setRenderFlag(mode); };
 
+    data.onMeshSelectedFromUI = [&scene](Mesh* mesh)
+    { scene.setSelectedMesh(mesh); };
+
+    data.allMeshes = scene.getAllMeshes();
+
     return data;
 }

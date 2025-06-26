@@ -149,6 +149,50 @@ void UiSystem::DrawUI(int currentFPS)
 
     ImGui::End();
 
+    // ---------- 新增：场景大纲视图窗口 ----------
+    ImGui::Begin("Scene Outliner");
+
+    // 获取当前被选中的 Mesh (用于高亮显示)
+    Mesh *currentSelectedMesh = nullptr;
+    if (onGetSelectedMesh)
+    { // onGetSelectedMesh 是 UiSystem 的成员
+        currentSelectedMesh = onGetSelectedMesh();
+    }
+
+    // 遍历所有 Mesh 并在列表中显示
+    if (!uiSceneData.allMeshes.empty())
+    {
+        for (size_t i = 0; i < uiSceneData.allMeshes.size(); ++i)
+        {
+            Mesh *mesh = uiSceneData.allMeshes[i];
+            if (!mesh)
+                continue; // 安全检查，防止空指针
+
+            // 设置选中状态：如果当前 Mesh 是被选中的，则 ImGui::Selectable 会高亮显示
+            bool isSelected = (mesh == currentSelectedMesh);
+
+            // 为每个 Selectable 加上唯一的 ID，防止列表项名称重复时 ImGui 混淆
+            // (mesh->getName().c_str() + i) 是一种简单的生成唯一 ID 的方式
+            // 或者更推荐使用 ImGui::PushID(mesh) 和 ImGui::PopID()
+            ImGui::PushID(mesh); // 使用 Mesh* 地址作为 ID
+            if (ImGui::Selectable(mesh->getName().c_str(), isSelected))
+            {
+                // 如果用户点击了这个列表项，并且我们有设置选中 Mesh 的回调
+                if (uiSceneData.onMeshSelectedFromUI)
+                {                                           // 通过 uiSceneData 访问回调
+                    uiSceneData.onMeshSelectedFromUI(mesh); // 通知 Scene 选中了这个 Mesh
+                }
+            }
+            ImGui::PopID(); // 匹配 PushID
+        }
+    }
+    else
+    {
+        ImGui::Text("No meshes in scene.");
+    }
+
+    ImGui::End(); // End Scene Outliner Window
+
     // --- 选中物体属性窗口 ---
     ImGui::Begin("Selected Object Properties");
 
@@ -216,13 +260,14 @@ void UiSystem::DrawUI(int currentFPS)
             //           << scale[0] << ", " << scale[1] << ", " << scale[2] << std::endl;
         }
 
-         ImGui::Separator(); // 分隔线
+        ImGui::Separator(); // 分隔线
         ImGui::Text("Material Properties:");
 
         // 尝试获取选中 Mesh 的材质
         std::shared_ptr<Material> material = selectedMesh->getMaterial();
 
-        if (material) { // 确保 Mesh 关联了一个材质
+        if (material)
+        { // 确保 Mesh 关联了一个材质
             // 显示材质名称 (通常是只读的，用于识别)
             ImGui::Text("Material Name: %s", material->getName().c_str());
 
@@ -233,9 +278,10 @@ void UiSystem::DrawUI(int currentFPS)
             Eigen::Vector3f albedoColor = material->getAlbedoColor();
             // 将 Eigen::Vector3f 转换成 float[3] 数组供 ImGui 使用
             float albedoColorArr[3] = {albedoColor.x(), albedoColor.y(), albedoColor.z()};
-            
+
             // ImGui::ColorEdit3 返回 true 如果颜色被修改
-            if (ImGui::ColorEdit3("Albedo Color", albedoColorArr)) {
+            if (ImGui::ColorEdit3("Albedo Color", albedoColorArr))
+            {
                 // 如果颜色被修改，将 float[3] 转换回 Eigen::Vector3f 并更新材质
                 material->setAlbedoColor(Eigen::Vector3f(albedoColorArr[0], albedoColorArr[1], albedoColorArr[2]));
             }
@@ -245,7 +291,8 @@ void UiSystem::DrawUI(int currentFPS)
             // -------------------------------------------------------------
             float roughnessFactor = material->getRoughnessFactor();
             // ImGui::SliderFloat 更适合有范围 (0.0 - 1.0) 的浮点数
-            if (ImGui::SliderFloat("Roughness Factor", &roughnessFactor, 0.0f, 1.0f)) {
+            if (ImGui::SliderFloat("Roughness Factor", &roughnessFactor, 0.0f, 1.0f))
+            {
                 material->setRoughnessFactor(roughnessFactor);
             }
 
@@ -253,7 +300,8 @@ void UiSystem::DrawUI(int currentFPS)
             // 编辑 Metallic Factor
             // -------------------------------------------------------------
             float metallicFactor = material->getMetallicFactor();
-            if (ImGui::SliderFloat("Metallic Factor", &metallicFactor, 0.0f, 1.0f)) {
+            if (ImGui::SliderFloat("Metallic Factor", &metallicFactor, 0.0f, 1.0f))
+            {
                 material->setMetallicFactor(metallicFactor);
             }
         }

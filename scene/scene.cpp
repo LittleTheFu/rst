@@ -179,6 +179,37 @@ void Scene::debugDraw()
     GL_CHECK_ERROR();
 }
 
+std::vector<Mesh*> Scene::getAllMeshes() const {
+    std::vector<Mesh*> allMeshes;
+    allMeshes.reserve(sceneData_->opaqueObjects.size() + sceneData_->transparentObjects.size() + (sceneData_->cursor ? 1 : 0)); // 预留空间优化
+
+    // 添加不透明物体
+    for (const auto& meshPtr : sceneData_->opaqueObjects) {
+        if (meshPtr) { // 安全检查
+            allMeshes.push_back(meshPtr.get());
+        }
+    }
+
+    // 添加透明物体
+    for (const auto& meshPtr : sceneData_->transparentObjects) {
+        if (meshPtr) { // 安全检查
+            allMeshes.push_back(meshPtr.get());
+        }
+    }
+
+    // 添加 cursor (如果存在并希望它出现在列表中)
+    if (sceneData_->cursor) {
+        allMeshes.push_back(sceneData_->cursor.get());
+    }
+
+    // 添加 skybox (如果存在并希望它出现在列表中)
+    // if (sceneData_->skybox) {
+    //     allMeshes.push_back(sceneData_->skybox.get());
+    // }
+
+    return allMeshes;
+}
+
 void Scene::run()
 {
     updateScene();
