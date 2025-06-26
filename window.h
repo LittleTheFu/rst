@@ -24,6 +24,7 @@
 #include "processMouseMovementCommand.h"
 #include "processMouseScrollCommand.h"
 #include "toggleDebugModeCommand.h"
+#include "pickObjectCommand.h"
 
 class Window {
 public:
@@ -79,6 +80,7 @@ private:
     ProcessMouseMovementCommand* cmd_mouseLook_ = nullptr;
     ProcessMouseScrollCommand* cmd_mouseScroll_ = nullptr;
     ToggleDebugModeCommand* cmd_toggleDebug_ = nullptr; // 示例：调试模式切换命令
+    PickObjectCommand* cmd_pickObject_ = nullptr;
 };
 
 #endif // WINDOW_H

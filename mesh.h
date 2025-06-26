@@ -18,10 +18,11 @@
 #include "indexBuffer.h"
 #include "vertexBuffer.h"
 #include "BoundingVolume.h" // 包含 AABB 类 (你之前创建的)
+#include <string>
 
 class Mesh : public Renderable, public Transformable {
 public:
-    Mesh(const std::string& filePath, std::shared_ptr<Material> material = nullptr); // 构造函数接受 Material
+    Mesh(const std::string &name, const std::string& filePath, std::shared_ptr<Material> material = nullptr); // 构造函数接受 Material
     ~Mesh();
 
     void render(Shader& shader) const override; // 实现 Renderable 接口
@@ -54,6 +55,8 @@ public:
      */
     AABB* getWorldAABB() const;
 
+    const std::string& getName() const { return name_; }
+
 private:
     std::vector<Vertex> vertices;
     std::vector<unsigned int> indices;
@@ -75,6 +78,9 @@ private:
 
     // 辅助函数：将 Assimp 的 aiVector3D 转换为 Eigen::Vector3f
     Eigen::Vector3f ConvertAssimpVec3ToEigen(const aiVector3D& vec);
+
+    //fot debug
+    const std::string name_;
 };
 
 #endif // MESH_H

@@ -109,6 +109,9 @@
         "*.rh": "cpp",
         "iterativelinearsolvers": "cpp",
         "pastixsupport": "cpp",
-        "matrixfunctions": "cpp"
+        "matrixfunctions": "cpp",
+        "*.inc": "cpp",
+        "qtalignedmalloc": "cpp",
+        "*.main": "cpp"
     }
 }

@@ -99,6 +99,7 @@ set(COLLISION_DIR "collision")
 set(COLLISION_SOURCE_FILES
     ${COLLISION_DIR}/boundingVolume.cpp
     ${COLLISION_DIR}/ray.cpp
+    ${COLLISION_DIR}/objectPicker.cpp
 )
 
 set(RST_DEBUG_DIR "rstDebug")
@@ -110,6 +111,7 @@ set(RST_DEBUG_SOURCE_FILES
 set(COMMAND_DIR "command")
 set(COMMAND_CORE_SOURCE_FILES
     ${COMMAND_DIR}/command.cpp
+    ${COMMAND_DIR}/pickObjectCommand.cpp
 )
 
 set(CAMERA_COMMAND_DIR "${COMMAND_DIR}/cameraCommand")

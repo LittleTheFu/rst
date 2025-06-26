@@ -62,7 +62,7 @@ std::unique_ptr<SceneData> sceneFactory::createScene()
     gunMaterial->setAmbientOcclusionMap(gunAoTexture);
 
     float scale = 0.02f; // 调整缩放比例
-    std::unique_ptr<Mesh> mesh_gun = std::make_unique<Mesh>("gun/Cerberus_LP.FBX");
+    std::unique_ptr<Mesh> mesh_gun = std::make_unique<Mesh>("gun", "gun/Cerberus_LP.FBX");
     mesh_gun->setMaterial(gunMaterial);
     mesh_gun->setRotation(Eigen::Quaternionf(M_PI/4, 0.0f, 1.0f, 0.0f));
     mesh_gun->setScale(Eigen::Vector3f(scale, scale, scale));
@@ -70,27 +70,27 @@ std::unique_ptr<SceneData> sceneFactory::createScene()
     sceneData->opaqueObjects.push_back(std::move(mesh_gun));
 
      // 创建网格并设置材质和变换
-    std::unique_ptr<Mesh> mesh_teapot_1 = std::make_unique<Mesh>("teapot.obj");
+    std::unique_ptr<Mesh> mesh_teapot_1 = std::make_unique<Mesh>("teapot_1", "teapot.obj");
     mesh_teapot_1->setMaterial(rustedIronMaterial);
     mesh_teapot_1->setScale(Eigen::Vector3f(1.0f, 1.0f, 1.0f));
     mesh_teapot_1->setPosition(Eigen::Vector3f(0.0f, 0.0f, 0.0f));
     sceneData->opaqueObjects.push_back(std::move(mesh_teapot_1));
     // sceneData_.transparentObjects.push_back(std::move(mesh_teapot_1));
 
-    std::unique_ptr<Mesh> mesh_box = std::make_unique<Mesh>("bx.obj");
+    std::unique_ptr<Mesh> mesh_box = std::make_unique<Mesh>("wall_box", "bx.obj");
     mesh_box->setMaterial(wallMaterial);
-    mesh_box->setPosition(Eigen::Vector3f(0.0f, 0.0f, -18.0f));
+    mesh_box->setPosition(Eigen::Vector3f(0.0f, 0.0f, -38.0f));
     mesh_box->setScale(Eigen::Vector3f(12.0f, 12.0f, 12.0f));
     sceneData->opaqueObjects.push_back(std::move(mesh_box));
 
-    std::unique_ptr<Mesh> mesh_teapot_2 = std::make_unique<Mesh>("teapot.obj");
+    std::unique_ptr<Mesh> mesh_teapot_2 = std::make_unique<Mesh>("teapot_2", "teapot.obj");
     mesh_teapot_2->setMaterial(grassMaterial);
     mesh_teapot_2->setScale(Eigen::Vector3f(4, 4, 4));
     mesh_teapot_2->setPosition(Eigen::Vector3f(0.0f, 0.0f, -30.0f));
     // sceneData->opaqueObjects.push_back(std::move(mesh_teapot_2));
     sceneData->transparentObjects.push_back(std::move(mesh_teapot_2));
 
-    std::unique_ptr<Mesh> mesh_plane_top = std::make_unique<Mesh>("plane.obj");
+    std::unique_ptr<Mesh> mesh_plane_top = std::make_unique<Mesh>("plane_top", "plane.obj");
     mesh_plane_top->setMaterial(silverMaterial);
     mesh_plane_top->setScale(Eigen::Vector3f(7.0f, 7.0f, 16.0f));
     mesh_plane_top->setPosition(Eigen::Vector3f(0.0f, -0.5f, -10.0f));
@@ -98,13 +98,13 @@ std::unique_ptr<SceneData> sceneFactory::createScene()
     // sceneData_.transparentObjects.push_back(std::move(mesh_plane_top));
 
     //a trick to make the plane shadow
-    std::unique_ptr<Mesh> mesh_plane_bottom = std::make_unique<Mesh>("plane.obj");
+    std::unique_ptr<Mesh> mesh_plane_bottom = std::make_unique<Mesh>("plane_bottom", "plane.obj");
     mesh_plane_bottom->setMaterial(goldMaterial);
     mesh_plane_bottom->setScale(Eigen::Vector3f(-7.0f, 7.0f, 16.0f));
     mesh_plane_bottom->setPosition(Eigen::Vector3f(0.0f, -0.8f, -10.0f));
     sceneData->opaqueObjects.push_back(std::move(mesh_plane_bottom));
 
-    std::unique_ptr<Mesh> mesh_cursor = std::make_unique<Mesh>("bx.obj");
+    std::unique_ptr<Mesh> mesh_cursor = std::make_unique<Mesh>("cursor", "bx.obj");
     mesh_cursor->setMaterial(plasticMaterial);
     mesh_cursor->setScale(Eigen::Vector3f(0.2f, 0.2f, 0.2f));
     sceneData->opaqueObjects.push_back(std::move(mesh_cursor));

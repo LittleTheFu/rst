@@ -33,6 +33,11 @@ public:
     // 查询某个鼠标按钮是否在当前帧被首次松开 (只在松开的那一帧返回 true)
     bool IsMouseButtonReleased(Uint8 button) const;
 
+    // 获取鼠标X轴的绝对位置
+    float GetMouseX() const { return mouseX_; }
+    // 获取鼠标Y轴的绝对位置
+    float GetMouseY() const { return mouseY_; }
+
     // 获取鼠标X轴的相对移动量 (自上一帧以来的变化)
     float GetMouseDeltaX() const { return mouseDeltaX_; }
     // 获取鼠标Y轴的相对移动量 (自上一帧以来的变化)
@@ -56,6 +61,8 @@ private:
     std::map<Uint8, bool> currentMouseButtonStates_;
     std::map<Uint8, bool> previousMouseButtonStates_;
 
+    float mouseX_ = 0.0f;
+    float mouseY_ = 0.0f;
     float mouseDeltaX_ = 0.0f;
     float mouseDeltaY_ = 0.0f;
     float mouseScrollY_ = 0.0f; // 鼠标滚轮垂直滚动量

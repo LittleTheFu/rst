@@ -36,6 +36,7 @@
 #include "depthOfFieldPass.h"
 
 #include "debugRenderer.h"
+#include <objectPicker.h>
 
 
 class Scene
@@ -104,6 +105,10 @@ private:
     std::unique_ptr<ScreenPass> screenPass_;
 
     std::unique_ptr<DebugRenderer> debugRenderer_;
+
+//the public here is quick and dirty
+public:
+    std::unique_ptr<ObjectPicker> objectPicker_; // 推荐使用 unique_ptr
 };
 
 #endif // _SCENE_H_

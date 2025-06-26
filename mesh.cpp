@@ -9,7 +9,8 @@ Eigen::Vector3f Mesh::ConvertAssimpVec3ToEigen(const aiVector3D& vec) {
     return Eigen::Vector3f(vec.x, vec.y, vec.z);
 }
 
-Mesh::Mesh(const std::string &filePath, std::shared_ptr<Material> material) : position_(Eigen::Vector3f::Zero()),
+Mesh::Mesh(const std::string &name, const std::string &filePath, std::shared_ptr<Material> material) : name_(name),
+                                                                                 position_(Eigen::Vector3f::Zero()),
                                                                                  rotation_(Eigen::Quaternionf::Identity()),
                                                                                  scale_(Eigen::Vector3f::Ones()),
                                                                                  modelMatrix_(Eigen::Matrix4f::Identity()),

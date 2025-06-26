@@ -157,6 +157,7 @@ Window::Window(const char* title, int width, int height)
     
     // 调试模式切换命令，不依赖 Camera
     cmd_toggleDebug_ = new ToggleDebugModeCommand(); 
+    cmd_pickObject_ = new PickObjectCommand(scene_.objectPicker_.get());
 }
 
 // Window 析构函数
@@ -293,6 +294,14 @@ void Window::update() {
 
     // 示例：鼠标左键点击 (一次性点击触发)
     if (InputManager::GetInstance().IsMouseButtonPressed(SDL_BUTTON_LEFT)) {
+        cmd_pickObject_->setMousePosition(InputManager::GetInstance().GetMouseX(), InputManager::GetInstance().GetMouseY());
+        cmd_pickObject_->Execute();
+        Mesh* pickedMesh = cmd_pickObject_->getPickedMesh();
+        if (pickedMesh) {
+            std::cout << "Picked mesh: " << pickedMesh->getName() << std::endl;
+        } else {
+            std::cout << "No mesh picked." << std::endl;
+        }
         std::cout << "Left mouse button clicked (via command)!" << std::endl;
         // 可以在这里执行一个射击命令、交互命令等
     }

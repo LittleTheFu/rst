@@ -67,6 +67,8 @@ void InputManager::ProcessEvent(const SDL_Event& event) {
     if (event.type == SDL_MOUSEMOTION) {
         mouseDeltaX_ = static_cast<float>(event.motion.xrel);
         mouseDeltaY_ = static_cast<float>(event.motion.yrel);
+        mouseX_ = static_cast<float>(event.motion.x);
+        mouseY_ = static_cast<float>(event.motion.y);
     }
     if (event.type == SDL_MOUSEBUTTONDOWN) {
         currentMouseButtonStates_[event.button.button] = true;

@@ -43,6 +43,8 @@ void Scene::init()
     debugRenderer_ = std::make_unique<DebugRenderer>();
     debugRenderer_->InitShader("shader/debug.vert", "shader/debug.frag");
     GL_CHECK_ERROR();
+
+    objectPicker_ = std::make_unique<ObjectPicker>(sceneData_.get(), sceneData_->camera.get());
 }
 
 void Scene::updateScene()
