@@ -103,6 +103,7 @@ set(COLLISION_SOURCE_FILES
 set(RST_DEBUG_DIR "rstDebug")
 set(RST_DEBUG_SOURCE_FILES
     ${RST_DEBUG_DIR}/debugBox.cpp
+    ${RST_DEBUG_DIR}/debugRenderer.cpp
 )
 
 set(COMMAND_DIR "command")

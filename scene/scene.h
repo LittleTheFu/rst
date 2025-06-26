@@ -35,6 +35,9 @@
 #include "SceneData.h"
 #include "depthOfFieldPass.h"
 
+#include "debugRenderer.h"
+
+
 class Scene
 {
 public:
@@ -95,6 +98,8 @@ private:
 
     std::unique_ptr<PostPass> postPass_;
     std::unique_ptr<ScreenPass> screenPass_;
+
+    std::unique_ptr<DebugRenderer> debugRenderer_;
 };
 
 #endif // _SCENE_H_

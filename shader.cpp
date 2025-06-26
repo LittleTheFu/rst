@@ -76,6 +76,7 @@ void Shader::load(const std::string &vertexPath, const std::string &fragmentPath
 
 void Shader::use()
 {
+    assert(ID != 0 && "Shader ID is 0, shader not initialized or loaded");
     glUseProgram(ID);
 }
 
