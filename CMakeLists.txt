@@ -98,7 +98,11 @@ set(INPUT_SOURCE_FILES
 set(COLLISION_DIR "collision")
 set(COLLISION_SOURCE_FILES
     ${COLLISION_DIR}/boundingVolume.cpp
-    ${COLLISION_DIR}/debugBox.cpp
+)
+
+set(RST_DEBUG_DIR "rstDebug")
+set(RST_DEBUG_SOURCE_FILES
+    ${RST_DEBUG_DIR}/debugBox.cpp
 )
 
 set(COMMAND_DIR "command")
@@ -153,6 +157,7 @@ add_executable(rst
     ${INPUT_SOURCE_FILES}
     ${COMMAND_SOURCE_FILES}
     ${COLLISION_SOURCE_FILES}
+    ${RST_DEBUG_SOURCE_FILES}
 )
 
 target_compile_options(rst PRIVATE /wd4819)
@@ -173,6 +178,8 @@ target_include_directories(rst PRIVATE
     ${CMAKE_SOURCE_DIR}/${CAMERA_COMMAND_DIR}
     ${CMAKE_SOURCE_DIR}/${DEBUG_COMMAND_DIR}
     ${CMAKE_SOURCE_DIR}/${COLLISION_DIR}
+    ${CMAKE_SOURCE_DIR}/${RST_DEBUG_DIR}
+
 
     ${CMAKE_SOURCE_DIR}/third/glad/include
     ${CMAKE_SOURCE_DIR}/third/sdl/include
