@@ -337,7 +337,7 @@ void Window::update()
         { // 只有当 ImGui 不需要鼠标时，才处理场景中的点击
             cmd_pickObject_->setMousePosition(InputManager::GetInstance().GetMouseX(), InputManager::GetInstance().GetMouseY());
             cmd_pickObject_->Execute();
-            Mesh *pickedMesh = cmd_pickObject_->getPickedMesh();
+            static Mesh *pickedMesh = cmd_pickObject_->getPickedMesh();//save last picked mesh ptr
             if (pickedMesh)
             {
                 scene_.setSelectedMesh(pickedMesh);
