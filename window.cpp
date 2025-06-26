@@ -332,24 +332,23 @@ void Window::update()
     // 示例：鼠标左键点击 (一次性点击触发)
     if (InputManager::GetInstance().IsMouseButtonPressed(SDL_BUTTON_LEFT))
     {
-        static Mesh *pickedMesh = nullptr;
         // 核心解决方案：检查 ImGui 是否想捕获鼠标
         if (!ImGui::GetIO().WantCaptureMouse)
         { // 只有当 ImGui 不需要鼠标时，才处理场景中的点击
             cmd_pickObject_->setMousePosition(InputManager::GetInstance().GetMouseX(), InputManager::GetInstance().GetMouseY());
             cmd_pickObject_->Execute();
-            pickedMesh = cmd_pickObject_->getPickedMesh();//save last picked mesh ptr
-            if (pickedMesh)
+            pickedMesh_ = cmd_pickObject_->getPickedMesh();//save last picked mesh ptr
+            if (pickedMesh_)
             {
-                scene_.setSelectedMesh(pickedMesh);
-                // std::cout << "Picked mesh: " << pickedMesh->getName() << std::endl;
+                scene_.setSelectedMesh(pickedMesh_);
+                // std::cout << "Picked mesh: " << pickedMesh_->getName() << std::endl;
             }
         }
         else
         {
-            if(pickedMesh)
+            if(pickedMesh_)
             {
-                std::cout << "pickedMesh: " << pickedMesh->getName() << std::endl;
+                std::cout << "pickedMesh: " << pickedMesh_->getName() << std::endl;
             }
             else
             {

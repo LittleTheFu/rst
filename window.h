@@ -81,6 +81,8 @@ private:
     ProcessMouseScrollCommand* cmd_mouseScroll_ = nullptr;
     ToggleDebugModeCommand* cmd_toggleDebug_ = nullptr; // 示例：调试模式切换命令
     PickObjectCommand* cmd_pickObject_ = nullptr;
+
+    Mesh *pickedMesh_ = nullptr;
 };
 
 #endif // WINDOW_H
