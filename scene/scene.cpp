@@ -131,6 +131,52 @@ void Scene::renderFinalPass()
     GL_CHECK_ERROR();
 }
 
+void Scene::debugDraw()
+{
+     // --- 调试渲染 ---
+    // 确保你已经绑定了默认帧缓冲区 (或你希望调试信息叠加到的 FBO)
+    glBindFramebuffer(GL_FRAMEBUFFER, 0); // 通常最终渲染到屏幕
+    glViewport(0, 0, sceneData_->screenWidth, sceneData_->screenHeight);
+
+    debugRenderer_->SetMatrices(sceneData_->camera->GetViewMatrix(), sceneData_->camera->GetProjectionMatrix());
+
+    // 绘制所有不透明 Mesh 的 AABB
+    for (const auto &mesh : sceneData_->opaqueObjects)
+    {
+        if (mesh)
+        {
+            AABB *worldAABB = mesh->getWorldAABB();
+            if (worldAABB)
+            {
+                debugRenderer_->DrawAABB(*worldAABB, Eigen::Vector3f(1.0f, 1.0f, 0.0f)); // 黄色 AABB
+                delete worldAABB;                                                        // 释放 getWorldAABB 返回的堆内存
+            }
+        }
+    }
+
+    // 绘制所有透明 Mesh 的 AABB
+    for (const auto &mesh : sceneData_->transparentObjects)
+    {
+        if (mesh)
+        {
+            AABB *worldAABB = mesh->getWorldAABB();
+            if (worldAABB)
+            {
+                debugRenderer_->DrawAABB(*worldAABB, Eigen::Vector3f(0.0f, 1.0f, 1.0f)); // 青色 AABB
+                delete worldAABB;
+            }
+        }
+    }
+
+    // 绘制点光源
+    if (sceneData_->light)
+    {
+        debugRenderer_->DrawPointLight(*sceneData_->light, 0.2f, Eigen::Vector3f(1.0f, 0.0f, 0.0f)); // 红色小立方体
+    }
+
+    GL_CHECK_ERROR();
+}
+
 void Scene::run()
 {
     updateScene();
@@ -228,48 +274,7 @@ void Scene::run()
     // the final pass which actually displays the image on the screen.
     renderFinalPass();
 
-    // --- 调试渲染 ---
-    // 确保你已经绑定了默认帧缓冲区 (或你希望调试信息叠加到的 FBO)
-    glBindFramebuffer(GL_FRAMEBUFFER, 0); // 通常最终渲染到屏幕
-    glViewport(0, 0, sceneData_->screenWidth, sceneData_->screenHeight);
-
-    debugRenderer_->SetMatrices(sceneData_->camera->GetViewMatrix(), sceneData_->camera->GetProjectionMatrix());
-
-    // 绘制所有不透明 Mesh 的 AABB
-    for (const auto &mesh : sceneData_->opaqueObjects)
-    {
-        if (mesh)
-        {
-            AABB *worldAABB = mesh->getWorldAABB();
-            if (worldAABB)
-            {
-                debugRenderer_->DrawAABB(*worldAABB, Eigen::Vector3f(1.0f, 1.0f, 0.0f)); // 黄色 AABB
-                delete worldAABB;                                                        // 释放 getWorldAABB 返回的堆内存
-            }
-        }
-    }
-
-    // 绘制所有透明 Mesh 的 AABB
-    for (const auto &mesh : sceneData_->transparentObjects)
-    {
-        if (mesh)
-        {
-            AABB *worldAABB = mesh->getWorldAABB();
-            if (worldAABB)
-            {
-                debugRenderer_->DrawAABB(*worldAABB, Eigen::Vector3f(0.0f, 1.0f, 1.0f)); // 青色 AABB
-                delete worldAABB;
-            }
-        }
-    }
-
-    // 绘制点光源
-    if (sceneData_->light)
-    {
-        debugRenderer_->DrawPointLight(*sceneData_->light, 0.2f, Eigen::Vector3f(1.0f, 0.0f, 0.0f)); // 红色小立方体
-    }
-
-    GL_CHECK_ERROR();
+    debugDraw();
 }
 
 void Scene::resize(int width, int height)
