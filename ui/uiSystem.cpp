@@ -1,5 +1,6 @@
 #include "UiSystem.h"
 #include <iostream>
+#include <mesh.h>
 
 UiSystem::UiSystem(SDL_Window *window, SDL_GLContext glContext)
 {
