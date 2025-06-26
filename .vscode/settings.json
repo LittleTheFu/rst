@@ -112,6 +112,7 @@
         "matrixfunctions": "cpp",
         "*.inc": "cpp",
         "qtalignedmalloc": "cpp",
-        "*.main": "cpp"
+        "*.main": "cpp",
+        "polynomials": "cpp"
     }
 }

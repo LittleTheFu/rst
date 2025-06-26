@@ -135,6 +135,28 @@ void UiSystem::DrawUI(int currentFPS)
 
     ImGui::End();
 
+    //-----properties of the selected object------
+    ImGui::Begin("Selected Object Properties");
+    if (onGetSelectedMeshName)
+    {
+        // 调用回调函数，获取选中物体的名称
+        std::string selectedName = onGetSelectedMeshName();
+
+        // 在 ImGui 中显示名称
+        ImGui::Text("Selected Object Name: %s", selectedName.c_str());
+    }
+    else
+    {
+        // 如果回调没有被设置，显示一个错误或提示信息
+        ImGui::Text("Selected Object Name: (Callback not set)");
+    }
+    ImGui::Text("properties");
+    ImGui::Text("position");
+    ImGui::Text("scale");
+    ImGui::Text("rotation");
+    ImGui::End();
+    //--------------------------------------------
+
     if (showDemoWindow)
     {
         ImGui::ShowDemoWindow(&showDemoWindow);

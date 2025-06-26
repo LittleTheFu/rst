@@ -79,6 +79,21 @@ private:
     void renderFinalPass();
     void debugDraw();
 
+public:
+    void setSelectedMesh(Mesh* mesh) { selectedMesh_ = mesh; };
+    Mesh* getSelectedMesh() { return selectedMesh_; };
+    std::string getSelectedMeshName() const
+    {
+        if (selectedMesh_)
+        {
+            return selectedMesh_->getName(); // 假设 Mesh 有 getName() 方法
+        }
+        return "None Selected"; // 没有物体选中时的显示
+    }
+
+private:
+    Mesh* selectedMesh_ = nullptr;
+
 private:
     std::unique_ptr<SceneData> sceneData_; // 暂时保留，根据实际需求决定是否完全移除或精简
 

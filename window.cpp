@@ -132,6 +132,10 @@ Window::Window(const char* title, int width, int height)
     };
     uiSystem_->focusDistance = this->scene_.focusDistance_;
 
+    uiSystem_->onGetSelectedMeshName = [this]() {
+        return this->scene_.getSelectedMeshName();
+    };
+
     // ----------------------------------------------------
     // 其他初始化
     lastFPSTime_ = std::chrono::high_resolution_clock::now();   // 初始化 FPS 计时器
@@ -298,7 +302,8 @@ void Window::update() {
         cmd_pickObject_->Execute();
         Mesh* pickedMesh = cmd_pickObject_->getPickedMesh();
         if (pickedMesh) {
-            std::cout << "Picked mesh: " << pickedMesh->getName() << std::endl;
+            scene_.setSelectedMesh(pickedMesh);
+            // std::cout << "Picked mesh: " << pickedMesh->getName() << std::endl;
         } else {
             std::cout << "No mesh picked." << std::endl;
         }
