@@ -44,23 +44,23 @@ void UiSystem::ProcessEvent(SDL_Event *event)
 
 void UiSystem::DrawUI(int currentFPS)
 {
-    ImGui::Begin("调试窗口");
-    ImGui::Text("应用平均 FPS: %d", currentFPS);
-    ImGui::Checkbox("显示 ImGui Demo 窗口", &showDemoWindow);
+    ImGui::Begin("Debug Window");
+    ImGui::Text("Average FPS: %d", currentFPS);
+    ImGui::Checkbox("Show ImGui Demo Window", &showDemoWindow);
 
-    if (ImGui::Button("capture"))
+    if (ImGui::Button("Capture"))
     {
-        std::cout << "capture button pressed!!!" << std::endl;
-        if(onCaptureButtonClicked) {
-            onCaptureButtonClicked(); 
+        std::cout << "Capture button pressed!" << std::endl;
+        if (onCaptureButtonClicked) {
+            onCaptureButtonClicked();
         }
     }
 
-    if (ImGui::Button("toggle debug draw"))
+    if (ImGui::Button("Toggle Debug Draw"))
     {
-        std::cout << "toggle debug draw button pressed!!!" << std::endl;
-        if(onToggleDebugButtonClicked) {
-            onToggleDebugButtonClicked(); 
+        std::cout << "Toggle Debug Draw button pressed!" << std::endl;
+        if (onToggleDebugButtonClicked) {
+            onToggleDebugButtonClicked();
         }
     }
 
@@ -79,7 +79,7 @@ void UiSystem::DrawUI(int currentFPS)
         ImGui::PushID(static_cast<int>(i));
         if (ImGui::RadioButton(name.c_str(), &selectedRenderMode, value))
         {
-            std::cout << "选择了模式: " << name << " (值 " << value << ")" << std::endl;
+            std::cout << "Selected mode: " << name << " (value " << value << ")" << std::endl;
             if (uiSceneData.onRenderModeChanged)
             {
                 uiSceneData.onRenderModeChanged(selectedRenderMode);
@@ -91,43 +91,43 @@ void UiSystem::DrawUI(int currentFPS)
     ImGui::NewLine();
 
     float max = 5.0f;
-    if (ImGui::SliderFloat("ssr weight", &ssrWeight, 0.0f, max, "%.2f")) {
-        std::cout << "ssr weight！新值: " << ssrWeight << std::endl;
+    if (ImGui::SliderFloat("SSR Weight", &ssrWeight, 0.0f, max, "%.2f")) {
+        std::cout << "SSR weight updated: " << ssrWeight << std::endl;
         if (onSsrWeightBarChanged) {
             onSsrWeightBarChanged(ssrWeight);
         }
     }
 
-    if (ImGui::SliderFloat("ibl weight", &iblWeight, 0.0f, max, "%.2f")) {
-        std::cout << "ibl weight！新值: " << iblWeight << std::endl; 
+    if (ImGui::SliderFloat("IBL Weight", &iblWeight, 0.0f, max, "%.2f")) {
+        std::cout << "IBL weight updated: " << iblWeight << std::endl;
         if (onIblWeightBarChanged) {
             onIblWeightBarChanged(iblWeight);
         }
     }
 
-    if (ImGui::SliderFloat("light weight", &lightWeight, 0.0f, max, "%.2f")) {
-        std::cout << "light weight！新值: " << lightWeight << std::endl; 
+    if (ImGui::SliderFloat("Light Weight", &lightWeight, 0.0f, max, "%.2f")) {
+        std::cout << "Light weight updated: " << lightWeight << std::endl;
         if (onLightWeightBarChanged) {
             onLightWeightBarChanged(lightWeight);
         }
     }
 
-    if (ImGui::SliderFloat("oit weight", &oitWeight, 0.0f, max, "%.2f")) {
-        std::cout << "oit weight！新值: " << oitWeight << std::endl;
+    if (ImGui::SliderFloat("OIT Weight", &oitWeight, 0.0f, max, "%.2f")) {
+        std::cout << "OIT weight updated: " << oitWeight << std::endl;
         if (onOitWeightBarChanged) {
-            onOitWeightBarChanged(oitWeight); 
-        } 
+            onOitWeightBarChanged(oitWeight);
+        }
     }
 
-    if (ImGui::SliderFloat("god ray weight", &godRayWeight, 0.0f, max, "%.2f")) {
-        std::cout << "god ray weight！新值: " << godRayWeight << std::endl;
+    if (ImGui::SliderFloat("God Ray Weight", &godRayWeight, 0.0f, max, "%.2f")) {
+        std::cout << "God ray weight updated: " << godRayWeight << std::endl;
         if (onGodRayWeightBarChanged) {
             onGodRayWeightBarChanged(godRayWeight);
-        } 
+        }
     }
 
-    if(ImGui::SliderFloat("focus distance", &focusDistance, 0.0f, 20.0f, "%.2f")) {
-        std::cout << "focus distance！新值: " << focusDistance << std::endl;
+    if (ImGui::SliderFloat("Focus Distance", &focusDistance, 0.0f, 20.0f, "%.2f")) {
+        std::cout << "Focus distance updated: " << focusDistance << std::endl;
         if (onFocusDistanceBarChanged) {
             onFocusDistanceBarChanged(focusDistance);
         }
