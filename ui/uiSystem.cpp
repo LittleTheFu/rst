@@ -215,6 +215,48 @@ void UiSystem::DrawUI(int currentFPS)
             // std::cout << "Mesh " << selectedMesh->getName() << " new Scale: "
             //           << scale[0] << ", " << scale[1] << ", " << scale[2] << std::endl;
         }
+
+         ImGui::Separator(); // 分隔线
+        ImGui::Text("Material Properties:");
+
+        // 尝试获取选中 Mesh 的材质
+        std::shared_ptr<Material> material = selectedMesh->getMaterial();
+
+        if (material) { // 确保 Mesh 关联了一个材质
+            // 显示材质名称 (通常是只读的，用于识别)
+            ImGui::Text("Material Name: %s", material->getName().c_str());
+
+            // -------------------------------------------------------------
+            // 编辑 Albedo 颜色
+            // -------------------------------------------------------------
+            // 获取当前的 Albedo 颜色 (Eigen::Vector3f)
+            Eigen::Vector3f albedoColor = material->getAlbedoColor();
+            // 将 Eigen::Vector3f 转换成 float[3] 数组供 ImGui 使用
+            float albedoColorArr[3] = {albedoColor.x(), albedoColor.y(), albedoColor.z()};
+            
+            // ImGui::ColorEdit3 返回 true 如果颜色被修改
+            if (ImGui::ColorEdit3("Albedo Color", albedoColorArr)) {
+                // 如果颜色被修改，将 float[3] 转换回 Eigen::Vector3f 并更新材质
+                material->setAlbedoColor(Eigen::Vector3f(albedoColorArr[0], albedoColorArr[1], albedoColorArr[2]));
+            }
+
+            // -------------------------------------------------------------
+            // 编辑 Roughness Factor
+            // -------------------------------------------------------------
+            float roughnessFactor = material->getRoughnessFactor();
+            // ImGui::SliderFloat 更适合有范围 (0.0 - 1.0) 的浮点数
+            if (ImGui::SliderFloat("Roughness Factor", &roughnessFactor, 0.0f, 1.0f)) {
+                material->setRoughnessFactor(roughnessFactor);
+            }
+
+            // -------------------------------------------------------------
+            // 编辑 Metallic Factor
+            // -------------------------------------------------------------
+            float metallicFactor = material->getMetallicFactor();
+            if (ImGui::SliderFloat("Metallic Factor", &metallicFactor, 0.0f, 1.0f)) {
+                material->setMetallicFactor(metallicFactor);
+            }
+        }
     }
     else
     {
