@@ -65,6 +65,9 @@ public:
     void setFocusDistance(float distance) { focusDistance_ = distance; };
     float focusDistance_ = 10.0f;
 
+    void toggleDebugDraw() { isDebugDraw_ = !isDebugDraw_; };
+    bool isDebugDraw_ = false;
+
 public:
     void init();
     void run();

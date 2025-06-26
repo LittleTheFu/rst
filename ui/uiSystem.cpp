@@ -92,6 +92,14 @@ void UiSystem::DrawUI(int currentFPS)
         }
     }
 
+    if (ImGui::Button("toggle debug draw"))
+    {
+        std::cout << "toggle debug draw button pressed!!!" << std::endl;
+        if(onToggleDebugButtonClicked) {
+            onToggleDebugButtonClicked(); 
+        }
+    }
+
     // ***************************************************************
     // 新增：单选按钮组
     // ***************************************************************

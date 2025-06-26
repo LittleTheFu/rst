@@ -106,6 +106,9 @@
         "openglsupport": "cpp",
         "specialfunctions": "cpp",
         "splines": "cpp",
-        "*.rh": "cpp"
+        "*.rh": "cpp",
+        "iterativelinearsolvers": "cpp",
+        "pastixsupport": "cpp",
+        "matrixfunctions": "cpp"
     }
 }

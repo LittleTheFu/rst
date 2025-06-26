@@ -22,7 +22,8 @@ public:
 
 public:
     std::function<void(void)> onCaptureButtonClicked;
-    
+    std::function<void(void)> onToggleDebugButtonClicked;
+
     std::function<void(float)> onSsrWeightBarChanged;
     float ssrWeight = 0.0f;
 

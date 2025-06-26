@@ -94,6 +94,10 @@ Window::Window(const char* title, int width, int height)
         this->scene_.saveTextures(); // 调用 Scene 的 saveTextures 方法
     };
 
+    uiSystem_->onToggleDebugButtonClicked = [this]() {
+        this->scene_.toggleDebugDraw(); // 调用 Scene 的 toggleDebugDraw 方法
+    };
+
     // 假设 UiSceneData::create 方法存在，用于从 Scene 初始化 UI 数据
     uiSystem_->uiSceneData = UiSceneData::create(this->scene_); 
 

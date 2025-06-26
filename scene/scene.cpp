@@ -274,7 +274,10 @@ void Scene::run()
     // the final pass which actually displays the image on the screen.
     renderFinalPass();
 
-    debugDraw();
+    if(isDebugDraw_)
+    {
+        debugDraw();
+    }
 }
 
 void Scene::resize(int width, int height)
