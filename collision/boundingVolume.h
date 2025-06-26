@@ -1,13 +1,14 @@
 #ifndef BOUNDING_VOLUME_H
 #define BOUNDING_VOLUME_H
 
-#include <Eigen/Dense> // 包含 Eigen 库
-#include <limits>      // For std::numeric_limits
-#include <algorithm>   // For std::min/max
+#include <Eigen/Dense>      // 包含 Eigen 库
+#include <limits>           // For std::numeric_limits
+#include <algorithm>        // For std::min/max
 
-// 前向声明，避免循环引用
-// 如果你的 Ray 类是在这里定义的，否则可以省略
-// class Ray; 
+// 前向声明 Ray 类
+// 注意：如果 Ray 类依赖 BoundingVolume（通过 AABB），这里可能需要调整包含顺序或使用前向声明
+// 为了 IntersectsRay(const Ray&) 签名，需要先声明 Ray
+class Ray; // <-- 新增前向声明
 
 /**
  * @brief 抽象的包围体基类。
@@ -20,12 +21,11 @@ public:
 
     /**
      * @brief 判断射线是否与包围体相交。
-     * @param rayOrigin 射线的起点（世界空间）。
-     * @param rayDirection 射线的方向（世界空间，已归一化）。
+     * @param ray 要检测的 Ray 对象。
      * @param outT 如果相交，返回交点距离射线起点的参数值（沿着射线方向）。
      * @return 如果射线与包围体相交，返回 true；否则返回 false。
      */
-    virtual bool IntersectsRay(const Eigen::Vector3f& rayOrigin, const Eigen::Vector3f& rayDirection, float& outT) const = 0;
+    virtual bool IntersectsRay(const Ray& ray, float& outT) const = 0; // <-- 修改了参数
 
     /**
      * @brief 将包围体通过给定的变换矩阵进行变换。
@@ -51,10 +51,10 @@ public:
  */
 class AABB : public BoundingVolume {
 public:
-    EIGEN_MAKE_ALIGNED_OPERATOR_NEW // 如果在类中使用了Eigen固定大小的数据结构，建议添加此宏以保证内存对齐
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW 
 
     // 默认构造函数，初始化为无效状态（可被任何点扩展）
-    AABB() 
+    AABB()
         : min_(Eigen::Vector3f::Constant(std::numeric_limits<float>::max())),
           max_(Eigen::Vector3f::Constant(std::numeric_limits<float>::lowest())) {}
 
@@ -82,8 +82,8 @@ public:
      * @param point 要包含的点。
      */
     void Extend(const Eigen::Vector3f& point) {
-        min_ = min_.cwiseMin(point); // Eigen 的元素级 min
-        max_ = max_.cwiseMax(point); // Eigen 的元素级 max
+        min_ = min_.cwiseMin(point);
+        max_ = max_.cwiseMax(point);
     }
 
     /**
@@ -96,19 +96,10 @@ public:
     }
 
     // 实现 BoundingVolume 接口的虚函数
-    bool IntersectsRay(const Eigen::Vector3f& rayOrigin, const Eigen::Vector3f& rayDirection, float& outT) const override;
-    AABB* Transform(const Eigen::Matrix4f& matrix) const override; // 返回 AABB*，需要dynamic_cast或重载
-    // 注意：这里的 Transform 返回 AABB*，而不是 BoundingVolume*
-    // 这样在调用时可以避免dynamic_cast，但需要修改 BoundingVolume 接口或者在实现时注意。
-    // 为了初学者友好，我建议 Transform 在 BoundingVolume 接口中返回 BoundingVolume*
-    // 然后在 AABB 中实现时，创建并返回 AABB 的实例。
-    // 但是，如果你确定只会用AABB，也可以直接返回AABB*。
-    // 我们在这里使用返回 BoundingVolume* 并让用户自行 dynamic_cast 或者根据设计选择。
-
-    // 重新声明 Transform 方法以返回 AABB*（更具体类型），但这要求 BoundingVolume 基类中 Transform 返回 BoundingVolume*。
-    // 如果基类返回 BoundingVolume*，那么这里实现时仍然返回 BoundingVolume* 即可，不需要单独声明。
-    // 例如：
-    // BoundingVolume* Transform(const Eigen::Matrix4f& matrix) const override; // 在cpp中实现
+    // 注意：这里需要包含 Ray.h，或者在 AABB.cpp 中包含。
+    // 为了让编译器知道 Ray 的完整定义，通常在 .cpp 文件中包含。
+    bool IntersectsRay(const Ray& ray, float& outT) const override; // <-- 修改了参数
+    AABB* Transform(const Eigen::Matrix4f& matrix) const override; 
 
 private:
     Eigen::Vector3f min_;
