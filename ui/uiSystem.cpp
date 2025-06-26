@@ -51,7 +51,8 @@ void UiSystem::DrawUI(int currentFPS)
     if (ImGui::Button("Capture"))
     {
         std::cout << "Capture button pressed!" << std::endl;
-        if (onCaptureButtonClicked) {
+        if (onCaptureButtonClicked)
+        {
             onCaptureButtonClicked();
         }
     }
@@ -59,7 +60,8 @@ void UiSystem::DrawUI(int currentFPS)
     if (ImGui::Button("Toggle Debug Draw"))
     {
         std::cout << "Toggle Debug Draw button pressed!" << std::endl;
-        if (onToggleDebugButtonClicked) {
+        if (onToggleDebugButtonClicked)
+        {
             onToggleDebugButtonClicked();
         }
     }
@@ -91,77 +93,136 @@ void UiSystem::DrawUI(int currentFPS)
     ImGui::NewLine();
 
     float max = 5.0f;
-    if (ImGui::SliderFloat("SSR Weight", &ssrWeight, 0.0f, max, "%.2f")) {
+    if (ImGui::SliderFloat("SSR Weight", &ssrWeight, 0.0f, max, "%.2f"))
+    {
         std::cout << "SSR weight updated: " << ssrWeight << std::endl;
-        if (onSsrWeightBarChanged) {
+        if (onSsrWeightBarChanged)
+        {
             onSsrWeightBarChanged(ssrWeight);
         }
     }
 
-    if (ImGui::SliderFloat("IBL Weight", &iblWeight, 0.0f, max, "%.2f")) {
+    if (ImGui::SliderFloat("IBL Weight", &iblWeight, 0.0f, max, "%.2f"))
+    {
         std::cout << "IBL weight updated: " << iblWeight << std::endl;
-        if (onIblWeightBarChanged) {
+        if (onIblWeightBarChanged)
+        {
             onIblWeightBarChanged(iblWeight);
         }
     }
 
-    if (ImGui::SliderFloat("Light Weight", &lightWeight, 0.0f, max, "%.2f")) {
+    if (ImGui::SliderFloat("Light Weight", &lightWeight, 0.0f, max, "%.2f"))
+    {
         std::cout << "Light weight updated: " << lightWeight << std::endl;
-        if (onLightWeightBarChanged) {
+        if (onLightWeightBarChanged)
+        {
             onLightWeightBarChanged(lightWeight);
         }
     }
 
-    if (ImGui::SliderFloat("OIT Weight", &oitWeight, 0.0f, max, "%.2f")) {
+    if (ImGui::SliderFloat("OIT Weight", &oitWeight, 0.0f, max, "%.2f"))
+    {
         std::cout << "OIT weight updated: " << oitWeight << std::endl;
-        if (onOitWeightBarChanged) {
+        if (onOitWeightBarChanged)
+        {
             onOitWeightBarChanged(oitWeight);
         }
     }
 
-    if (ImGui::SliderFloat("God Ray Weight", &godRayWeight, 0.0f, max, "%.2f")) {
+    if (ImGui::SliderFloat("God Ray Weight", &godRayWeight, 0.0f, max, "%.2f"))
+    {
         std::cout << "God ray weight updated: " << godRayWeight << std::endl;
-        if (onGodRayWeightBarChanged) {
+        if (onGodRayWeightBarChanged)
+        {
             onGodRayWeightBarChanged(godRayWeight);
         }
     }
 
-    if (ImGui::SliderFloat("Focus Distance", &focusDistance, 0.0f, 20.0f, "%.2f")) {
+    if (ImGui::SliderFloat("Focus Distance", &focusDistance, 0.0f, 20.0f, "%.2f"))
+    {
         std::cout << "Focus distance updated: " << focusDistance << std::endl;
-        if (onFocusDistanceBarChanged) {
+        if (onFocusDistanceBarChanged)
+        {
             onFocusDistanceBarChanged(focusDistance);
         }
     }
 
     ImGui::End();
 
-    //-----properties of the selected object------
+    // --- 选中物体属性窗口 ---
     ImGui::Begin("Selected Object Properties");
-    if (onGetSelectedMesh)
-    {
-        // 调用回调函数，获取选中物体的名称
-        Mesh* selectedMesh = onGetSelectedMesh();
-        if(selectedMesh) {
-            ImGui::Text("Selected Object Name: %s", selectedMesh->getName().c_str());
 
-            const Eigen::Vector3f& position = selectedMesh->getPosition();
-            ImGui::Text("Position: X: %.2f Y: %.2f Z: %.2f", position.x(), position.y(), position.z());
+    Mesh *selectedMesh = onGetSelectedMesh();
+    if (selectedMesh)
+    { // 检查指针是否为空
+        // 显示名称 (Text 控件，不编辑)
+        ImGui::Text("Selected Object Name: %s", selectedMesh->getName().c_str());
 
-            const Eigen::Vector3f& scale = selectedMesh->getScale();
-            ImGui::Text("Scale: X: %.2f Y: %.2f Z: %.2f", scale.x(), scale.y(), scale.z());
+        ImGui::Separator();
 
-            Eigen::Quaternionf rotation = selectedMesh->getRotation();
-            Eigen::Vector3f euler = rotation.toRotationMatrix().eulerAngles(0, 1, 2) * 180.0f / M_PI;
-            ImGui::Text("Rotation (Euler): R: %.2f P: %.2f Y: %.2f", euler.x(), euler.y(), euler.z());
+        // -------------------------------------------------------------------
+        // 编辑位置 (Position)
+        // -------------------------------------------------------------------
+        // 将 Eigen::Vector3f 转换为 float[3] 数组供 ImGui::InputFloat3 使用
+        Eigen::Vector3f currentPos = selectedMesh->getPosition();
+        float pos[3] = {currentPos.x(), currentPos.y(), currentPos.z()};
+
+        // ImGui::InputFloat3 会返回 true 如果值被用户修改了
+        if (ImGui::InputFloat3("Position", pos))
+        {
+            // 如果修改了，更新 Mesh 的位置
+            selectedMesh->setPosition(Eigen::Vector3f(pos[0], pos[1], pos[2]));
+            // (可选) 可以在这里打印日志或触发一个事件
+            // std::cout << "Mesh " << selectedMesh->getName() << " new Position: "
+            //           << pos[0] << ", " << pos[1] << ", " << pos[2] << std::endl;
+        }
+
+        // -------------------------------------------------------------------
+        // 编辑旋转 (Rotation) - 使用欧拉角
+        // -------------------------------------------------------------------
+        Eigen::Quaternionf currentRotQuat = selectedMesh->getRotation();
+        // 将四元数转换为欧拉角（度），供 ImGui 编辑
+        // 顺序 (0,1,2) 对应 X(Roll), Y(Pitch), Z(Yaw)
+        // 记住 ImGui InputFloat3 的值是弧度还是度取决于你的惯例，这里我们用度
+        Eigen::Vector3f currentEuler = currentRotQuat.toRotationMatrix().eulerAngles(0, 1, 2) * 180.0f / M_PI;
+        float rot[3] = {currentEuler.x(), currentEuler.y(), currentEuler.z()};
+
+        if (ImGui::InputFloat3("Rotation (Euler)", rot))
+        {
+            // 如果欧拉角被修改了，将其转换回四元数并更新 Mesh
+            // 注意：欧拉角到四元数的转换顺序必须和提取时一致，且要从度转回弧度
+            Eigen::Quaternionf newRotQuat =
+                Eigen::AngleAxisf(rot[2] * M_PI / 180.0f, Eigen::Vector3f::UnitZ()) * // Yaw
+                Eigen::AngleAxisf(rot[1] * M_PI / 180.0f, Eigen::Vector3f::UnitY()) * // Pitch
+                Eigen::AngleAxisf(rot[0] * M_PI / 180.0f, Eigen::Vector3f::UnitX());  // Roll
+
+            selectedMesh->setRotation(newRotQuat);
+            // (可选) 打印日志
+            // std::cout << "Mesh " << selectedMesh->getName() << " new Euler: "
+            //           << rot[0] << ", " << rot[1] << ", " << rot[2] << std::endl;
+        }
+
+        // -------------------------------------------------------------------
+        // 编辑缩放 (Scale)
+        // -------------------------------------------------------------------
+        Eigen::Vector3f currentScale = selectedMesh->getScale();
+        float scale[3] = {currentScale.x(), currentScale.y(), currentScale.z()};
+
+        if (ImGui::InputFloat3("Scale", scale))
+        {
+            selectedMesh->setScale(Eigen::Vector3f(scale[0], scale[1], scale[2]));
+            // (可选) 打印日志
+            // std::cout << "Mesh " << selectedMesh->getName() << " new Scale: "
+            //           << scale[0] << ", " << scale[1] << ", " << scale[2] << std::endl;
         }
     }
     else
     {
-        // 如果回调没有被设置，显示一个错误或提示信息
-        ImGui::Text("null");
+        ImGui::Text("No object selected.");
+        ImGui::Text("Click on an object to select it.");
     }
+
     ImGui::End();
-    //--------------------------------------------
 
     if (showDemoWindow)
     {
