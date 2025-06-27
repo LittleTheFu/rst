@@ -1,0 +1,70 @@
+name: Multi-Platform Build
+
+on:
+  push:
+    branches:
+      - master # 当master分支有新的提交时触发
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }} # 在多个操作系统上运行
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest] # 定义要测试的操作系统
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4 # 检出你的代码
+
+    - name: Setup environment (e.g., Python, Node.js, Java, C++)
+      # 根据你的项目类型选择合适的设置步骤
+      # 例如，如果你是Python项目:
+      # uses: actions/setup-python@v5
+      # with:
+      #   python-version: '3.x'
+
+      # 如果你是Node.js项目:
+      # uses: actions/setup-node@v4
+      # with:
+      #   node-version: '20'
+
+      # 如果是C++项目，可能需要安装特定的编译器或库
+      # run: |
+      #   sudo apt-get update
+      #   sudo apt-get install build-essential
+
+      # 请根据你的项目需求替换这里
+      run: echo "请在此处添加你的环境设置命令"
+
+    - name: Install dependencies (if any)
+      # 例如，如果你是Python项目:
+      # run: pip install -r requirements.txt
+
+      # 如果你是Node.js项目:
+      # run: npm install
+
+      # 请根据你的项目需求替换这里
+      run: echo "请在此处添加你的依赖安装命令"
+
+    - name: Compile/Build project
+      # 你的编译命令，例如：
+      # run: make
+      # run: npm run build
+      # run: python setup.py build
+
+      # 请根据你的项目需求替换这里
+      run: echo "请在此处添加你的编译命令"
+
+    - name: Run tests (optional but recommended)
+      # 你的测试命令，例如：
+      # run: npm test
+      # run: pytest
+
+      # 请根据你的项目需求替换这里
+      run: echo "请在此处添加你的测试命令 (可选)"
+
+    - name: Check for errors
+      # 如果你的编译或测试命令有错误，GitHub Actions 会自动标记为失败
+      # 如果有其他特定的错误检查工具，也可以在这里运行
+      run: echo "编译完成，请检查前面的步骤是否成功"
