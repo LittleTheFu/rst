@@ -5,6 +5,8 @@
             "includePath": [
                 "${workspaceFolder}/**",
                 "${workspaceFolder}/pass",
+                "${workspaceFolder}/camera",
+                "${workspaceFolder}/mesh",
                 "${workspaceFolder}/command",
                 "${workspaceFolder}/command/cameraCommand",
                 "${workspaceFolder}/utilities",

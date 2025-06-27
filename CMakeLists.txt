@@ -109,6 +109,11 @@ set(MESH_SOURCE_FILES
     ${MESH_DIR}/assimpUtils.cpp
 )
 
+set(CAMERA_DIR "camera")
+set(CAMERA_SOURCE_FILES
+    ${CAMERA_DIR}/camera.cpp
+)
+
 set(RST_DEBUG_DIR "rstDebug")
 set(RST_DEBUG_SOURCE_FILES
     ${RST_DEBUG_DIR}/debugBox.cpp
@@ -157,7 +162,7 @@ add_executable(rst
     glResource.cpp
     shadowUtils.cpp
     shader.cpp
-    camera.cpp
+    ${CAMERA_SOURCE_FILES}
     ${PASS_SOURCE_FILES}
     ${UTILITIES_SOURCE_FILES}
     ${SCENE_SOURCE_FILES}
@@ -178,6 +183,7 @@ target_compile_options(rst PRIVATE /wd4819)
 
 target_include_directories(rst PRIVATE
     ${CMAKE_SOURCE_DIR}
+    ${CMAKE_SOURCE_DIR}/${CAMERA_DIR}
     ${CMAKE_SOURCE_DIR}/${PASS_DIR}
     ${CMAKE_SOURCE_DIR}/${UTILITIES_DIR}
     ${CMAKE_SOURCE_DIR}/${SCENE_DIR}
