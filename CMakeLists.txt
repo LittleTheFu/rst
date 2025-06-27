@@ -114,6 +114,10 @@ set(CAMERA_SOURCE_FILES
     ${CAMERA_DIR}/camera.cpp
 )
 
+set(INTERFACE_DIR "interface")
+set(INTERFACE_SOURCE_FILES
+)
+
 set(RST_DEBUG_DIR "rstDebug")
 set(RST_DEBUG_SOURCE_FILES
     ${RST_DEBUG_DIR}/debugBox.cpp
@@ -175,6 +179,7 @@ add_executable(rst
     ${COMMAND_SOURCE_FILES}
     ${COLLISION_SOURCE_FILES}
     ${MESH_SOURCE_FILES}
+    ${INTERFACE_SOURCE_FILES}
     ${RST_DEBUG_SOURCE_FILES}
 )
 
@@ -198,6 +203,7 @@ target_include_directories(rst PRIVATE
     ${CMAKE_SOURCE_DIR}/${DEBUG_COMMAND_DIR}
     ${CMAKE_SOURCE_DIR}/${COLLISION_DIR}
     ${CMAKE_SOURCE_DIR}/${MESH_DIR}
+    ${CMAKE_SOURCE_DIR}/${INTERFACE_DIR}
     ${CMAKE_SOURCE_DIR}/${RST_DEBUG_DIR}
 
     ${CMAKE_SOURCE_DIR}/third/glad/include
