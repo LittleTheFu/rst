@@ -19,6 +19,8 @@ public:
     // 渲染所有子 Mesh
     void render(Shader& shader) const;
 
+    void setMaterial(std::shared_ptr<Material> material);
+
     // 获取所有子 Mesh
     const std::vector<std::unique_ptr<Mesh>>& getMeshes() const { return meshes_; }
 

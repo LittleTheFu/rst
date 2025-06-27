@@ -16,6 +16,13 @@ void Model::render(Shader& shader) const {
     }
 }
 
+void Model::setMaterial(std::shared_ptr<Material> material)
+{
+    for (auto& mesh : meshes_) {
+        mesh->setMaterial(material);
+    }
+}
+
 void Model::loadModel(const std::string& path) {
     Assimp::Importer importer;
     const aiScene* scene = importer.ReadFile(path, 
