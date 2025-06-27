@@ -23,6 +23,27 @@ void Model::setMaterial(std::shared_ptr<Material> material)
     }
 }
 
+void Model::setScale(const Eigen::Vector3f& scale)
+{
+    for (auto& mesh : meshes_) {
+        mesh->setScale(scale);
+    }
+}
+
+void Model::setPosition(const Eigen::Vector3f& position)
+{
+    for (auto& mesh : meshes_) {
+        mesh->setPosition(position);
+    }
+}
+
+void Model::setRotation(const Eigen::Quaternionf& rotation)
+{
+    for (auto& mesh : meshes_) {
+        mesh->setRotation(rotation);
+    }
+}
+
 void Model::loadModel(const std::string& path) {
     Assimp::Importer importer;
     const aiScene* scene = importer.ReadFile(path, 

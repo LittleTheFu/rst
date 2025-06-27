@@ -12,7 +12,9 @@
 #include "shader.h" // 包含 Shader
 #include "Material.h" // 包含 Material
 
-class Model {
+//consider interface Transformable,I will be back here later...
+class Model 
+{
 public:
     // 构造函数：接受模型文件的路径
     Model(const std::string& path);
@@ -20,9 +22,21 @@ public:
     void render(Shader& shader) const;
 
     void setMaterial(std::shared_ptr<Material> material);
+    void setScale(const Eigen::Vector3f& scale);
+    void setPosition(const Eigen::Vector3f& position);
+    void setRotation(const Eigen::Quaternionf& rotation);
+    
 
     // 获取所有子 Mesh
     const std::vector<std::unique_ptr<Mesh>>& getMeshes() const { return meshes_; }
+
+    // quick and dirty
+    std::unique_ptr<Mesh> takeMesh(size_t index)
+    {
+        if (index >= meshes_.size())
+            return nullptr;
+        return std::move(meshes_[index]);
+    }
 
     // --- Transformable 接口 (可选) ---
     // 你可以给Model也添加Transformable接口，让整个模型作为一个整体进行变换
