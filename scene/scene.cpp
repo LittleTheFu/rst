@@ -3,8 +3,6 @@
 #include <glad/glad.h>
 #include "debug_utils.h"
 #include "utilities.h"
-
-// 确保包含 Model.h，以便 dynamic_cast<Model*> 能够正常工作
 #include "model.h"
 
 void Scene::init()
@@ -52,7 +50,6 @@ void Scene::init()
 
 void Scene::updateScene()
 {
-    // 光源调试动画
     static int count = 0;
     count++;
     count %= 8000;
@@ -60,9 +57,7 @@ void Scene::updateScene()
     x_light *= 1.0f;
     sceneData_->light->position = Eigen::Vector3f(x_light, x_light, 3.0f);
 
-    // 调试光标位置
     Eigen::Vector3f offset = Eigen::Vector3f(0.0f, 0.5f, 0.0f);
-    // 检查 cursor 是否存在，并设置其位置
     if (sceneData_->cursor)
     {
         sceneData_->cursor->setPosition(sceneData_->light->position + offset);
@@ -137,41 +132,27 @@ void Scene::renderFinalPass()
 
 void Scene::debugDraw()
 {
-    // --- 调试渲染 ---
-    // 确保你已经绑定了默认帧缓冲区 (或你希望调试信息叠加到的 FBO)
-    glBindFramebuffer(GL_FRAMEBUFFER, 0); // 通常最终渲染到屏幕
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glViewport(0, 0, sceneData_->screenWidth, sceneData_->screenHeight);
 
     debugRenderer_->SetMatrices(sceneData_->camera->GetViewMatrix(), sceneData_->camera->GetProjectionMatrix());
 
-    // 绘制所有不透明 ISceneObject 的 AABB
     for (const auto &objPtr : sceneData_->opaqueObjects)
     {
         if (objPtr)
         {
-            // 尝试将 ISceneObject 转换为 Model，因为 Model 提供了 getWorldAABB()
             Model *model = dynamic_cast<Model *>(objPtr.get());
             if (model)
             {
-                std::unique_ptr<AABB> worldAABB = model->getWorldAABB(); // 获取 Model 的世界空间 AABB
+                std::unique_ptr<AABB> worldAABB = model->getWorldAABB();
                 if (worldAABB)
                 {
-                    debugRenderer_->DrawAABB(*worldAABB, Eigen::Vector3f(1.0f, 1.0f, 0.0f)); // 黄色 AABB
+                    debugRenderer_->DrawAABB(*worldAABB, Eigen::Vector3f(1.0f, 1.0f, 0.0f));
                 }
-            }
-            else
-            {
-                // 如果有其他类型的 ISceneObject 也可以在这里处理它们的 AABB 绘制
-                // 或者确保 ISceneObject 接口有一个 getBoundingVolume() 方法
-                // 并在这里调用它
-                // For example:
-                // std::unique_ptr<AABB> worldAABB = objPtr->getBoundingVolume();
-                // if (worldAABB) { debugRenderer_->DrawAABB(*worldAABB, ...); }
             }
         }
     }
 
-    // 绘制所有透明 ISceneObject 的 AABB
     for (const auto &objPtr : sceneData_->transparentObjects)
     {
         if (objPtr)
@@ -182,13 +163,12 @@ void Scene::debugDraw()
                 std::unique_ptr<AABB> worldAABB = model->getWorldAABB();
                 if (worldAABB)
                 {
-                    debugRenderer_->DrawAABB(*worldAABB, Eigen::Vector3f(0.0f, 1.0f, 1.0f)); // 青色 AABB
+                    debugRenderer_->DrawAABB(*worldAABB, Eigen::Vector3f(0.0f, 1.0f, 1.0f));
                 }
             }
         }
     }
 
-    // 绘制 cursor 的 AABB
     if (sceneData_->cursor)
     {
         Model *cursorModel = dynamic_cast<Model *>(sceneData_->cursor.get());
@@ -197,31 +177,27 @@ void Scene::debugDraw()
             std::unique_ptr<AABB> worldAABB = cursorModel->getWorldAABB();
             if (worldAABB)
             {
-                debugRenderer_->DrawAABB(*worldAABB, Eigen::Vector3f(1.0f, 0.0f, 1.0f)); // 紫色 AABB for cursor
+                debugRenderer_->DrawAABB(*worldAABB, Eigen::Vector3f(1.0f, 0.0f, 1.0f));
             }
         }
     }
 
-    // 绘制点光源
     if (sceneData_->light)
     {
-        debugRenderer_->DrawPointLight(*sceneData_->light, 0.2f, Eigen::Vector3f(1.0f, 0.0f, 0.0f)); // 红色小立方体
+        debugRenderer_->DrawPointLight(*sceneData_->light, 0.2f, Eigen::Vector3f(1.0f, 0.0f, 0.0f));
     }
 
     GL_CHECK_ERROR();
 }
 
-// 修改 getAllMeshes 为 getAllSceneObjects
 std::vector<ISceneObject *> Scene::getAllSceneObjects() const
 {
     std::vector<ISceneObject *> allObjects;
-    // 预留空间优化 (大致估算)
     allObjects.reserve(sceneData_->opaqueObjects.size() +
                        sceneData_->transparentObjects.size() +
                        (sceneData_->cursor ? 1 : 0) +
                        (sceneData_->skybox ? 1 : 0));
 
-    // 添加不透明物体
     for (const auto &objPtr : sceneData_->opaqueObjects)
     {
         if (objPtr)
@@ -230,7 +206,6 @@ std::vector<ISceneObject *> Scene::getAllSceneObjects() const
         }
     }
 
-    // 添加透明物体
     for (const auto &objPtr : sceneData_->transparentObjects)
     {
         if (objPtr)
@@ -239,13 +214,11 @@ std::vector<ISceneObject *> Scene::getAllSceneObjects() const
         }
     }
 
-    // 添加 cursor (如果存在)
     if (sceneData_->cursor)
     {
         allObjects.push_back(sceneData_->cursor.get());
     }
 
-    // 添加 skybox (如果存在并希望它出现在列表中，例如在编辑器中可选择)
     if (sceneData_->skybox)
     {
         allObjects.push_back(sceneData_->skybox.get());
@@ -261,7 +234,6 @@ void Scene::run()
     skyPass_->Render(*sceneData_->camera);
     GL_CHECK_ERROR();
 
-    // Pass 参数现在传递 ISceneObject 列表
     shadowPass_->Render(getRawPointers(sceneData_->opaqueObjects), *sceneData_->light);
     GL_CHECK_ERROR();
 
@@ -349,7 +321,6 @@ void Scene::run()
     postPass_->Render(depthOfFieldPass_->getColorTextureId());
     GL_CHECK_ERROR();
 
-    // the final pass which actually displays the image on the screen.
     renderFinalPass();
 
     if (isDebugDraw_)
@@ -360,82 +331,24 @@ void Scene::run()
 
 void Scene::resize(int width, int height)
 {
-    // 更新 SceneData 的尺寸
     sceneData_->screenWidth = width;
     sceneData_->screenHeight = height;
 
-    // 逐个调用所有 Pass 的 resize 方法
-    if (gBufferPass_)
-    {
-        gBufferPass_->Resize(width, height);
-    }
+    if (gBufferPass_) gBufferPass_->Resize(width, height);
+    if (lightPass_) lightPass_->Resize(width, height);
+    if (skyPass_) skyPass_->Resize(width, height);
+    if (combinedPass_) combinedPass_->Resize(width, height);
+    if (blurHorizontalPass_) blurHorizontalPass_->Resize(width, height);
+    if (blurVerticalPass_) blurVerticalPass_->Resize(width, height);
+    if (depthOfFieldPass_) depthOfFieldPass_->Resize(width, height);
+    if (iblPass_) iblPass_->Resize(width, height);
+    if (postPass_) postPass_->Resize(width, height);
+    if (screenPass_) screenPass_->Resize(width, height);
+    if (ssrPass_) ssrPass_->Resize(width, height);
+    if (brightnessMaskPass_) brightnessMaskPass_->Resize(width, height);
+    if (godRayPass_) godRayPass_->Resize(width, height);
+    if (oitPass_) oitPass_->Resize(width, height);
 
-    if (lightPass_)
-    {
-        lightPass_->Resize(width, height);
-    }
-
-    if (skyPass_)
-    {
-        skyPass_->Resize(width, height);
-    }
-
-    if (combinedPass_)
-    {
-        combinedPass_->Resize(width, height);
-    }
-
-    if (blurHorizontalPass_)
-    {
-        blurHorizontalPass_->Resize(width, height);
-    }
-
-    if (blurVerticalPass_)
-    {
-        blurVerticalPass_->Resize(width, height);
-    }
-
-    if (depthOfFieldPass_)
-    {
-        depthOfFieldPass_->Resize(width, height);
-    }
-
-    if (iblPass_)
-    {
-        iblPass_->Resize(width, height);
-    }
-
-    if (postPass_)
-    {
-        postPass_->Resize(width, height);
-    }
-
-    if (screenPass_)
-    {
-        screenPass_->Resize(width, height);
-    }
-
-    if (ssrPass_)
-    {
-        ssrPass_->Resize(width, height);
-    }
-
-    if (brightnessMaskPass_)
-    {
-        brightnessMaskPass_->Resize(width, height);
-    }
-
-    if (godRayPass_)
-    {
-        godRayPass_->Resize(width, height);
-    }
-
-    if (oitPass_)
-    {
-        oitPass_->Resize(width, height);
-    }
-
-    // 更新主相机的投影矩阵，以适应新的屏幕宽高比
     sceneData_->camera->setAspectRatio(static_cast<float>(width) / height);
 }
 
@@ -444,7 +357,6 @@ void Scene::saveTextures()
     int w = sceneData_->screenWidth;
     int h = sceneData_->screenHeight;
 
-    // Gbuffer
     Utilities::SaveTextureToFile(gBufferPass_->getPositionTextureId(), w, h, GL_RGBA, GL_FLOAT, "position.png");
     Utilities::SaveTextureToFile(gBufferPass_->getNormalTextureId(), w, h, GL_RGBA, GL_FLOAT, "normal.png", true);
     Utilities::SaveTextureToFile(gBufferPass_->getAlbedoTextureId(), w, h, GL_RGBA, GL_UNSIGNED_BYTE, "albedo.png");
@@ -452,34 +364,14 @@ void Scene::saveTextures()
     Utilities::SaveTextureToFile(gBufferPass_->getMetallicTextureId(), w, h, GL_RGBA, GL_UNSIGNED_BYTE, "metallic.png");
     Utilities::SaveTextureToFile(gBufferPass_->getAOTextureId(), w, h, GL_RGBA, GL_UNSIGNED_BYTE, "ao.png");
     Utilities::SaveTextureToFile(gBufferPass_->getDepthTextureId(), w, h, GL_DEPTH_COMPONENT, GL_FLOAT, "depth.png");
-
-    // skybox
     Utilities::SaveTextureToFile(skyPass_->getColorTextureId(), w, h, GL_RGBA, GL_UNSIGNED_BYTE, "skybox.png");
-
-    // light
     Utilities::SaveTextureToFile(lightPass_->getOutputTextureId(), w, h, GL_RGBA, GL_FLOAT, "light.png");
-
-    // combined
     Utilities::SaveTextureToFile(combinedPass_->getColorTextureId(), w, h, GL_RGBA, GL_FLOAT, "combined.png");
-
-    // brightnessMask
     Utilities::SaveTextureToFile(brightnessMaskPass_->getOutputTextureId(), w, h, GL_RGBA, GL_UNSIGNED_BYTE, "brightness_mask.png");
-
-    // godRay
     Utilities::SaveTextureToFile(godRayPass_->getColorTextureId(), w, h, GL_RGBA, GL_FLOAT, "god_ray.png");
-
-    // ssr
     Utilities::SaveTextureToFile(ssrPass_->getReflectionTextureId(), w, h, GL_RGBA, GL_FLOAT, "ssr.png");
-
-    // blur
     Utilities::SaveTextureToFile(blurHorizontalPass_->getColorTextureId(), w, h, GL_RGBA, GL_FLOAT, "blur_horizontal.png");
     Utilities::SaveTextureToFile(blurVerticalPass_->getColorTextureId(), w, h, GL_RGBA, GL_FLOAT, "blur_vertical.png");
-
-    // depthOfField
     Utilities::SaveTextureToFile(depthOfFieldPass_->getColorTextureId(), w, h, GL_RGBA, GL_FLOAT, "depth_of_field.png");
-
-    // post
     Utilities::SaveTextureToFile(postPass_->getColorTextureId(), w, h, GL_RGBA, GL_FLOAT, "post.png");
-
-    // glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
