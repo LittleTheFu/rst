@@ -123,6 +123,8 @@ set(CAMERA_COMMAND_SOURCE_FILES
     ${CAMERA_COMMAND_DIR}/moveCameraLeftCommand.cpp
     ${CAMERA_COMMAND_DIR}/moveCameraRightCommand.cpp
     ${CAMERA_COMMAND_DIR}/moveCameraUpCommand.cpp
+    ${CAMERA_COMMAND_DIR}/rotateCameraLeftCommand.cpp
+    ${CAMERA_COMMAND_DIR}/rotateCameraRightCommand.cpp
     ${CAMERA_COMMAND_DIR}/processMouseMovementCommand.cpp
     ${CAMERA_COMMAND_DIR}/processMouseScrollCommand.cpp
 )

@@ -18,13 +18,16 @@ enum CameraMovement
     LEFT,
     RIGHT,
     UP,   // 沿着相机局部上方向移动
-    DOWN  // 沿着相机局部下方向移动
+    DOWN,  // 沿着相机局部下方向移动
+    ROT_LEFT,
+    ROT_RIGHT,
 };
 
 class Camera
 {
 public:
     // 相机参数
+    float rotationSpeed = 10.0f;
     float movementSpeed = 2.5f * 1.0f;
     float mouseSensitivity = 0.0f;
     float zoomSensitivity = 0.5f; // 用于滚轮缩放FOV

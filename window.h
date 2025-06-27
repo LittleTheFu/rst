@@ -25,6 +25,8 @@
 #include "processMouseScrollCommand.h"
 #include "toggleDebugModeCommand.h"
 #include "pickObjectCommand.h"
+#include "rotateCameraLeftCommand.h"
+#include "rotateCameraRightCommand.h"
 
 class Window {
 public:
@@ -75,6 +77,8 @@ private:
     MoveCameraRightCommand* cmd_moveRight_ = nullptr;
     MoveCameraUpCommand* cmd_moveUp_ = nullptr;
     MoveCameraDownCommand* cmd_moveDown_ = nullptr;
+    RotateCameraLeftCommand* cmd_rotateLeft_ = nullptr;
+    RotateCameraRightCommand* cmd_rotateRight_ = nullptr;
     ProcessMouseMovementCommand* cmd_mouseLook_ = nullptr;
     ProcessMouseScrollCommand* cmd_mouseScroll_ = nullptr;
     ToggleDebugModeCommand* cmd_toggleDebug_ = nullptr; // 示例：调试模式切换命令

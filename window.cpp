@@ -166,6 +166,8 @@ Window::Window(const char *title, int width, int height)
     cmd_moveRight_ = new MoveCameraRightCommand(scene_.getCamera(), deltaTime_);
     cmd_moveUp_ = new MoveCameraUpCommand(scene_.getCamera(), deltaTime_);
     cmd_moveDown_ = new MoveCameraDownCommand(scene_.getCamera(), deltaTime_);
+    cmd_rotateLeft_ = new RotateCameraLeftCommand(scene_.getCamera(), deltaTime_);
+    cmd_rotateRight_ = new RotateCameraRightCommand(scene_.getCamera(), deltaTime_);
 
     // 鼠标视角和滚轮命令不需要直接接收 deltaTime，因为它们从 InputManager 获取相对量
     cmd_mouseLook_ = new ProcessMouseMovementCommand(scene_.getCamera());
@@ -191,6 +193,8 @@ Window::~Window()
     delete cmd_moveRight_;
     delete cmd_moveUp_;
     delete cmd_moveDown_;
+    delete cmd_rotateLeft_;
+    delete cmd_rotateRight_;
     delete cmd_mouseLook_;
     delete cmd_mouseScroll_;
     delete cmd_toggleDebug_;
@@ -247,6 +251,10 @@ void Window::update()
         static_cast<CameraCommand *>(cmd_moveUp_)->setDeltaTime(deltaTime_);
     if (cmd_moveDown_)
         static_cast<CameraCommand *>(cmd_moveDown_)->setDeltaTime(deltaTime_);
+    if (cmd_rotateLeft_)
+        static_cast<CameraCommand *>(cmd_rotateLeft_)->setDeltaTime(deltaTime_);
+    if (cmd_rotateRight_)
+        static_cast<CameraCommand *>(cmd_rotateRight_)->setDeltaTime(deltaTime_);
 
     // --- 输入处理 ---
     // 1. 调用 InputManager::Update() 清理上一帧状态，并重置鼠标相对移动量。
@@ -313,6 +321,14 @@ void Window::update()
     if (InputManager::GetInstance().IsKeyDown(SDL_SCANCODE_E))
     {
         cmd_moveDown_->Execute();
+    }
+    if (InputManager::GetInstance().IsKeyDown(SDL_SCANCODE_Z))
+    {
+        cmd_rotateLeft_->Execute();
+    }
+    if (InputManager::GetInstance().IsKeyDown(SDL_SCANCODE_C))
+    {
+        cmd_rotateRight_->Execute();
     }
 
     // 鼠标视角命令：总是执行，因为即使鼠标没有移动，GetMouseDeltaX/Y 也会被重置为 0，

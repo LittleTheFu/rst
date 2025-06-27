@@ -75,6 +75,18 @@ void Camera::setFOV(float fov)
 void Camera::ProcessKeyboard(CameraMovement direction, float deltaTime)
 {
     // std::cout << "Position before: " << Position.transpose() << std::endl;
+
+    // TODO: refactor later
+    if (direction == ROT_LEFT || direction == ROT_RIGHT)
+    {
+        float velocity = rotationSpeed * deltaTime;
+        if (direction == ROT_LEFT)
+            Yaw -= velocity;
+        if (direction == ROT_RIGHT)
+            Yaw += velocity;
+        updateCameraVectors();
+        return;
+    }
     
     float velocity = movementSpeed * deltaTime;
     if (direction == FORWARD)
