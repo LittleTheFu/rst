@@ -4,6 +4,9 @@
 #include "debug_utils.h"
 #include "utilities.h"
 
+// 确保包含 Model.h，以便 dynamic_cast<Model*> 能够正常工作
+#include "model.h"
+
 void Scene::init()
 {
     sceneData_ = std::move(sceneFactory::createScene());
@@ -56,14 +59,13 @@ void Scene::updateScene()
     float x_light = count / 1200.0f - 3.0f;
     x_light *= 1.0f;
     sceneData_->light->position = Eigen::Vector3f(x_light, x_light, 3.0f);
-    // mainLight_->position = Eigen::Vector3f(5, 5, 7.0f);
-    // sceneData_->light->intensity = 8.0f;
 
     // 调试光标位置
     Eigen::Vector3f offset = Eigen::Vector3f(0.0f, 0.5f, 0.0f);
-    if (!sceneData_->opaqueObjects.empty())
+    // 检查 cursor 是否存在，并设置其位置
+    if (sceneData_->cursor)
     {
-        sceneData_->opaqueObjects.back()->setPosition(sceneData_->light->position + offset);
+        sceneData_->cursor->setPosition(sceneData_->light->position + offset);
     }
 }
 
@@ -135,37 +137,67 @@ void Scene::renderFinalPass()
 
 void Scene::debugDraw()
 {
-     // --- 调试渲染 ---
+    // --- 调试渲染 ---
     // 确保你已经绑定了默认帧缓冲区 (或你希望调试信息叠加到的 FBO)
     glBindFramebuffer(GL_FRAMEBUFFER, 0); // 通常最终渲染到屏幕
     glViewport(0, 0, sceneData_->screenWidth, sceneData_->screenHeight);
 
     debugRenderer_->SetMatrices(sceneData_->camera->GetViewMatrix(), sceneData_->camera->GetProjectionMatrix());
 
-    // 绘制所有不透明 Mesh 的 AABB
-    for (const auto &mesh : sceneData_->opaqueObjects)
+    // 绘制所有不透明 ISceneObject 的 AABB
+    for (const auto &objPtr : sceneData_->opaqueObjects)
     {
-        if (mesh)
+        if (objPtr)
         {
-            AABB *worldAABB = mesh->getWorldAABB();
-            if (worldAABB)
+            // 尝试将 ISceneObject 转换为 Model，因为 Model 提供了 getWorldAABB()
+            Model *model = dynamic_cast<Model *>(objPtr.get());
+            if (model)
             {
-                debugRenderer_->DrawAABB(*worldAABB, Eigen::Vector3f(1.0f, 1.0f, 0.0f)); // 黄色 AABB
-                delete worldAABB;                                                        // 释放 getWorldAABB 返回的堆内存
+                std::unique_ptr<AABB> worldAABB = model->getWorldAABB(); // 获取 Model 的世界空间 AABB
+                if (worldAABB)
+                {
+                    debugRenderer_->DrawAABB(*worldAABB, Eigen::Vector3f(1.0f, 1.0f, 0.0f)); // 黄色 AABB
+                }
+            }
+            else
+            {
+                // 如果有其他类型的 ISceneObject 也可以在这里处理它们的 AABB 绘制
+                // 或者确保 ISceneObject 接口有一个 getBoundingVolume() 方法
+                // 并在这里调用它
+                // For example:
+                // std::unique_ptr<AABB> worldAABB = objPtr->getBoundingVolume();
+                // if (worldAABB) { debugRenderer_->DrawAABB(*worldAABB, ...); }
             }
         }
     }
 
-    // 绘制所有透明 Mesh 的 AABB
-    for (const auto &mesh : sceneData_->transparentObjects)
+    // 绘制所有透明 ISceneObject 的 AABB
+    for (const auto &objPtr : sceneData_->transparentObjects)
     {
-        if (mesh)
+        if (objPtr)
         {
-            AABB *worldAABB = mesh->getWorldAABB();
+            Model *model = dynamic_cast<Model *>(objPtr.get());
+            if (model)
+            {
+                std::unique_ptr<AABB> worldAABB = model->getWorldAABB();
+                if (worldAABB)
+                {
+                    debugRenderer_->DrawAABB(*worldAABB, Eigen::Vector3f(0.0f, 1.0f, 1.0f)); // 青色 AABB
+                }
+            }
+        }
+    }
+
+    // 绘制 cursor 的 AABB
+    if (sceneData_->cursor)
+    {
+        Model *cursorModel = dynamic_cast<Model *>(sceneData_->cursor.get());
+        if (cursorModel)
+        {
+            std::unique_ptr<AABB> worldAABB = cursorModel->getWorldAABB();
             if (worldAABB)
             {
-                debugRenderer_->DrawAABB(*worldAABB, Eigen::Vector3f(0.0f, 1.0f, 1.0f)); // 青色 AABB
-                delete worldAABB;
+                debugRenderer_->DrawAABB(*worldAABB, Eigen::Vector3f(1.0f, 0.0f, 1.0f)); // 紫色 AABB for cursor
             }
         }
     }
@@ -179,35 +211,47 @@ void Scene::debugDraw()
     GL_CHECK_ERROR();
 }
 
-std::vector<Mesh*> Scene::getAllMeshes() const {
-    std::vector<Mesh*> allMeshes;
-    allMeshes.reserve(sceneData_->opaqueObjects.size() + sceneData_->transparentObjects.size() + (sceneData_->cursor ? 1 : 0)); // 预留空间优化
+// 修改 getAllMeshes 为 getAllSceneObjects
+std::vector<ISceneObject *> Scene::getAllSceneObjects() const
+{
+    std::vector<ISceneObject *> allObjects;
+    // 预留空间优化 (大致估算)
+    allObjects.reserve(sceneData_->opaqueObjects.size() +
+                       sceneData_->transparentObjects.size() +
+                       (sceneData_->cursor ? 1 : 0) +
+                       (sceneData_->skybox ? 1 : 0));
 
     // 添加不透明物体
-    for (const auto& meshPtr : sceneData_->opaqueObjects) {
-        if (meshPtr) { // 安全检查
-            allMeshes.push_back(meshPtr.get());
+    for (const auto &objPtr : sceneData_->opaqueObjects)
+    {
+        if (objPtr)
+        {
+            allObjects.push_back(objPtr.get());
         }
     }
 
     // 添加透明物体
-    for (const auto& meshPtr : sceneData_->transparentObjects) {
-        if (meshPtr) { // 安全检查
-            allMeshes.push_back(meshPtr.get());
+    for (const auto &objPtr : sceneData_->transparentObjects)
+    {
+        if (objPtr)
+        {
+            allObjects.push_back(objPtr.get());
         }
     }
 
-    // 添加 cursor (如果存在并希望它出现在列表中)
-    if (sceneData_->cursor) {
-        allMeshes.push_back(sceneData_->cursor.get());
+    // 添加 cursor (如果存在)
+    if (sceneData_->cursor)
+    {
+        allObjects.push_back(sceneData_->cursor.get());
     }
 
-    // 添加 skybox (如果存在并希望它出现在列表中)
-    // if (sceneData_->skybox) {
-    //     allMeshes.push_back(sceneData_->skybox.get());
-    // }
+    // 添加 skybox (如果存在并希望它出现在列表中，例如在编辑器中可选择)
+    if (sceneData_->skybox)
+    {
+        allObjects.push_back(sceneData_->skybox.get());
+    }
 
-    return allMeshes;
+    return allObjects;
 }
 
 void Scene::run()
@@ -217,24 +261,25 @@ void Scene::run()
     skyPass_->Render(*sceneData_->camera);
     GL_CHECK_ERROR();
 
-    shadowPass_->Render(sceneData_->opaqueObjects, *sceneData_->light);
+    // Pass 参数现在传递 ISceneObject 列表
+    shadowPass_->Render(getRawPointers(sceneData_->opaqueObjects), *sceneData_->light);
     GL_CHECK_ERROR();
 
-    gBufferPass_->Render(sceneData_->opaqueObjects, *sceneData_->camera);
+    gBufferPass_->Render(getRawPointers(sceneData_->opaqueObjects), *sceneData_->camera);
     GL_CHECK_ERROR();
 
-    oitPass_->Render(sceneData_->transparentObjects,
+    oitPass_->Render(getRawPointers(sceneData_->transparentObjects),
                      *sceneData_->light,
                      *sceneData_->camera,
                      gBufferPass_->getDepthTextureId());
     GL_CHECK_ERROR();
 
-    lightPass_->Render(gBufferPass_->getPositionTextureId(),  // gPosition
-                       gBufferPass_->getNormalTextureId(),    // gNormal
-                       gBufferPass_->getAlbedoTextureId(),    // gAlbedo
-                       gBufferPass_->getRoughnessTextureId(), // gRoughness
-                       gBufferPass_->getMetallicTextureId(),  // gMetallic
-                       gBufferPass_->getAOTextureId(),        // gAO
+    lightPass_->Render(gBufferPass_->getPositionTextureId(),
+                       gBufferPass_->getNormalTextureId(),
+                       gBufferPass_->getAlbedoTextureId(),
+                       gBufferPass_->getRoughnessTextureId(),
+                       gBufferPass_->getMetallicTextureId(),
+                       gBufferPass_->getAOTextureId(),
                        *sceneData_->light,
                        *sceneData_->camera,
                        shadowPass_->getShadowMapDepthOutputTextureId());
@@ -254,12 +299,12 @@ void Scene::run()
                         32);
     GL_CHECK_ERROR();
 
-    iblPass_->Render(gBufferPass_->getPositionTextureId(),  // gPosition
-                     gBufferPass_->getNormalTextureId(),    // gNormal
-                     gBufferPass_->getAlbedoTextureId(),    // gAlbedo
-                     gBufferPass_->getRoughnessTextureId(), // gRoughness
-                     gBufferPass_->getMetallicTextureId(),  // gMetallic
-                     gBufferPass_->getAOTextureId(),        // gAO
+    iblPass_->Render(gBufferPass_->getPositionTextureId(),
+                     gBufferPass_->getNormalTextureId(),
+                     gBufferPass_->getAlbedoTextureId(),
+                     gBufferPass_->getRoughnessTextureId(),
+                     gBufferPass_->getMetallicTextureId(),
+                     gBufferPass_->getAOTextureId(),
                      *sceneData_->camera);
     GL_CHECK_ERROR();
 
@@ -307,7 +352,7 @@ void Scene::run()
     // the final pass which actually displays the image on the screen.
     renderFinalPass();
 
-    if(isDebugDraw_)
+    if (isDebugDraw_)
     {
         debugDraw();
     }
@@ -392,7 +437,6 @@ void Scene::resize(int width, int height)
 
     // 更新主相机的投影矩阵，以适应新的屏幕宽高比
     sceneData_->camera->setAspectRatio(static_cast<float>(width) / height);
-    // camera_.updateProjectionMatrix();
 }
 
 void Scene::saveTextures()

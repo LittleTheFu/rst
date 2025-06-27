@@ -4,7 +4,7 @@
 #include "RenderPass.h"
 #include "shader.h"
 #include "camera.h"
-#include "mesh.h" // 确保包含 Mesh 头文件
+#include "sceneObject.h" // !!! 引入 ISceneObject 接口，并确保文件名是正确的
 #include <vector>
 #include <memory> // 包含 shared_ptr 和 unique_ptr 的头文件
 #include "texture2D.h"
@@ -16,14 +16,14 @@ public:
     GBufferPass(int width, int height);
     ~GBufferPass() override = default;
 
-    // Render 方法现在明确接收其动态输入：网格列表和相机
-    void Render(const std::vector<std::unique_ptr<Mesh>>& meshes, const Camera& camera);
-                
+    // !!! 关键改动 !!!
+    // Render 方法现在明确接收其动态输入：ISceneObject 列表和相机
+    void Render(const std::vector<ISceneObject*>& objects, const Camera& camera);
+                 
     void Resize(int width, int height) override;
     GLuint getDepthTextureId() const;
 
     // G-Buffer 纹理的 Getter 保持不变
-    // GLuint getColorAttachment(int index) const;
     GLint getPositionTextureId() const;
     GLint getNormalTextureId() const;
     GLint getAlbedoTextureId() const;
@@ -32,9 +32,9 @@ public:
     GLint getAOTextureId() const;
 
 private:
-    Shader shader_;
+    Shader shader_; // G-Buffer 着色器
 
-    // G-Buffer 纹理的 IDs
+    // G-Buffer 纹理的 unique_ptr
     std::unique_ptr<Texture2D> positionTexture_; // 存储世界空间位置
     std::unique_ptr<Texture2D> normalTexture_;   // 存储世界空间法线
     std::unique_ptr<Texture2D> albedoTexture_;   // 存储反照率颜色和 AO
@@ -42,7 +42,7 @@ private:
     std::unique_ptr<Texture2D> metallicTexture_; // 存储金属度
     std::unique_ptr<Texture2D> aoTexture_;       // 存储环境光遮蔽 (AO)
     
-    std::unique_ptr<Texture2D> depthTexture_; // 存储深度信息（作为纹理）
+    std::unique_ptr<Texture2D> depthTexture_;    // 存储深度信息（作为纹理）
     
     void initGBuffer(); // 初始化 G-Buffer FBO 和纹理附件
 };

@@ -1,6 +1,21 @@
-#include "UiSystem.h"
+#include "uiSystem.h"
 #include <iostream>
-#include <mesh.h>
+// Add this include!
+#include <backends/imgui_impl_opengl3.h>
+// Also include the SDL2 backend for completeness, though it might be transitive
+#include <backends/imgui_impl_sdl2.h>
+// #include <mesh.h> // 不再直接使用 Mesh，因为我们现在用 ISceneObject
+
+// 假设 ISceneObject 提供了 getName(), getPosition(), getRotation(), getScale(), getMaterial() 等方法
+// 以及 setPosition(), setRotation(), setScale() 等设置方法。
+// 并且 getMaterial() 返回 std::shared_ptr<Material>
+// Material 类需要提供 getName(), getAlbedoColor(), getRoughnessFactor(), getMetallicFactor()
+// 以及 setAlbedoColor(), setRoughnessFactor(), setMetallicFactor()
+
+// 假设 math.h 提供了 M_PI
+#ifndef M_PI
+#define M_PI 3.14159265358979323846f
+#endif
 
 UiSystem::UiSystem(SDL_Window *window, SDL_GLContext glContext)
 {
@@ -153,35 +168,37 @@ void UiSystem::DrawUI(int currentFPS)
     // ---------- 新增：场景大纲视图窗口 ----------
     ImGui::Begin("Scene Outliner");
 
-    // 获取当前被选中的 Mesh (用于高亮显示)
-    Mesh *currentSelectedMesh = nullptr;
-    if (onGetSelectedMesh)
-    { // onGetSelectedMesh 是 UiSystem 的成员
-        currentSelectedMesh = onGetSelectedMesh();
+    // !!! 关键改动 !!!
+    // 获取当前被选中的 ISceneObject (用于高亮显示)
+    ISceneObject *currentSelectedObject = nullptr;
+    if (onGetSelectedObject)
+    { // onGetSelectedObject 是 UiSystem 的成员
+        currentSelectedObject = onGetSelectedObject();
     }
 
-    // 遍历所有 Mesh 并在列表中显示
-    if (!uiSceneData.allMeshes.empty())
+    // 遍历所有 ISceneObject 并在列表中显示
+    // uiSceneData.allMeshes 应该改为 uiSceneData.allSceneObjects 或类似
+    // 假设 uiSceneData.allSceneObjects 现在存储的是 std::vector<ISceneObject*>
+    if (!uiSceneData.allSceneObjects.empty())
     {
-        for (size_t i = 0; i < uiSceneData.allMeshes.size(); ++i)
+        for (size_t i = 0; i < uiSceneData.allSceneObjects.size(); ++i)
         {
-            Mesh *mesh = uiSceneData.allMeshes[i];
-            if (!mesh)
+            ISceneObject *obj = uiSceneData.allSceneObjects[i];
+            if (!obj)
                 continue; // 安全检查，防止空指针
 
-            // 设置选中状态：如果当前 Mesh 是被选中的，则 ImGui::Selectable 会高亮显示
-            bool isSelected = (mesh == currentSelectedMesh);
+            // 设置选中状态：如果当前 Object 是被选中的，则 ImGui::Selectable 会高亮显示
+            bool isSelected = (obj == currentSelectedObject);
 
-            // 为每个 Selectable 加上唯一的 ID，防止列表项名称重复时 ImGui 混淆
-            // (mesh->getName().c_str() + i) 是一种简单的生成唯一 ID 的方式
-            // 或者更推荐使用 ImGui::PushID(mesh) 和 ImGui::PopID()
-            ImGui::PushID(mesh); // 使用 Mesh* 地址作为 ID
-            if (ImGui::Selectable(mesh->getName().c_str(), isSelected))
+            // 为每个 Selectable 加上唯一的 ID
+            ImGui::PushID(obj); // 使用 ISceneObject* 地址作为 ID
+            if (ImGui::Selectable(obj->getName().c_str(), isSelected))
             {
-                // 如果用户点击了这个列表项，并且我们有设置选中 Mesh 的回调
-                if (uiSceneData.onMeshSelectedFromUI)
-                {                                           // 通过 uiSceneData 访问回调
-                    uiSceneData.onMeshSelectedFromUI(mesh); // 通知 Scene 选中了这个 Mesh
+                // 如果用户点击了这个列表项，并且我们有设置选中 Object 的回调
+                // uiSceneData.onMeshSelectedFromUI 应该改为 uiSceneData.onObjectSelectedFromUI
+                if (uiSceneData.onObjectSelectedFromUI)
+                { 
+                    uiSceneData.onObjectSelectedFromUI(obj); // 通知 Scene 选中了这个 ISceneObject
                 }
             }
             ImGui::PopID(); // 匹配 PushID
@@ -189,7 +206,7 @@ void UiSystem::DrawUI(int currentFPS)
     }
     else
     {
-        ImGui::Text("No meshes in scene.");
+        ImGui::Text("No objects in scene.");
     }
 
     ImGui::End(); // End Scene Outliner Window
@@ -197,115 +214,99 @@ void UiSystem::DrawUI(int currentFPS)
     // --- 选中物体属性窗口 ---
     ImGui::Begin("Selected Object Properties");
 
-    Mesh *selectedMesh = onGetSelectedMesh();
-    if (selectedMesh)
-    { // 检查指针是否为空
+    // !!! 关键改动 !!!
+    // 使用 onGetSelectedObject 获取 ISceneObject*
+    ISceneObject *selectedObject = nullptr;
+    if (onGetSelectedObject) {
+        selectedObject = onGetSelectedObject();
+    }
+    
+    if (selectedObject)
+    { 
         // 显示名称 (Text 控件，不编辑)
-        ImGui::Text("Selected Object Name: %s", selectedMesh->getName().c_str());
+        ImGui::Text("Selected Object Name: %s", selectedObject->getName().c_str());
 
         ImGui::Separator();
 
         // -------------------------------------------------------------------
         // 编辑位置 (Position)
         // -------------------------------------------------------------------
-        // 将 Eigen::Vector3f 转换为 float[3] 数组供 ImGui::InputFloat3 使用
-        Eigen::Vector3f currentPos = selectedMesh->getPosition();
+        Eigen::Vector3f currentPos = selectedObject->getPosition();
         float pos[3] = {currentPos.x(), currentPos.y(), currentPos.z()};
 
-        // ImGui::InputFloat3 会返回 true 如果值被用户修改了
         if (ImGui::InputFloat3("Position", pos))
         {
-            // 如果修改了，更新 Mesh 的位置
-            selectedMesh->setPosition(Eigen::Vector3f(pos[0], pos[1], pos[2]));
-            // (可选) 可以在这里打印日志或触发一个事件
-            // std::cout << "Mesh " << selectedMesh->getName() << " new Position: "
-            //           << pos[0] << ", " << pos[1] << ", " << pos[2] << std::endl;
+            selectedObject->setPosition(Eigen::Vector3f(pos[0], pos[1], pos[2]));
         }
 
         // -------------------------------------------------------------------
         // 编辑旋转 (Rotation) - 使用欧拉角
         // -------------------------------------------------------------------
-        Eigen::Quaternionf currentRotQuat = selectedMesh->getRotation();
-        // 将四元数转换为欧拉角（度），供 ImGui 编辑
-        // 顺序 (0,1,2) 对应 X(Roll), Y(Pitch), Z(Yaw)
-        // 记住 ImGui InputFloat3 的值是弧度还是度取决于你的惯例，这里我们用度
+        Eigen::Quaternionf currentRotQuat = selectedObject->getRotation();
         Eigen::Vector3f currentEuler = currentRotQuat.toRotationMatrix().eulerAngles(0, 1, 2) * 180.0f / M_PI;
         float rot[3] = {currentEuler.x(), currentEuler.y(), currentEuler.z()};
 
         if (ImGui::InputFloat3("Rotation (Euler)", rot))
         {
-            // 如果欧拉角被修改了，将其转换回四元数并更新 Mesh
-            // 注意：欧拉角到四元数的转换顺序必须和提取时一致，且要从度转回弧度
             Eigen::Quaternionf newRotQuat =
-                Eigen::AngleAxisf(rot[2] * M_PI / 180.0f, Eigen::Vector3f::UnitZ()) * // Yaw
-                Eigen::AngleAxisf(rot[1] * M_PI / 180.0f, Eigen::Vector3f::UnitY()) * // Pitch
-                Eigen::AngleAxisf(rot[0] * M_PI / 180.0f, Eigen::Vector3f::UnitX());  // Roll
+                Eigen::AngleAxisf(rot[2] * M_PI / 180.0f, Eigen::Vector3f::UnitZ()) * Eigen::AngleAxisf(rot[1] * M_PI / 180.0f, Eigen::Vector3f::UnitY()) * Eigen::AngleAxisf(rot[0] * M_PI / 180.0f, Eigen::Vector3f::UnitX()); 
 
-            selectedMesh->setRotation(newRotQuat);
-            // (可选) 打印日志
-            // std::cout << "Mesh " << selectedMesh->getName() << " new Euler: "
-            //           << rot[0] << ", " << rot[1] << ", " << rot[2] << std::endl;
+            selectedObject->setRotation(newRotQuat);
         }
 
         // -------------------------------------------------------------------
         // 编辑缩放 (Scale)
         // -------------------------------------------------------------------
-        Eigen::Vector3f currentScale = selectedMesh->getScale();
+        Eigen::Vector3f currentScale = selectedObject->getScale();
         float scale[3] = {currentScale.x(), currentScale.y(), currentScale.z()};
 
         if (ImGui::InputFloat3("Scale", scale))
         {
-            selectedMesh->setScale(Eigen::Vector3f(scale[0], scale[1], scale[2]));
-            // (可选) 打印日志
-            // std::cout << "Mesh " << selectedMesh->getName() << " new Scale: "
-            //           << scale[0] << ", " << scale[1] << ", " << scale[2] << std::endl;
+            selectedObject->setScale(Eigen::Vector3f(scale[0], scale[1], scale[2]));
         }
 
-        ImGui::Separator(); // 分隔线
+        ImGui::Separator(); 
         ImGui::Text("Material Properties:");
 
-        // 尝试获取选中 Mesh 的材质
-        std::shared_ptr<Material> material = selectedMesh->getMaterial();
+        // 尝试获取选中 Object 的材质
+        // std::shared_ptr<Material> material = selectedObject->getMaterial();
 
-        if (material)
-        { // 确保 Mesh 关联了一个材质
-            // 显示材质名称 (通常是只读的，用于识别)
-            ImGui::Text("Material Name: %s", material->getName().c_str());
+        // if (material)
+        // { 
+        //     // 显示材质名称
+        //     ImGui::Text("Material Name: %s", material->getName().c_str());
 
-            // -------------------------------------------------------------
-            // 编辑 Albedo 颜色
-            // -------------------------------------------------------------
-            // 获取当前的 Albedo 颜色 (Eigen::Vector3f)
-            Eigen::Vector3f albedoColor = material->getAlbedoColor();
-            // 将 Eigen::Vector3f 转换成 float[3] 数组供 ImGui 使用
-            float albedoColorArr[3] = {albedoColor.x(), albedoColor.y(), albedoColor.z()};
+        //     // -------------------------------------------------------------
+        //     // 编辑 Albedo 颜色
+        //     // -------------------------------------------------------------
+        //     Eigen::Vector3f albedoColor = material->getAlbedoColor();
+        //     float albedoColorArr[3] = {albedoColor.x(), albedoColor.y(), albedoColor.z()};
 
-            // ImGui::ColorEdit3 返回 true 如果颜色被修改
-            if (ImGui::ColorEdit3("Albedo Color", albedoColorArr))
-            {
-                // 如果颜色被修改，将 float[3] 转换回 Eigen::Vector3f 并更新材质
-                material->setAlbedoColor(Eigen::Vector3f(albedoColorArr[0], albedoColorArr[1], albedoColorArr[2]));
-            }
+        //     if (ImGui::ColorEdit3("Albedo Color", albedoColorArr))
+        //     {
+        //         material->setAlbedoColor(Eigen::Vector3f(albedoColorArr[0], albedoColorArr[1], albedoColorArr[2]));
+        //     }
 
-            // -------------------------------------------------------------
-            // 编辑 Roughness Factor
-            // -------------------------------------------------------------
-            float roughnessFactor = material->getRoughnessFactor();
-            // ImGui::SliderFloat 更适合有范围 (0.0 - 1.0) 的浮点数
-            if (ImGui::SliderFloat("Roughness Factor", &roughnessFactor, 0.0f, 1.0f))
-            {
-                material->setRoughnessFactor(roughnessFactor);
-            }
+        //     // -------------------------------------------------------------
+        //     // 编辑 Roughness Factor
+        //     // -------------------------------------------------------------
+        //     float roughnessFactor = material->getRoughnessFactor();
+        //     if (ImGui::SliderFloat("Roughness Factor", &roughnessFactor, 0.0f, 1.0f))
+        //     {
+        //         material->setRoughnessFactor(roughnessFactor);
+        //     }
 
-            // -------------------------------------------------------------
-            // 编辑 Metallic Factor
-            // -------------------------------------------------------------
-            float metallicFactor = material->getMetallicFactor();
-            if (ImGui::SliderFloat("Metallic Factor", &metallicFactor, 0.0f, 1.0f))
-            {
-                material->setMetallicFactor(metallicFactor);
-            }
-        }
+        //     // -------------------------------------------------------------
+        //     // 编辑 Metallic Factor
+        //     // -------------------------------------------------------------
+        //     float metallicFactor = material->getMetallicFactor();
+        //     if (ImGui::SliderFloat("Metallic Factor", &metallicFactor, 0.0f, 1.0f))
+        //     {
+        //         material->setMetallicFactor(metallicFactor);
+        //     }
+        // } else {
+        //     ImGui::Text("No material assigned.");
+        // }
     }
     else
     {
@@ -315,40 +316,28 @@ void UiSystem::DrawUI(int currentFPS)
 
     ImGui::End();
 
-       // --- 光源属性面板 ---
-    // 为光源创建一个独立的窗口，或者放在现有的调试窗口中
-    ImGui::Begin("Light Properties"); // 窗口标题
-    if (uiSceneData.pointLight) { // 确保光源存在
+    // --- 光源属性面板 ---
+    ImGui::Begin("Light Properties"); 
+    if (uiSceneData.pointLight) { 
 
         ImGui::Text("Light Parameters");
 
         // 光源位置 (Vector3f)
-        // ImGui::SliderFloat3 用于 float[3] 或 glm::vec3，对于 Eigen::Vector3f 需要转换一下
         float lightPos[3] = {uiSceneData.pointLight->position.x(), uiSceneData.pointLight->position.y(), uiSceneData.pointLight->position.z()};
-        if (ImGui::SliderFloat3("Position", lightPos, -10.0f, 10.0f)) { // 调整范围以适应你的场景
+        if (ImGui::SliderFloat3("Position", lightPos, -10.0f, 10.0f)) { 
             uiSceneData.pointLight->position = Eigen::Vector3f(lightPos[0], lightPos[1], lightPos[2]);
         }
 
         // 光源强度 (float)
-        if (ImGui::SliderFloat("Intensity", &uiSceneData.pointLight->intensity, 0.0f, 20.0f)) { // 调整范围
+        if (ImGui::SliderFloat("Intensity", &uiSceneData.pointLight->intensity, 0.0f, 20.0f)) { 
             // 强度改变，数据已更新
         }
 
         // 光源颜色 (Vector3f，作为 RGB 颜色选择器)
-        // ImGui::ColorEdit3 接收 float[3]
         float lightColor[3] = {uiSceneData.pointLight->color.x(), uiSceneData.pointLight->color.y(), uiSceneData.pointLight->color.z()};
         if (ImGui::ColorEdit3("Color", lightColor)) {
             uiSceneData.pointLight->color = Eigen::Vector3f(lightColor[0], lightColor[1], lightColor[2]);
         }
-
-        // --- 暂停/恢复光源动画 (可选，如果你想控制 Scene 中的 updateScene 动画) ---
-        // 这需要 Scene 提供一个方法来控制动画开关，例如 Scene::setLightAnimationEnabled(bool)
-        // bool enableLightAnimation = /* 获取当前状态 */;
-        // if (ImGui::Checkbox("Enable Light Animation", &enableLightAnimation)) {
-        //     // scene_->setLightAnimationEnabled(enableLightAnimation);
-        //     // 这里的 uiSceneData_ 需要一个回调来通知 Scene
-        // }
-
     } else {
         ImGui::Text("No light in scene.");
     }

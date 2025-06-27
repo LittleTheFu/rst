@@ -1,7 +1,7 @@
 #include "moveCameraLeftCommand.h"
 
-MoveCameraLeftCommand::MoveCameraLeftCommand(std::shared_ptr<Camera> camera, float dt)
-    : CameraCommand(camera, dt)
+MoveCameraLeftCommand::MoveCameraLeftCommand(std::shared_ptr<Camera> camera)
+    : CameraCommand(camera)
 {
 }
 

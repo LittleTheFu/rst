@@ -2,30 +2,27 @@
 #define SHADOW_PASS_H
 
 #include "RenderPass.h"     // 基类
-#include "SceneData.h"      // 场景数据 (包含要渲染的对象)
+#include "SceneData.h"      // 场景数据 (包含要渲染的对象) - 注意：SceneData 可能需要更新以存储 ISceneObject
 #include "shader.h"         // 着色器
 #include "Camera.h"         // 光源相机 (点光源通常使用立方体相机)
 #include "TextureCubeMap.h" // 阴影立方体贴图
+#include "sceneObject.h"   // !!! 引入 ISceneObject 接口
 
 class ShadowPass : public RenderPass {
 public:
     // 构造函数：注入 SceneData 和代表光源视角的 Camera
-    // 注意：这里的 camera 参数是用于生成阴影贴图的“光源相机”，
-    // 它的位置和视锥体将决定阴影的范围和质量。
     ShadowPass(int width, int height);
     ~ShadowPass() override = default; // 析构函数，可能需要清理资源
 
-    // Render 方法现在明确接收其动态输入：要渲染的网格、光源和光照空间矩阵
-    void Render(const std::vector<std::unique_ptr<Mesh>>& meshes, const PointLight& light);
+    // !!! 关键改动 !!!
+    // Render 方法现在接收 const std::vector<ISceneObject*>& 对象列表
+    void Render(const std::vector<ISceneObject*>& objects, const PointLight& light);
 
 
     // 重写 Resize 方法，处理内部纹理和 Framebuffer 的重新分配
     void Resize(int width, int height) override;
 
     // 提供类型安全的阴影贴图 Getter
-    // const TextureCubeMap& getShadowMapTexture() const { return *shadowMapDepthTestTexture_; }
-    // GLuint getShadowMapTextureID() const { return shadowMapDepthTestTexture_->id(); }
-
     GLuint getShadowMapDepthOutputTextureId() const { return shadowMapDepthOutputTexture_->id(); }
 
 private:
@@ -33,14 +30,8 @@ private:
 
     // 阴影立方体贴图的封装对象
     std::unique_ptr<TextureCubeMap> shadowMapDepthTestTexture_;
-
     std::unique_ptr<TextureCubeMap> shadowMapDepthOutputTexture_;
     
-
-    // 对 SceneData 和光源相机的引用，通过构造函数注入
-    // SceneData& sceneData_;
-    // Camera& lightCamera_; // 代表光源视角的相机
-
     // 辅助函数：初始化 ShadowPass 内部的 Framebuffer 和纹理
     void initializeFramebufferAndTextures();
 };

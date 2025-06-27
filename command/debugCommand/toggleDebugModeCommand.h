@@ -9,6 +9,10 @@ class ToggleDebugModeCommand : public Command
     // Scene* scene_; // 假设有一个场景指针
 public:
     // ToggleDebugModeCommand(Scene* scene) : scene_(scene) {}
+    ToggleDebugModeCommand(std::shared_ptr<Scene> scene);
     void Execute() override;
+
+private:
+    std::shared_ptr<Scene> scene_;
 };
 #endif

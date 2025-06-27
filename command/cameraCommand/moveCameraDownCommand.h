@@ -6,7 +6,7 @@
 class MoveCameraDownCommand : public CameraCommand
 {
 public:
-    MoveCameraDownCommand(std::shared_ptr<Camera> camera, float dt);
+    MoveCameraDownCommand(std::shared_ptr<Camera> camera);
     void Execute() override;
 };
 #endif

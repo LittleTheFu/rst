@@ -5,7 +5,7 @@
 
 class RotateCameraRightCommand : public CameraCommand {
 public:
-    RotateCameraRightCommand(std::shared_ptr<Camera> camera, float dt);
+    RotateCameraRightCommand(std::shared_ptr<Camera> camera);
     void Execute() override;
 };
 #endif

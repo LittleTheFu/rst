@@ -14,7 +14,7 @@ protected:
     float deltaTime_; // 命令可能需要 deltaTime 来进行时间相关的操作
 
 public:
-    CameraCommand(std::shared_ptr<Camera> camera, float dt);
+    CameraCommand(std::shared_ptr<Camera> camera);
     // Execute 仍由派生类实现
 };
 

@@ -1,4 +1,3 @@
-// UiSystem.h
 #ifndef UI_SYSTEM_H
 #define UI_SYSTEM_H
 
@@ -6,21 +5,21 @@
 #include <glad/glad.h>
 
 #include "imgui.h"
-#include "backends/imgui_impl_sdl2.h"
-#include "backends/imgui_impl_opengl3.h"
 #include <functional>
-#include "uiSceneData.h"
-
+#include "uiSceneData.h" // UiSceneData 也要更新
+#include "sceneObject.h" // 引入 ISceneObject 接口
 
 class UiSystem {
 public:
-    UiSceneData uiSceneData;
+    UiSceneData uiSceneData; // UiSceneData 内部的结构也需要适配 ISceneObject
     int selectedRenderMode = 0;
 
 public:
+    // 按钮回调
     std::function<void(void)> onCaptureButtonClicked;
     std::function<void(void)> onToggleDebugButtonClicked;
 
+    // 滑块回调和对应的值
     std::function<void(float)> onSsrWeightBarChanged;
     float ssrWeight = 0.0f;
 
@@ -39,7 +38,9 @@ public:
     std::function<void(float)> onFocusDistanceBarChanged;
     float focusDistance = 0.0f;
 
-    std::function<Mesh*()> onGetSelectedMesh;
+    // !!! 关键改动 !!!
+    // 替换 onGetSelectedMesh 为 onGetSelectedObject，并返回 ISceneObject*
+    std::function<ISceneObject*()> onGetSelectedObject;
     
 public:
     UiSystem(SDL_Window* window, SDL_GLContext glContext);

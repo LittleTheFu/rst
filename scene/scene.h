@@ -8,8 +8,12 @@
 // 核心组件
 #include "camera.h"
 #include "pointLight.h"
-#include "mesh.h"
+// #include "mesh.h" // Mesh 类不再直接在这里管理，因为它现在是 Model 的一部分
 #include "material.h" // 如果材质在Scene中创建
+#include "sceneObject.h" // 引入 ISceneObject 接口
+// 如果你有其他作为 ISceneObject 的类型，也需要在这里包含它们的头文件
+// 例如，如果 Model.h 尚未被其他包含，这里也需要
+#include "model.h"
 
 // 纹理类
 #include "TextureCubeMap.h"
@@ -36,8 +40,7 @@
 #include "depthOfFieldPass.h"
 
 #include "debugRenderer.h"
-#include <objectPicker.h>
-
+#include "objectPicker.h" // ObjectPicker 现在返回 ISceneObject*
 
 class Scene
 {
@@ -80,27 +83,44 @@ private:
     void debugDraw();
 
 public:
-    void setSelectedMesh(Mesh* mesh) { selectedMesh_ = mesh; };
-    Mesh* getSelectedMesh() { return selectedMesh_; };
-    std::string getSelectedMeshName() const
+    // 将 setSelectedMesh 和 getSelectedMesh 更改为 ISceneObject
+    void setSelectedObject(ISceneObject* obj) { selectedObject_ = obj; };
+    ISceneObject* getSelectedObject() { return selectedObject_; };
+    
+    std::string getSelectedObjectName() const
     {
-        if (selectedMesh_)
+        if (selectedObject_)
         {
-            return selectedMesh_->getName(); // 假设 Mesh 有 getName() 方法
+            return selectedObject_->getName(); // 假设 ISceneObject 有 getName() 方法
         }
         return "None Selected"; // 没有物体选中时的显示
     }
 
-    std::vector<Mesh*> getAllMeshes() const;
+    // 修改 getAllMeshes 为 getAllSceneObjects
+    std::vector<ISceneObject*> getAllSceneObjects() const;
     PointLight* getPointLight() const { return sceneData_->light.get(); };
-
     std::shared_ptr<Camera> getCamera() { return sceneData_->camera; };
 
 private:
-    Mesh* selectedMesh_ = nullptr;
+    ISceneObject* selectedObject_ = nullptr; // 更改为 ISceneObject*
 
 private:
-    std::unique_ptr<SceneData> sceneData_; // 暂时保留，根据实际需求决定是否完全移除或精简
+    std::vector<ISceneObject *> getRawPointers(const std::vector<std::unique_ptr<ISceneObject>> &uniquePtrVector)
+    {
+        std::vector<ISceneObject *> rawPointers;
+        rawPointers.reserve(uniquePtrVector.size()); // 预留空间以避免多次重新分配
+        for (const auto &ptr : uniquePtrVector)
+        {
+            if (ptr)
+            {
+                rawPointers.push_back(ptr.get());
+            }
+        }
+        return rawPointers;
+    }
+
+private:
+    std::unique_ptr<SceneData> sceneData_; 
 
     // 渲染 Pass 实例
     std::unique_ptr<SkyPass> skyPass_;
@@ -126,9 +146,8 @@ private:
 
     std::unique_ptr<DebugRenderer> debugRenderer_;
 
-//the public here is quick and dirty
-public:
-    std::unique_ptr<ObjectPicker> objectPicker_; // 推荐使用 unique_ptr
+public: // Keep public for now as per your original code
+    std::unique_ptr<ObjectPicker> objectPicker_;
 };
 
 #endif // _SCENE_H_

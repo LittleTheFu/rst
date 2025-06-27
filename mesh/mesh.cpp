@@ -158,17 +158,9 @@ void Mesh::updateModelMatrix() {
 
 // 获取世界空间 AABB 的实现
 // 现在返回 unique_ptr<AABB> 避免内存泄漏问题
-std::unique_ptr<AABB> Mesh::getWorldAABB() const {
-    // localAABB_ 是局部空间 AABB
-    // modelMatrix_ 是 Mesh 自身的局部变换矩阵
-    // 但这个 AABB 需要应用 Model 的世界变换矩阵才能得到正确的世界 AABB
-    // 这个函数应该由 SceneManager 或 BoundingVolumeManager 调用，并提供完整的世界变换矩阵。
-    // 当前这里只应用 Mesh 自身的局部变换，这不是真正的“世界AABB”，而是“Model局部空间下的AABB”
-    // 为了准确，这里应该接收一个参数，即 Model 的世界变换矩阵。
-    // 例如：std::unique_ptr<AABB> getWorldAABB(const Eigen::Matrix4f& parentWorldMatrix) const;
-    
-    // 暂时按照你原来的逻辑，只应用 Mesh 自身的 modelMatrix_
-    // 如果要完全正确，需要确保 modelMatrix_ 是从 Assimp 的 aiNode 继承的真正局部变换
-    // 或者在 Model 的渲染循环中，计算出 Model * Mesh 的组合矩阵再传给 Mesh::getWorldAABB
-    return std::make_unique<AABB>(localAABB_.Transform(modelMatrix_));
+std::unique_ptr<AABB> Mesh::getWorldAABB(const Eigen::Matrix4f& parentWorldMatrix) const {
+    // 组合 Mesh 自身的局部变换和父 Model 的世界变换
+    Eigen::Matrix4f meshWorldTransform = parentWorldMatrix * modelMatrix_; 
+    // 直接返回 localAABB_.Transform 返回的 unique_ptr
+    return localAABB_.Transform(meshWorldTransform);
 }

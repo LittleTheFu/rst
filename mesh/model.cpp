@@ -78,6 +78,28 @@ void Model::setScale(const Eigen::Vector3f& scale) {
     updateModelMatrix(); // 缩放改变，更新模型矩阵
 }
 
+std::unique_ptr<AABB> Model::getWorldAABB() const {
+    if (meshes_.empty()) {
+        return nullptr; // 如果没有 Mesh，则没有 AABB
+    }
+
+    // 初始化一个空的 AABB，它会通过 Extend() 逐渐扩展
+    AABB combinedAABB;
+    // 使用极值初始化，确保第一次 Extend 正确工作
+    combinedAABB.min_ = Eigen::Vector3f(std::numeric_limits<float>::max(), std::numeric_limits<float>::max(), std::numeric_limits<float>::max());
+    combinedAABB.max_ = Eigen::Vector3f(std::numeric_limits<float>::lowest(), std::numeric_limits<float>::lowest(), std::numeric_limits<float>::lowest());
+
+    // 遍历所有子 Mesh，并计算它们在世界空间中的 AABB，然后合并
+    for (const auto& mesh : meshes_) {
+        // 调用 Mesh 的 getWorldAABB 方法，传入 Model 自身的 modelMatrix_
+        std::unique_ptr<AABB> meshWorldAABB = mesh->getWorldAABB(modelMatrix_);
+        if (meshWorldAABB) {
+            combinedAABB.Extend(*meshWorldAABB);
+        }
+    }
+    return std::make_unique<AABB>(combinedAABB);
+}
+
 // --- Model 特有的方法 ---
 void Model::setMaterial(std::shared_ptr<Material> material) {
     for (auto& mesh : meshes_) {

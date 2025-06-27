@@ -3,18 +3,18 @@
 
 #include <SDL.h>
 #include <glad/glad.h>
-#include <chrono>   // 用于时间计算
+#include <chrono> // 用于时间计算
 #include <iostream> // 用于输出调试信息
-#include <glm/glm.hpp> // 用于 glm::mat4 (如果 scene_ 或其他组件需要)
 
 // 包含项目中的其他核心组件
-#include "scene.h"        // 你的场景类
-#include "uiSystem.h"   // 你的 UI 系统
-#include "camera.h"       // Camera 类
+#include "scene.h"// 你的场景类
+#include "uiSystem.h" // 你的 UI 系统
+#include "camera.h" // Camera 类
 #include "InputManager.h" // InputManager
+#include "sceneObject.h" // 引入 ISceneObject 接口
 
 // 包含命令模式相关的头文件
-#include "Command.h"      // 抽象命令基类
+#include "Command.h"// 抽象命令基类 (需要 CameraCommand 继承 Command 并有 setDeltaTime 方法)
 #include "moveCameraForwardCommand.h"
 #include "moveCameraBackwardCommand.h"
 #include "moveCameraLeftCommand.h"
@@ -24,9 +24,10 @@
 #include "processMouseMovementCommand.h"
 #include "processMouseScrollCommand.h"
 #include "toggleDebugModeCommand.h"
-#include "pickObjectCommand.h"
+#include "pickObjectCommand.h" // 此命令需要改造以返回 ISceneObject*
 #include "rotateCameraLeftCommand.h"
 #include "rotateCameraRightCommand.h"
+
 
 class Window {
 public:
@@ -39,20 +40,17 @@ public:
     void updateFPS();
     
     // 处理所有输入事件、更新游戏逻辑和摄像机状态。
-    // 这个方法应该在主循环中每帧调用一次。
     void update();
 
     // 渲染场景和 UI。
-    // 在这里，摄像机的视图和投影矩阵会被传递给场景进行渲染。
     void render();
 
     // 检查窗口是否仍在运行。
-    // 它返回一个内部标志，该标志由 update() 中的事件处理更新。
     bool isRunning();
 
 private:
-    SDL_Window* window_ = nullptr;     // SDL 窗口指针
-    SDL_GLContext glContext_;          // OpenGL 上下文
+    SDL_Window* window_ = nullptr; 
+    SDL_GLContext glContext_; 
 
     // FPS 相关成员变量
     int fps_ = 0;
@@ -63,14 +61,12 @@ private:
     std::chrono::time_point<std::chrono::high_resolution_clock> lastFrameTime_;
     float deltaTime_ = 0.0f; // 存储当前帧的 deltaTime (秒)
 
-    Scene scene_;                 // 你的游戏场景实例
-    UiSystem* uiSystem_ = nullptr; // UI 系统指针
+    std::shared_ptr<Scene> scene_; 
+    UiSystem* uiSystem_ = nullptr; 
 
-    bool running_ = true; // 控制主循环的内部标志，true 表示程序正在运行
+    bool running_ = true; 
 
     // --- 命令对象指针 ---
-    // 这些是具体命令类的实例，它们将在构造函数中被创建，在析构函数中被删除。
-    // 每个指针指向一个特定的命令实例，负责执行一个特定的动作。
     MoveCameraForwardCommand* cmd_moveForward_ = nullptr;
     MoveCameraBackwardCommand* cmd_moveBackward_ = nullptr;
     MoveCameraLeftCommand* cmd_moveLeft_ = nullptr;
@@ -81,10 +77,11 @@ private:
     RotateCameraRightCommand* cmd_rotateRight_ = nullptr;
     ProcessMouseMovementCommand* cmd_mouseLook_ = nullptr;
     ProcessMouseScrollCommand* cmd_mouseScroll_ = nullptr;
-    ToggleDebugModeCommand* cmd_toggleDebug_ = nullptr; // 示例：调试模式切换命令
+    ToggleDebugModeCommand* cmd_toggleDebug_ = nullptr; 
     PickObjectCommand* cmd_pickObject_ = nullptr;
 
-    Mesh *pickedMesh_ = nullptr;
+    // 修改 pickedMesh_ 为 pickedObject_
+    ISceneObject* pickedObject_ = nullptr; 
 };
 
 #endif // WINDOW_H

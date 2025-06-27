@@ -39,6 +39,9 @@ public:
     // --- INamable 接口实现 ---
     const std::string& getName() const override { return name_; }
 
+
+    std::unique_ptr<AABB> getWorldAABB() const;
+
     // Model 特有的方法
     // 设置 Model 中所有 Mesh 的材质（谨慎使用，通常材质是每个 Mesh 独立的）
     void setMaterial(std::shared_ptr<Material> material); 

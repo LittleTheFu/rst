@@ -70,7 +70,7 @@ public:
     const AABB& getLocalAABB() const { return localAABB_; }
     // 注意：getWorldAABB() 返回的 AABB* 需要手动 delete
     // 更好的做法是返回 unique_ptr<AABB> 或直接返回 AABB 对象 (如果它可拷贝)
-    std::unique_ptr<AABB> getWorldAABB() const; 
+    std::unique_ptr<AABB> getWorldAABB(const Eigen::Matrix4f& parentWorldMatrix) const; 
 
 private:
     std::vector<Vertex> vertices_; 
