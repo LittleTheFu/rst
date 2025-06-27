@@ -82,6 +82,7 @@ Window::Window(const char *title, int width, int height)
 
 
     // init scene first
+    scene_ = std::make_shared<Scene>();
     scene_->init();
     
     // ----------------------------------------------------
