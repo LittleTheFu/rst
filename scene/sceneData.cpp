@@ -13,7 +13,7 @@ std::unique_ptr<SceneData> sceneFactory::createScene()
     sceneData->shadowMapWidth = 1024;
     sceneData->shadowMapHeight = 1024;
 
-    sceneData->camera = std::make_unique<Camera>();
+    sceneData->camera = std::make_shared<Camera>();
     sceneData->camera->Position = Eigen::Vector3f(0.0f, 2.0f, 14.0f);
     sceneData->camera->lookAt(Eigen::Vector3f(0.0f, 0.0f, 0.0f));
     sceneData->camera->updateCameraVectors();

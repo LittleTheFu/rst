@@ -25,8 +25,8 @@ class Camera
 {
 public:
     // 相机参数
-    float movementSpeed = 2.5f;
-    float mouseSensitivity = 0.1f;
+    float movementSpeed = 2.5f * 1.0f;
+    float mouseSensitivity = 0.0f;
     float zoomSensitivity = 0.5f; // 用于滚轮缩放FOV
     float fov = 45.0f;           // 视野
     float aspectRatio = 800.0f / 600.0f; // 屏幕宽高比

@@ -1,6 +1,6 @@
 #include "moveCameraBackwardCommand.h"
 
-MoveCameraBackwardCommand::MoveCameraBackwardCommand(Camera *camera, float dt)
+MoveCameraBackwardCommand::MoveCameraBackwardCommand(std::shared_ptr<Camera> camera, float dt)
     : CameraCommand(camera, dt)
 {
 }

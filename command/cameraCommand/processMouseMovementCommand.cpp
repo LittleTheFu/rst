@@ -1,6 +1,6 @@
 #include "processMouseMovementCommand.h"
 
-ProcessMouseMovementCommand::ProcessMouseMovementCommand(Camera *camera)
+ProcessMouseMovementCommand::ProcessMouseMovementCommand(std::shared_ptr<Camera> camera)
     : camera_(camera)
 {
 }

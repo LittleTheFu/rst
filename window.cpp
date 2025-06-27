@@ -8,8 +8,7 @@ Window::Window(const char *title, int width, int height)
     // 成员初始化列表：
     // 初始化 scene_ (默认构造函数)
     // 初始化 camera_，传入初始位置、世界向上向量、偏航角、俯仰角以及初始宽高比
-    : scene_(),
-      camera_()
+    : scene_()
 {
     // ----------------------------------------------------
     // SDL 初始化
@@ -161,16 +160,16 @@ Window::Window(const char *title, int width, int height)
     // 这里创建具体的命令实例，并将 camera_ 实例的地址作为接收者传递给它们。
     // deltaTime_ 是 Window 的成员变量，其值会在 update() 方法的开始处更新。
     // CameraCommand 基类中的 deltaTime_ 字段在每帧更新时会被同步。
-    cmd_moveForward_ = new MoveCameraForwardCommand(&camera_, deltaTime_);
-    cmd_moveBackward_ = new MoveCameraBackwardCommand(&camera_, deltaTime_);
-    cmd_moveLeft_ = new MoveCameraLeftCommand(&camera_, deltaTime_);
-    cmd_moveRight_ = new MoveCameraRightCommand(&camera_, deltaTime_);
-    cmd_moveUp_ = new MoveCameraUpCommand(&camera_, deltaTime_);
-    cmd_moveDown_ = new MoveCameraDownCommand(&camera_, deltaTime_);
+    cmd_moveForward_ = new MoveCameraForwardCommand(scene_.getCamera(), deltaTime_);
+    cmd_moveBackward_ = new MoveCameraBackwardCommand(scene_.getCamera(), deltaTime_);
+    cmd_moveLeft_ = new MoveCameraLeftCommand(scene_.getCamera(), deltaTime_);
+    cmd_moveRight_ = new MoveCameraRightCommand(scene_.getCamera(), deltaTime_);
+    cmd_moveUp_ = new MoveCameraUpCommand(scene_.getCamera(), deltaTime_);
+    cmd_moveDown_ = new MoveCameraDownCommand(scene_.getCamera(), deltaTime_);
 
     // 鼠标视角和滚轮命令不需要直接接收 deltaTime，因为它们从 InputManager 获取相对量
-    cmd_mouseLook_ = new ProcessMouseMovementCommand(&camera_);
-    cmd_mouseScroll_ = new ProcessMouseScrollCommand(&camera_);
+    cmd_mouseLook_ = new ProcessMouseMovementCommand(scene_.getCamera());
+    cmd_mouseScroll_ = new ProcessMouseScrollCommand(scene_.getCamera());
 
     // 调试模式切换命令，不依赖 Camera
     cmd_toggleDebug_ = new ToggleDebugModeCommand();
@@ -275,7 +274,7 @@ void Window::update()
                 SDL_GetWindowSize(window_, &w, &h);                // 获取新的窗口尺寸
                 glViewport(0, 0, w, h);                            // 更新 OpenGL 视口
                 scene_.resize(w, h);                               // 通知 Scene 调整其内部资源（如帧缓冲区）
-                camera_.setAspectRatio(static_cast<float>(w) / h); // 更新摄像机的宽高比
+                scene_.getCamera()->setAspectRatio(static_cast<float>(w) / h); // 更新摄像机的宽高比
             }
         }
     }

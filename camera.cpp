@@ -2,6 +2,7 @@
 #include <Eigen/Dense>
 // #include <corecrt_math_defines.h> // 如果 M_PI 已在 camera.h 或其他全局头文件中定义，这里无需再次包含
 #include <cmath> // 确保包含 cmath 以使用 std::asin, std::atan2
+#include <iostream>
 
 Camera::Camera(const Eigen::Vector3f &position, const Eigen::Vector3f &worldUp, float yaw, float pitch)
     : Position(position), WorldUp(worldUp), Yaw(yaw), Pitch(pitch)
@@ -73,6 +74,8 @@ void Camera::setFOV(float fov)
 
 void Camera::ProcessKeyboard(CameraMovement direction, float deltaTime)
 {
+    std::cout << "Position before: " << Position.transpose() << std::endl;
+    
     float velocity = movementSpeed * deltaTime;
     if (direction == FORWARD)
         Position += Front * velocity;
@@ -87,6 +90,8 @@ void Camera::ProcessKeyboard(CameraMovement direction, float deltaTime)
         Position += Up * velocity;
     if (direction == DOWN)
         Position -= Up * velocity;
+
+    std::cout << "Position after: " << Position.transpose() << std::endl;
 }
 
 void Camera::ProcessMouseMovement(float xoffset, float yoffset, bool constrainPitch)

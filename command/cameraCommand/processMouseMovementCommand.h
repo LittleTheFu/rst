@@ -7,10 +7,10 @@
 
 class ProcessMouseMovementCommand : public Command {
 private:
-    Camera* camera_;
+    std::shared_ptr<Camera> camera_;
 
 public:
-    ProcessMouseMovementCommand(Camera* camera);
+    ProcessMouseMovementCommand(std::shared_ptr<Camera> camera);
     void Execute() override;
 };
 #endif

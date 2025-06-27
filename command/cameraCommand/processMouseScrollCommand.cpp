@@ -1,6 +1,6 @@
 #include "processMouseScrollCommand.h"
 
-ProcessMouseScrollCommand::ProcessMouseScrollCommand(Camera *camera)
+ProcessMouseScrollCommand::ProcessMouseScrollCommand(std::shared_ptr<Camera> camera)
     : camera_(camera)
 {
 }

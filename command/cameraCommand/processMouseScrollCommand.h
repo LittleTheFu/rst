@@ -8,10 +8,10 @@
 class ProcessMouseScrollCommand : public Command
 {
 private:
-    Camera *camera_;
+    std::shared_ptr<Camera> camera_;
 
 public:
-    ProcessMouseScrollCommand(Camera *camera);
+    ProcessMouseScrollCommand(std::shared_ptr<Camera> camera);
     void Execute() override;
 };
 #endif

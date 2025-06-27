@@ -64,8 +64,6 @@ private:
     Scene scene_;                 // 你的游戏场景实例
     UiSystem* uiSystem_ = nullptr; // UI 系统指针
 
-    Camera camera_; // 摄像机实例
-
     bool running_ = true; // 控制主循环的内部标志，true 表示程序正在运行
 
     // --- 命令对象指针 ---

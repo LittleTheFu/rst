@@ -27,7 +27,7 @@ struct SceneData {
     std::unique_ptr<Mesh> cursor;
     std::unique_ptr<Mesh> skybox;
     std::unique_ptr<PointLight> light;
-    std::unique_ptr<Camera> camera;
+    std::shared_ptr<Camera> camera;
 
     std::shared_ptr<TextureCubeMap> irradianceMapTex_;
     std::shared_ptr<TextureCubeMap> prefilterMapTex_;

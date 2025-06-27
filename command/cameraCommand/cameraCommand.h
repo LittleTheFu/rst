@@ -10,11 +10,11 @@ public:
     void setDeltaTime(float deltaTime);
 
 protected:
-    Camera* camera_;
+    std::shared_ptr<Camera> camera_;
     float deltaTime_; // 命令可能需要 deltaTime 来进行时间相关的操作
 
 public:
-    CameraCommand(Camera* camera, float dt);
+    CameraCommand(std::shared_ptr<Camera> camera, float dt);
     // Execute 仍由派生类实现
 };
 
