@@ -2,32 +2,46 @@
 #define MESH_H
 
 #include <vector>
+#include <string>
+#include <memory> // For std::unique_ptr, std::shared_ptr
+
+// OpenGL 头文件
 #include <glad/glad.h>
-#include <assimp/Importer.hpp>
+
+// Assimp 头文件 (仅用于辅助转换函数，Mesh类本身不再直接使用Importer)
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
+#include <assimp/vector3.h> // For aiVector3D
+
+// Eigen 头文件
 #include <Eigen/Dense>
 #include <Eigen/Geometry> // For Eigen::Quaternionf and Eigen::Affine3f
+
+// 你的其他辅助类
 #include "shader.h"
-#include "Renderable.h"     // 包含 Renderable 接口
-#include "Transformable.h"  // 包含 Transformable 接口
-#include "Material.h"       // 包含 Material 类
-#include <memory>           // 包含 std::shared_ptr, std::unique_ptr
-#include "vertex.h"         // 包含 Vertex 结构体
+#include "Renderable.h"
+#include "Transformable.h"
+#include "Material.h"
+#include "vertex.h"
 #include "vertexArray.h"
 #include "indexBuffer.h"
 #include "vertexBuffer.h"
 #include "BoundingVolume.h" // 包含 AABB 类 (你之前创建的)
-#include <string>
+
 
 class Mesh : public Renderable, public Transformable {
 public:
-    Mesh(const std::string &name, const std::string& filePath, std::shared_ptr<Material> material = nullptr); // 构造函数接受 Material
+    // 修改构造函数：现在它直接接收已经解析好的顶点、索引和材质
+    Mesh(const std::string& name, 
+         const std::vector<Vertex>& vertices, 
+         const std::vector<unsigned int>& indices, 
+         std::shared_ptr<Material> material = nullptr);
+    
     ~Mesh();
 
-    void render(Shader& shader) const override; // 实现 Renderable 接口
-    Eigen::Matrix4f getModelMatrix() const override; // 实现 Transformable 接口
-    void setModelMatrix(const Eigen::Matrix4f& modelMatrix) override; // 实现 Transformable 接口
+    void render(Shader& shader) const override;
+    Eigen::Matrix4f getModelMatrix() const override;
+    void setModelMatrix(const Eigen::Matrix4f& modelMatrix) override;
 
     Eigen::Vector3f getPosition() const override;
     void setPosition(const Eigen::Vector3f& position) override;
@@ -41,25 +55,14 @@ public:
     std::shared_ptr<Material> getMaterial() const { return material_; }
     void setMaterial(const std::shared_ptr<Material>& material) { material_ = material; }
 
-    // --- 新增 AABB 相关接口 ---
-    /**
-     * @brief 获取模型在局部空间（原始导入尺寸）的AABB。
-     * @return 模型的局部AABB。
-     */
     const AABB& getLocalAABB() const { return localAABB_; }
-
-    /**
-     * @brief 获取模型在世界空间中当前的AABB。
-     * 这个AABB是经过模型矩阵变换后的AABB，是进行射线拾取等操作时需要的。
-     * @return 模型的当前世界空间AABB。请注意，这个函数返回的是一个新分配的 AABB*，需要手动 delete。
-     */
-    AABB* getWorldAABB() const;
+    AABB* getWorldAABB() const; // 返回新分配的 AABB*，需要手动 delete
 
     const std::string& getName() const { return name_; }
 
 private:
-    std::vector<Vertex> vertices;
-    std::vector<unsigned int> indices;
+    std::vector<Vertex> vertices_; // 存储顶点数据 (为了AABB计算)
+    std::vector<unsigned int> indices_; // 存储索引数据 (为了渲染)
 
     std::unique_ptr<VertexArray> VAO_;
     std::unique_ptr<VertexBuffer> VBO_;
@@ -71,16 +74,12 @@ private:
     Eigen::Vector3f scale_;
     Eigen::Matrix4f modelMatrix_;
 
-    AABB localAABB_; // 新增：存储整个 Mesh 的局部空间 AABB
+    AABB localAABB_; // 存储这个 Mesh 的局部空间 AABB
 
-    void setupMesh();
+    void setupMesh(); // 负责设置VAO, VBO, EBO
     void updateModelMatrix();
 
-    // 辅助函数：将 Assimp 的 aiVector3D 转换为 Eigen::Vector3f
-    Eigen::Vector3f ConvertAssimpVec3ToEigen(const aiVector3D& vec);
-
-    //fot debug
-    const std::string name_;
+    const std::string name_; // Mesh 的名称 (来自 Assimp 的 aiMesh->mName)
 };
 
 #endif // MESH_H

@@ -105,6 +105,8 @@ set(COLLISION_SOURCE_FILES
 set(MESH_DIR "mesh")
 set(MESH_SOURCE_FILES
     ${MESH_DIR}/mesh.cpp
+    ${MESH_DIR}/model.cpp
+    ${MESH_DIR}/assimpUtils.cpp
 )
 
 set(RST_DEBUG_DIR "rstDebug")
