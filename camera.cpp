@@ -74,7 +74,7 @@ void Camera::setFOV(float fov)
 
 void Camera::ProcessKeyboard(CameraMovement direction, float deltaTime)
 {
-    std::cout << "Position before: " << Position.transpose() << std::endl;
+    // std::cout << "Position before: " << Position.transpose() << std::endl;
     
     float velocity = movementSpeed * deltaTime;
     if (direction == FORWARD)
@@ -91,7 +91,7 @@ void Camera::ProcessKeyboard(CameraMovement direction, float deltaTime)
     if (direction == DOWN)
         Position -= Up * velocity;
 
-    std::cout << "Position after: " << Position.transpose() << std::endl;
+    // std::cout << "Position after: " << Position.transpose() << std::endl;
 }
 
 void Camera::ProcessMouseMovement(float xoffset, float yoffset, bool constrainPitch)
