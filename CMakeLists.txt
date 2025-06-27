@@ -102,6 +102,11 @@ set(COLLISION_SOURCE_FILES
     ${COLLISION_DIR}/objectPicker.cpp
 )
 
+set(MESH_DIR "mesh")
+set(MESH_SOURCE_FILES
+    ${MESH_DIR}/mesh.cpp
+)
+
 set(RST_DEBUG_DIR "rstDebug")
 set(RST_DEBUG_SOURCE_FILES
     ${RST_DEBUG_DIR}/debugBox.cpp
@@ -148,7 +153,6 @@ add_executable(rst
     vertex.cpp
     screenQuad.cpp
     glResource.cpp
-    mesh.cpp
     shadowUtils.cpp
     shader.cpp
     camera.cpp
@@ -163,6 +167,7 @@ add_executable(rst
     ${INPUT_SOURCE_FILES}
     ${COMMAND_SOURCE_FILES}
     ${COLLISION_SOURCE_FILES}
+    ${MESH_SOURCE_FILES}
     ${RST_DEBUG_SOURCE_FILES}
 )
 
@@ -184,8 +189,8 @@ target_include_directories(rst PRIVATE
     ${CMAKE_SOURCE_DIR}/${CAMERA_COMMAND_DIR}
     ${CMAKE_SOURCE_DIR}/${DEBUG_COMMAND_DIR}
     ${CMAKE_SOURCE_DIR}/${COLLISION_DIR}
+    ${CMAKE_SOURCE_DIR}/${MESH_DIR}
     ${CMAKE_SOURCE_DIR}/${RST_DEBUG_DIR}
-
 
     ${CMAKE_SOURCE_DIR}/third/glad/include
     ${CMAKE_SOURCE_DIR}/third/sdl/include
