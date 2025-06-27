@@ -315,6 +315,45 @@ void UiSystem::DrawUI(int currentFPS)
 
     ImGui::End();
 
+       // --- 光源属性面板 ---
+    // 为光源创建一个独立的窗口，或者放在现有的调试窗口中
+    ImGui::Begin("Light Properties"); // 窗口标题
+    if (uiSceneData.pointLight) { // 确保光源存在
+
+        ImGui::Text("Light Parameters");
+
+        // 光源位置 (Vector3f)
+        // ImGui::SliderFloat3 用于 float[3] 或 glm::vec3，对于 Eigen::Vector3f 需要转换一下
+        float lightPos[3] = {uiSceneData.pointLight->position.x(), uiSceneData.pointLight->position.y(), uiSceneData.pointLight->position.z()};
+        if (ImGui::SliderFloat3("Position", lightPos, -10.0f, 10.0f)) { // 调整范围以适应你的场景
+            uiSceneData.pointLight->position = Eigen::Vector3f(lightPos[0], lightPos[1], lightPos[2]);
+        }
+
+        // 光源强度 (float)
+        if (ImGui::SliderFloat("Intensity", &uiSceneData.pointLight->intensity, 0.0f, 20.0f)) { // 调整范围
+            // 强度改变，数据已更新
+        }
+
+        // 光源颜色 (Vector3f，作为 RGB 颜色选择器)
+        // ImGui::ColorEdit3 接收 float[3]
+        float lightColor[3] = {uiSceneData.pointLight->color.x(), uiSceneData.pointLight->color.y(), uiSceneData.pointLight->color.z()};
+        if (ImGui::ColorEdit3("Color", lightColor)) {
+            uiSceneData.pointLight->color = Eigen::Vector3f(lightColor[0], lightColor[1], lightColor[2]);
+        }
+
+        // --- 暂停/恢复光源动画 (可选，如果你想控制 Scene 中的 updateScene 动画) ---
+        // 这需要 Scene 提供一个方法来控制动画开关，例如 Scene::setLightAnimationEnabled(bool)
+        // bool enableLightAnimation = /* 获取当前状态 */;
+        // if (ImGui::Checkbox("Enable Light Animation", &enableLightAnimation)) {
+        //     // scene_->setLightAnimationEnabled(enableLightAnimation);
+        //     // 这里的 uiSceneData_ 需要一个回调来通知 Scene
+        // }
+
+    } else {
+        ImGui::Text("No light in scene.");
+    }
+    ImGui::End();
+
     if (showDemoWindow)
     {
         ImGui::ShowDemoWindow(&showDemoWindow);

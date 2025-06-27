@@ -16,6 +16,8 @@ public:
     std::vector<Mesh*> allMeshes;
     std::function<void(Mesh*)> onMeshSelectedFromUI;
 
+    PointLight* pointLight;
+
     static UiSceneData create(Scene& scene);
 };
 

@@ -92,6 +92,7 @@ public:
     }
 
     std::vector<Mesh*> getAllMeshes() const;
+    PointLight* getPointLight() const { return sceneData_->light.get(); };
 
 private:
     Mesh* selectedMesh_ = nullptr;

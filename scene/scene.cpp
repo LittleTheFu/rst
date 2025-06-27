@@ -57,7 +57,7 @@ void Scene::updateScene()
     x_light *= 1.0f;
     sceneData_->light->position = Eigen::Vector3f(x_light, x_light, 3.0f);
     // mainLight_->position = Eigen::Vector3f(5, 5, 7.0f);
-    sceneData_->light->intensity = 8.0f;
+    // sceneData_->light->intensity = 8.0f;
 
     // 调试光标位置
     Eigen::Vector3f offset = Eigen::Vector3f(0.0f, 0.5f, 0.0f);

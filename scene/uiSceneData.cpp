@@ -30,6 +30,7 @@ UiSceneData UiSceneData::create(Scene &scene)
     { scene.setSelectedMesh(mesh); };
 
     data.allMeshes = scene.getAllMeshes();
+    data.pointLight = scene.getPointLight();
 
     return data;
 }

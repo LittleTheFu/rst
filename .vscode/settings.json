@@ -114,6 +114,7 @@
         "qtalignedmalloc": "cpp",
         "*.main": "cpp",
         "polynomials": "cpp",
-        "levenbergmarquardt": "cpp"
+        "levenbergmarquardt": "cpp",
+        "orderingmethods": "cpp"
     }
 }
