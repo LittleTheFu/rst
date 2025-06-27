@@ -234,10 +234,16 @@ void Scene::run()
     skyPass_->Render(*sceneData_->camera);
     GL_CHECK_ERROR();
 
-    shadowPass_->Render(getRawPointers(sceneData_->opaqueObjects), *sceneData_->light);
+    std::vector<ISceneObject *> rawopaqueObjects = getRawPointers(sceneData_->opaqueObjects);
+    if (sceneData_->cursor)
+    {
+        rawopaqueObjects.push_back(sceneData_->cursor.get());
+    }
+
+    shadowPass_->Render(rawopaqueObjects, *sceneData_->light);
     GL_CHECK_ERROR();
 
-    gBufferPass_->Render(getRawPointers(sceneData_->opaqueObjects), *sceneData_->camera);
+    gBufferPass_->Render(rawopaqueObjects, *sceneData_->camera);
     GL_CHECK_ERROR();
 
     oitPass_->Render(getRawPointers(sceneData_->transparentObjects),
