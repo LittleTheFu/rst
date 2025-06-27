@@ -3,9 +3,9 @@
 
 #include "Shader.h" // 假设所有可渲染对象都需要 Shader
 
-class Renderable {
+class IRenderable {
 public:
-    virtual ~Renderable() = default;
+    virtual ~IRenderable() = default;
 
     // 所有可渲染对象都应该能够被渲染
     virtual void render(Shader& shader) const = 0;

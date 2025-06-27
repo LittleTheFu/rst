@@ -29,7 +29,7 @@
 #include "BoundingVolume.h" // 包含 AABB 类 (你之前创建的)
 
 
-class Mesh : public Renderable, public Transformable {
+class Mesh : public IRenderable, public ITransformable {
 public:
     // 修改构造函数：现在它直接接收已经解析好的顶点、索引和材质
     Mesh(const std::string& name, 

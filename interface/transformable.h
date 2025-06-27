@@ -3,9 +3,9 @@
 
 #include <Eigen/Dense>
 
-class Transformable {
+class ITransformable {
 public:
-    virtual ~Transformable() = default;
+    virtual ~ITransformable() = default;
 
     // 获取模型矩阵 (模型空间到世界空间的变换)
     virtual Eigen::Matrix4f getModelMatrix() const = 0;

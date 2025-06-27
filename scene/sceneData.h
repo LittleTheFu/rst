@@ -14,8 +14,8 @@
 
 
 struct ObjectData {
-    Renderable* renderable; // 指向可渲染对象的指针
-    Transformable* transformable; // 指向可变换对象的指针
+    IRenderable* renderable; // 指向可渲染对象的指针
+    ITransformable* transformable; // 指向可变换对象的指针
 };
 
 struct SceneData {
