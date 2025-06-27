@@ -28,7 +28,7 @@ UiSceneData UiSceneData::create(std::shared_ptr<Scene> scene)
     data.sceneData.push_back({"", -1}); // 分隔线
 
     // 绑定 onRenderModeChanged 回调
-    data.onRenderModeChanged = [&scene](int mode)
+    data.onRenderModeChanged = [scene](int mode)
     { 
         scene->setRenderFlag(mode); 
     };
@@ -39,7 +39,7 @@ UiSceneData UiSceneData::create(std::shared_ptr<Scene> scene)
 
     // !!! 关键改动 !!!
     // 绑定 onObjectSelectedFromUI 回调
-    data.onObjectSelectedFromUI = [&scene](ISceneObject* obj)
+    data.onObjectSelectedFromUI = [scene](ISceneObject* obj)
     { 
         scene->setSelectedObject(obj); // 调用 Scene 的新方法
     };
