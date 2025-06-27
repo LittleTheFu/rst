@@ -168,37 +168,28 @@ void UiSystem::DrawUI(int currentFPS)
     // ---------- 新增：场景大纲视图窗口 ----------
     ImGui::Begin("Scene Outliner");
 
-    // !!! 关键改动 !!!
-    // 获取当前被选中的 ISceneObject (用于高亮显示)
     ISceneObject *currentSelectedObject = nullptr;
     if (onGetSelectedObject)
-    { // onGetSelectedObject 是 UiSystem 的成员
+    {
         currentSelectedObject = onGetSelectedObject();
     }
 
-    // 遍历所有 ISceneObject 并在列表中显示
-    // uiSceneData.allMeshes 应该改为 uiSceneData.allSceneObjects 或类似
-    // 假设 uiSceneData.allSceneObjects 现在存储的是 std::vector<ISceneObject*>
     if (!uiSceneData.allSceneObjects.empty())
     {
         for (size_t i = 0; i < uiSceneData.allSceneObjects.size(); ++i)
         {
             ISceneObject *obj = uiSceneData.allSceneObjects[i];
             if (!obj)
-                continue; // 安全检查，防止空指针
+                continue;
 
-            // 设置选中状态：如果当前 Object 是被选中的，则 ImGui::Selectable 会高亮显示
             bool isSelected = (obj == currentSelectedObject);
 
-            // 为每个 Selectable 加上唯一的 ID
             ImGui::PushID(obj); // 使用 ISceneObject* 地址作为 ID
             if (ImGui::Selectable(obj->getName().c_str(), isSelected))
             {
-                // 如果用户点击了这个列表项，并且我们有设置选中 Object 的回调
-                // uiSceneData.onMeshSelectedFromUI 应该改为 uiSceneData.onObjectSelectedFromUI
                 if (uiSceneData.onObjectSelectedFromUI)
-                { 
-                    uiSceneData.onObjectSelectedFromUI(obj); // 通知 Scene 选中了这个 ISceneObject
+                {
+                    uiSceneData.onObjectSelectedFromUI(obj);
                 }
             }
             ImGui::PopID(); // 匹配 PushID
@@ -214,18 +205,15 @@ void UiSystem::DrawUI(int currentFPS)
     // --- 选中物体属性窗口 ---
     ImGui::Begin("Selected Object Properties");
 
-    // !!! 关键改动 !!!
-    // 使用 onGetSelectedObject 获取 ISceneObject*
     ISceneObject *selectedObject = nullptr;
-    if (onGetSelectedObject) {
+    if (onGetSelectedObject)
+    {
         selectedObject = onGetSelectedObject();
     }
-    
-    if (selectedObject)
-    { 
-        // 显示名称 (Text 控件，不编辑)
-        ImGui::Text("Selected Object Name: %s", selectedObject->getName().c_str());
 
+    if (selectedObject)
+    {
+        ImGui::Text("Selected Object Name: %s", selectedObject->getName().c_str());
         ImGui::Separator();
 
         // -------------------------------------------------------------------
@@ -249,7 +237,7 @@ void UiSystem::DrawUI(int currentFPS)
         if (ImGui::InputFloat3("Rotation (Euler)", rot))
         {
             Eigen::Quaternionf newRotQuat =
-                Eigen::AngleAxisf(rot[2] * M_PI / 180.0f, Eigen::Vector3f::UnitZ()) * Eigen::AngleAxisf(rot[1] * M_PI / 180.0f, Eigen::Vector3f::UnitY()) * Eigen::AngleAxisf(rot[0] * M_PI / 180.0f, Eigen::Vector3f::UnitX()); 
+                Eigen::AngleAxisf(rot[2] * M_PI / 180.0f, Eigen::Vector3f::UnitZ()) * Eigen::AngleAxisf(rot[1] * M_PI / 180.0f, Eigen::Vector3f::UnitY()) * Eigen::AngleAxisf(rot[0] * M_PI / 180.0f, Eigen::Vector3f::UnitX());
 
             selectedObject->setRotation(newRotQuat);
         }
@@ -265,48 +253,90 @@ void UiSystem::DrawUI(int currentFPS)
             selectedObject->setScale(Eigen::Vector3f(scale[0], scale[1], scale[2]));
         }
 
-        ImGui::Separator(); 
+        ImGui::Separator();
         ImGui::Text("Material Properties:");
 
-        // 尝试获取选中 Object 的材质
-        // std::shared_ptr<Material> material = selectedObject->getMaterial();
+        // !!! 核心修改部分 !!!
+        // 尝试向下转型为 Model*
+        Model *model = dynamic_cast<Model *>(selectedObject);
 
-        // if (material)
-        // { 
-        //     // 显示材质名称
-        //     ImGui::Text("Material Name: %s", material->getName().c_str());
+        if (model) // 如果选中的对象是一个 Model
+        {
+            const auto &meshes = model->getMeshes();
+            if (!meshes.empty())
+            {
+                ImGui::Text("Model Meshes and Materials:");
+                ImGui::Indent(); // 缩进显示 Mesh 列表
 
-        //     // -------------------------------------------------------------
-        //     // 编辑 Albedo 颜色
-        //     // -------------------------------------------------------------
-        //     Eigen::Vector3f albedoColor = material->getAlbedoColor();
-        //     float albedoColorArr[3] = {albedoColor.x(), albedoColor.y(), albedoColor.z()};
+                for (size_t i = 0; i < meshes.size(); ++i)
+                {
+                    const auto &mesh_ptr = meshes[i]; // mesh_ptr 是 unique_ptr<Mesh> 的引用
+                    if (!mesh_ptr)
+                        continue; // 安全检查
 
-        //     if (ImGui::ColorEdit3("Albedo Color", albedoColorArr))
-        //     {
-        //         material->setAlbedoColor(Eigen::Vector3f(albedoColorArr[0], albedoColorArr[1], albedoColorArr[2]));
-        //     }
+                    Mesh *mesh = mesh_ptr.get(); // 获取原始指针
 
-        //     // -------------------------------------------------------------
-        //     // 编辑 Roughness Factor
-        //     // -------------------------------------------------------------
-        //     float roughnessFactor = material->getRoughnessFactor();
-        //     if (ImGui::SliderFloat("Roughness Factor", &roughnessFactor, 0.0f, 1.0f))
-        //     {
-        //         material->setRoughnessFactor(roughnessFactor);
-        //     }
+                    ImGui::PushID(mesh); // 为每个 Mesh 设置唯一 ID
 
-        //     // -------------------------------------------------------------
-        //     // 编辑 Metallic Factor
-        //     // -------------------------------------------------------------
-        //     float metallicFactor = material->getMetallicFactor();
-        //     if (ImGui::SliderFloat("Metallic Factor", &metallicFactor, 0.0f, 1.0f))
-        //     {
-        //         material->setMetallicFactor(metallicFactor);
-        //     }
-        // } else {
-        //     ImGui::Text("No material assigned.");
-        // }
+                    // 显示 Mesh 的名称
+                    ImGui::Text("Mesh: %s", mesh->getName().c_str());
+                    ImGui::Indent(); // 再次缩进以显示材质属性
+
+                    std::shared_ptr<Material> material = mesh->getMaterial(); // 获取 Mesh 的材质
+
+                    if (material)
+                    {
+                        // 显示材质名称
+                        ImGui::Text("Material Name: %s", material->getName().c_str());
+
+                        // -------------------------------------------------------------
+                        // 编辑 Albedo 颜色
+                        // -------------------------------------------------------------
+                        Eigen::Vector3f albedoColor = material->getAlbedoColor();
+                        float albedoColorArr[3] = {albedoColor.x(), albedoColor.y(), albedoColor.z()};
+
+                        if (ImGui::ColorEdit3("Albedo Color", albedoColorArr))
+                        {
+                            material->setAlbedoColor(Eigen::Vector3f(albedoColorArr[0], albedoColorArr[1], albedoColorArr[2]));
+                        }
+
+                        // -------------------------------------------------------------
+                        // 编辑 Roughness Factor
+                        // -------------------------------------------------------------
+                        float roughnessFactor = material->getRoughnessFactor();
+                        if (ImGui::SliderFloat("Roughness Factor", &roughnessFactor, 0.0f, 1.0f, "%.2f"))
+                        {
+                            material->setRoughnessFactor(roughnessFactor);
+                        }
+
+                        // -------------------------------------------------------------
+                        // 编辑 Metallic Factor
+                        // -------------------------------------------------------------
+                        float metallicFactor = material->getMetallicFactor();
+                        if (ImGui::SliderFloat("Metallic Factor", &metallicFactor, 0.0f, 1.0f, "%.2f"))
+                        {
+                            material->setMetallicFactor(metallicFactor);
+                        }
+                    }
+                    else
+                    {
+                        ImGui::Text("Mesh has no material assigned.");
+                    }
+                    ImGui::Unindent();  // 结束 Mesh 材质属性的缩进
+                    ImGui::PopID();     // 匹配 Mesh 的 PushID
+                    ImGui::Separator(); // 每个 Mesh 之间加分隔线
+                }
+                ImGui::Unindent(); // 结束 Mesh 列表的缩进
+            }
+            else
+            {
+                ImGui::Text("Model contains no meshes.");
+            }
+        }
+        else // 如果选中的对象不是 Model (或者你不需要为其他 ISceneObject 类型显示材质)
+        {
+            ImGui::Text("Selected object is not a Model or does not support material editing.");
+        }
     }
     else
     {
@@ -314,31 +344,37 @@ void UiSystem::DrawUI(int currentFPS)
         ImGui::Text("Click on an object to select it.");
     }
 
-    ImGui::End();
+    ImGui::End(); // End Selected Object Properties Window
 
     // --- 光源属性面板 ---
-    ImGui::Begin("Light Properties"); 
-    if (uiSceneData.pointLight) { 
+    ImGui::Begin("Light Properties");
+    if (uiSceneData.pointLight)
+    {
 
         ImGui::Text("Light Parameters");
 
         // 光源位置 (Vector3f)
         float lightPos[3] = {uiSceneData.pointLight->position.x(), uiSceneData.pointLight->position.y(), uiSceneData.pointLight->position.z()};
-        if (ImGui::SliderFloat3("Position", lightPos, -10.0f, 10.0f)) { 
+        if (ImGui::SliderFloat3("Position", lightPos, -10.0f, 10.0f))
+        {
             uiSceneData.pointLight->position = Eigen::Vector3f(lightPos[0], lightPos[1], lightPos[2]);
         }
 
         // 光源强度 (float)
-        if (ImGui::SliderFloat("Intensity", &uiSceneData.pointLight->intensity, 0.0f, 20.0f)) { 
+        if (ImGui::SliderFloat("Intensity", &uiSceneData.pointLight->intensity, 0.0f, 20.0f))
+        {
             // 强度改变，数据已更新
         }
 
         // 光源颜色 (Vector3f，作为 RGB 颜色选择器)
         float lightColor[3] = {uiSceneData.pointLight->color.x(), uiSceneData.pointLight->color.y(), uiSceneData.pointLight->color.z()};
-        if (ImGui::ColorEdit3("Color", lightColor)) {
+        if (ImGui::ColorEdit3("Color", lightColor))
+        {
             uiSceneData.pointLight->color = Eigen::Vector3f(lightColor[0], lightColor[1], lightColor[2]);
         }
-    } else {
+    }
+    else
+    {
         ImGui::Text("No light in scene.");
     }
     ImGui::End();
