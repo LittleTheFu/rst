@@ -150,25 +150,6 @@ void Camera::lookAt(const Eigen::Vector3f &target)
     updateCameraVectors();
 }
 
-// 静态方法：构建一个通用的 LookAt 矩阵，不依赖于Camera实例的状态
-Eigen::Matrix4f Camera::LookAtCube(const Eigen::Vector3f &eye, const Eigen::Vector3f &center, const Eigen::Vector3f &up)
-{
-    Eigen::Vector3f f = (center - eye).normalized(); // 相机看向的方向
-    Eigen::Vector3f s = f.cross(up).normalized();    // 相机的右向量
-    Eigen::Vector3f u = s.cross(f);                  // 相机的上向量 (与传入的up可能略有不同，因为会正交化)
-
-    Eigen::Matrix4f mat = Eigen::Matrix4f::Identity();
-    // 旋转部分
-    mat(0, 0) = s.x(); mat(0, 1) = s.y(); mat(0, 2) = s.z();
-    mat(1, 0) = u.x(); mat(1, 1) = u.y(); mat(1, 2) = u.z();
-    mat(2, 0) = -f.x(); mat(2, 1) = -f.y(); mat(2, 2) = -f.z();
-    // 平移部分
-    mat(0, 3) = -s.dot(eye);
-    mat(1, 3) = -u.dot(eye);
-    mat(2, 3) = f.dot(eye); // 这里应该是 f.dot(eye)，因为是 -zaxis.dot(eye)，而zaxis=-f
-    return mat;
-}
-
 void Camera::updateCameraVectors()
 {
     // 根据当前的 Yaw 和 Pitch 重新计算 Front 向量

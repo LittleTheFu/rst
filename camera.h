@@ -75,10 +75,6 @@ public:
 
     // 根据当前的Yaw和Pitch更新Front, Right, Up向量
     void updateCameraVectors();
-
-    // 静态 LookAtCube 方法，如果需要可以保留或移除
-    // 它是一个通用的视图矩阵计算函数，不依赖于Camera实例的状态
-    static Eigen::Matrix4f LookAtCube(const Eigen::Vector3f &eye, const Eigen::Vector3f &center, const Eigen::Vector3f &up);
     
     // 如果你还需要一个让相机看向某个目标的方法，这个也保留
     void lookAt(const Eigen::Vector3f &target);
