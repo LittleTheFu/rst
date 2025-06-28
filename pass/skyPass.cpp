@@ -3,6 +3,7 @@
 #include <iostream>
 #include <vector>
 #include "debug_utils.h" // 确保包含调试工具
+#include "utilities.h"
 
 
 SkyPass::SkyPass(int width, int height, std::shared_ptr<TextureCubeMap> skyboxTexture)
@@ -18,11 +19,11 @@ void SkyPass::initFrameBuffer()
     frameBuffer_ = std::make_unique<Framebuffer>(width_, height_);
 
     // 1. 创建颜色附件纹理
-    colorTexture_ = std::make_unique<Texture2D>(width_, height_, GL_RGBA8);
+    colorTexture_ = std::make_unique<Texture2D>(Utilities::generateUniqueTextureId(),width_, height_, GL_RGBA8);
     frameBuffer_->attachColorTexture(colorTexture_->id(), GL_COLOR_ATTACHMENT0, 0); // 假设颜色附件为 0
 
     // 2. 创建深度渲染缓冲对象 (Renderbuffer)
-    depthTexture_ = std::make_unique<Texture2D>(width_, height_, GL_DEPTH_COMPONENT24);
+    depthTexture_ = std::make_unique<Texture2D>(Utilities::generateUniqueTextureId(),width_, height_, GL_DEPTH_COMPONENT24);
     frameBuffer_->attachDepthTexture(depthTexture_->id()); // 直接使用纹理 ID 作为深度附件
 
     std::vector<GLenum> drawBuffers = {GL_COLOR_ATTACHMENT0};

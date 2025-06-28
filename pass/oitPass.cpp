@@ -3,6 +3,7 @@
 #include "debug_utils.h" // 确保包含调试工具
 #include "pointLightDataForUBO.h"
 #include "sceneObject.h" // !!! 确保包含 ISceneObject 接口
+#include "utilities.h"
 
 OitPass::OitPass(int width,
                  int height,
@@ -118,16 +119,16 @@ void OitPass::Render(const std::vector<ISceneObject*> &objects, // 传入 IScene
 
 void OitPass::init()
 {
-    accumTexture_ = std::make_unique<Texture2D>(width_, height_, GL_RGBA32F); // 累积颜色和不透明度
+    accumTexture_ = std::make_unique<Texture2D>(Utilities::generateUniqueTextureId(),width_, height_, GL_RGBA32F); // 累积颜色和不透明度
     accumTexture_->setParameters();
 
-    revealTexture_ = std::make_unique<Texture2D>(width_, height_, GL_R32F);   // 透明度（revealage）
+    revealTexture_ = std::make_unique<Texture2D>(Utilities::generateUniqueTextureId(),width_, height_, GL_R32F);   // 透明度（revealage）
     revealTexture_->setParameters();
 
     // 如果 OIT Pass 不需要自己的独立深度纹理，并且只使用 G-Buffer 的深度
     // 那么这里创建 depthTexture_ 可能是多余的。
     // 我暂时保留，但请你确认其必要性。
-    depthTexture_ = std::make_unique<Texture2D>(width_, height_, GL_DEPTH_COMPONENT24);
+    depthTexture_ = std::make_unique<Texture2D>(Utilities::generateUniqueTextureId(),width_, height_, GL_DEPTH_COMPONENT24);
 
     // 创建 Framebuffer 对象
     frameBuffer_ = std::make_unique<Framebuffer>(width_, height_);

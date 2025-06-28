@@ -4,6 +4,7 @@
 #include "materialFactory.h"
 #include "model.h"
 #include "sceneObject.h"
+#include <textureManager.h>
 
 std::unique_ptr<SceneData> sceneFactory::createScene()
 {
@@ -25,19 +26,19 @@ std::unique_ptr<SceneData> sceneFactory::createScene()
     sceneData->light->color = Eigen::Vector3f(1.0f, 1.0f, 1.0f);
     sceneData->light->intensity = 8.0f;
 
-    sceneData->irradianceMapTex_ = std::move(TextureCubeMap::loadDDS("ibl/house/houseDiffuseHDR.dds"));
+    sceneData->irradianceMapTex_ = std::move(TextureManager::getInstance().loadTextureCubeMap("ibl/house/houseDiffuseHDR.dds"));
     if (sceneData->irradianceMapTex_ == nullptr)
     {
         std::cerr << "ERROR::SCENE::Failed to load irradiance map! Check path and DDS format." << std::endl;
     }
 
-    sceneData->prefilterMapTex_ = std::move(TextureCubeMap::loadDDS("ibl/house/houseSpecularHDR.dds"));
+    sceneData->prefilterMapTex_ = std::move(TextureManager::getInstance().loadTextureCubeMap("ibl/house/houseSpecularHDR.dds"));
     if (sceneData->prefilterMapTex_ == nullptr)
     {
         std::cerr << "ERROR::SCENE::Failed to load prefilter map! Check path and DDS format." << std::endl;
     }
 
-    sceneData->brdfLUTTex_ = std::move(Texture2D::loadDDS("ibl/house/houseBrdf.dds"));
+    sceneData->brdfLUTTex_ = std::move(TextureManager::getInstance().loadTexture2D("ibl/house/houseBrdf.dds", true));
     if (sceneData->brdfLUTTex_ == nullptr)
     {
         std::cerr << "ERROR::SCENE::Failed to load BRDF LUT! Check path and DDS format." << std::endl;
@@ -50,11 +51,11 @@ std::unique_ptr<SceneData> sceneFactory::createScene()
     std::shared_ptr<Material> wallMaterial = MaterialFactory::CreateMaterialFromDirectory("wallMaterial", "wall");
     std::shared_ptr<Material> silverMaterial = MaterialFactory::CreateMaterialFromDirectory("silverMaterial", "silver");
 
-    std::shared_ptr<Texture2D> gunAlbedoTexture = Texture2D::loadFromFile("gun/Textures/Cerberus_A.tga", false, true);
-    std::shared_ptr<Texture2D> gunNormalTexture = Texture2D::loadFromFile("gun/Textures/Cerberus_N.tga");
-    std::shared_ptr<Texture2D> gunRoughnessTexture = Texture2D::loadFromFile("gun/Textures/Cerberus_R.tga");
-    std::shared_ptr<Texture2D> gunMetallicTexture = Texture2D::loadFromFile("gun/Textures/Cerberus_M.tga");
-    std::shared_ptr<Texture2D> gunAoTexture = Texture2D::loadFromFile("gun/Textures/raw/Cerberus_AO.tga");
+    std::shared_ptr<Texture2D> gunAlbedoTexture = TextureManager::getInstance().loadTexture2D("gun/Textures/Cerberus_A.tga", false, true);
+    std::shared_ptr<Texture2D> gunNormalTexture = TextureManager::getInstance().loadTexture2D("gun/Textures/Cerberus_N.tga");
+    std::shared_ptr<Texture2D> gunRoughnessTexture = TextureManager::getInstance().loadTexture2D("gun/Textures/Cerberus_R.tga");
+    std::shared_ptr<Texture2D> gunMetallicTexture = TextureManager::getInstance().loadTexture2D("gun/Textures/Cerberus_M.tga");
+    std::shared_ptr<Texture2D> gunAoTexture = TextureManager::getInstance().loadTexture2D("gun/Textures/raw/Cerberus_AO.tga");
 
     std::shared_ptr<Material> gunMaterial = std::make_shared<Material>("gunMaterial");
     gunMaterial->setAlbedoMap(gunAlbedoTexture);

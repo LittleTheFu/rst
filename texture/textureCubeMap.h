@@ -1,39 +1,38 @@
-#ifndef _RENDER_TEXTURE_CUBE_MAP_H_
-#define _RENDER_TEXTURE_CUBE_MAP_H_
+#ifndef TEXTURE_CUBE_MAP_H
+#define TEXTURE_CUBE_MAP_H
 
-#include "Texture.h"
-#include <string> // For std::string
-#include <memory> // For std::unique_ptr
-#include <gli/gli.hpp> // For gli::load_dds_cube
+#include "texture.h" // 继承自新的 Texture 基类
+#include <memory>
+#include <vector>
+
+// Forward declarations for gli if needed
+// namespace gli { class texture; }
 
 class TextureCubeMap : public Texture {
-// private:
-public:
-    int mipLevels_;
-
-    // 私有构造函数，供静态工厂方法（如 loadDDS）使用
-    // 不会立即分配存储或设置参数，这些由 loadDDS 根据 DDS 数据处理
-    TextureCubeMap(GLenum target, GLenum internalFormat, int resolution, int mipLevels);
+private:
+    int mipLevels_; // CubeMap 特有的 mipmap 级别
 
 public:
-    // 公有构造函数，用于通用目的（原始数据上传或运行时生成）
-    // 这个会立即分配存储并设置参数。
-    TextureCubeMap(int resolution, GLenum internalFormat, int mipLevels = 1);
+    // !!! 修改私有构造函数：接受 assetId 并传递给基类
+    // 供 TextureManager::internalLoadTextureCubeMapDDS 和 internalLoadTextureCubeMapFaces 使用
+    TextureCubeMap(const std::string& assetId, GLenum target, GLenum internalFormat, int resolution, int mipLevels);
 
-    // 静态工厂方法：使用 gli 加载 DDS 立方体贴图
-    static std::unique_ptr<TextureCubeMap> loadDDS(const std::string& filePath);
+    // !!! 修改公有构造函数：接受 assetId 并传递给基类
+    // 用于运行时生成或直接数据上传的 Cubemap
+    TextureCubeMap(const std::string& assetId, int resolution, GLenum internalFormat, int mipLevels = 1);
 
-    // 重写基类的纯虚函数
+    virtual ~TextureCubeMap() = default;
+
+    // 实现基类 Texture 的纯虚函数
     void allocateStorage(int mipLevels) override;
     void setParameters() override;
 
     // 特定方法：上传特定面的数据 (使用 DSA 方式)
-    // faceIndex: 0-5 对应 GL_TEXTURE_CUBE_MAP_POSITIVE_X 到 GL_TEXTURE_CUBE_MAP_NEGATIVE_Z
     void uploadFaceData(int faceIndex, const void* data, GLenum format, GLenum type, int level = 0);
 
-    // 获取分辨率 (宽高等于分辨率)
-    int getResolution() const { return width_; } // resolution_ 在基类中可以用 width_ 表示
-    int getMipLevels() const { return mipLevels_; } // Added getter for mip levels
+    // --- 移除静态工厂方法 ---
+    // 这些加载逻辑将移至 TextureManager
+    // static std::unique_ptr<TextureCubeMap> loadDDS(const std::string& filePath);
 };
 
-#endif // _RENDER_TEXTURE_CUBE_MAP_H_
+#endif // TEXTURE_CUBE_MAP_H

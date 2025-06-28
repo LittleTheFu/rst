@@ -2,6 +2,7 @@
 #include <iostream>
 #include "Texture.h"   // 假设你有Texture类来管理OpenGL纹理
 #include "Texture2D.h" // 如果你使用Texture2D::loadFromFile
+#include <textureManager.h>
 // #include "stb_image.h" // 用于加载图片，如果你的Texture类使用它
 
 // 注意：如果你的 Eigen/Geometry 头文件里没有这几个，可能需要添加
@@ -363,7 +364,7 @@ std::vector<std::shared_ptr<Texture>> Model::loadMaterialTextures(aiMaterial* ma
             // 这里假设 Texture2D::loadFromFile 能够处理并缓存纹理
             // 在实际项目中，强烈建议使用一个 TextureManager 来管理纹理的加载和生命周期
             // 避免重复加载相同的纹理
-            std::shared_ptr<Texture> newTexture = Texture2D::loadFromFile(fullPath); // 假设 Texture2D::loadFromFile 返回 shared_ptr<Texture>
+            std::shared_ptr<Texture> newTexture = TextureManager::getInstance().loadTexture2D(fullPath); // 假设 Texture2D::loadFromFile 返回 shared_ptr<Texture>
             if (newTexture) {
                 textures.push_back(newTexture);
             }

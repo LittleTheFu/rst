@@ -1,5 +1,6 @@
 #include "MaterialFactory.h"
 #include <iostream>
+#include <textureManager.h>
 
 std::shared_ptr<Material> MaterialFactory::CreateMaterialFromDirectory(const std::string &name,
                                                                        const std::string &directory,
@@ -11,7 +12,7 @@ std::shared_ptr<Material> MaterialFactory::CreateMaterialFromDirectory(const std
     auto loadTex = [&](const std::string &type) -> std::shared_ptr<Texture2D>
     {
         std::string path = directory + "/" + type + extension;
-        auto tex = Texture2D::loadFromFile(path, false, type == "albedo" ? true : false);
+        auto tex = TextureManager::getInstance().loadTexture2D(path, false, type == "albedo" ? true : false);
         if (!tex)
             std::cerr << "WARNING::MATERIAL_FACTORY::Failed to load " << type << " texture at " << path << std::endl;
         return tex;

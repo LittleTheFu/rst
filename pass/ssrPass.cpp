@@ -2,6 +2,7 @@
 #include <cassert>
 #include <iostream>
 #include "debug_utils.h"
+#include "utilities.h"
 
 SSRPass::SSRPass(int width, int height)
     : RenderPass("SSRPass", width, height),
@@ -68,10 +69,10 @@ GLuint SSRPass::getReflectionTextureId() const
 
 void SSRPass::init()
 {
-    reflectionTexture_ = std::make_unique<Texture2D>(width_, height_, GL_RGBA8);
+    reflectionTexture_ = std::make_unique<Texture2D>(Utilities::generateUniqueTextureId(),width_, height_, GL_RGBA8);
     reflectionTexture_->setParameters();
 
-    depthTexture_ = std::make_unique<Texture2D>(width_, height_, GL_DEPTH_COMPONENT24);
+    depthTexture_ = std::make_unique<Texture2D>(Utilities::generateUniqueTextureId(),width_, height_, GL_DEPTH_COMPONENT24);
 
     frameBuffer_ = std::make_unique<Framebuffer>(width_, height_);
     frameBuffer_->attachColorTexture(reflectionTexture_->id(), GL_COLOR_ATTACHMENT0);

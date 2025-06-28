@@ -1,45 +1,42 @@
-#ifndef _RENDER_TEXTURE_2D_H_
-#define _RENDER_TEXTURE_2D_H_
+#ifndef TEXTURE2D_H
+#define TEXTURE2D_H
 
-#include "Texture.h"
-#include <string> // For std::string
-#include <memory> // For std::unique_ptr
-#include <gli/gli.hpp> // For gli::load_dds function
+#include "texture.h" // Texture2D 现在继承自新的 Texture 基类
+#include <memory> 
+#include <vector> // 如果 internalLoadTexture2D 需要它
+
+// Forward declarations for stb_image and gli related functions if needed
+// namespace gli { class texture; }
 
 class Texture2D : public Texture {
-// private:
-public:
-    int mipLevels_; // Store the actual number of mip levels allocated/used
-
-    // Private constructor for use by static factory methods (like loadDDS)
-    // This allows creating an object without immediately calling allocateStorage/setParameters
-    // as loadDDS will handle allocation and parameters based on DDS data.
-    Texture2D(GLenum target, GLenum internalFormat, int width, int height, int mipLevels);
+private:
+    int mipLevels_; // Texture2D 特有的 mipmap 级别
 
 public:
-    // Public constructor for general purpose (raw data upload or generation)
-    // This one allocates storage and sets parameters immediately.
-    Texture2D(int width, int height, GLenum internalFormat, int mipLevels = 1);
+    // !!! 修改构造函数：现在接受 assetId，并将其传递给基类
+    // 供 TextureManager::internalLoadTexture2D 使用
+    Texture2D(const std::string& assetId, GLenum target, GLenum internalFormat, int width, int height, int mipLevels);
+    
+    // !!! 修改公有构造函数：用于运行时生成纹理，同样需要 assetId
+    Texture2D(const std::string& assetId, int width, int height, GLenum internalFormat, int mipLevels = 1);
 
-    // Static factory method to load a 2D DDS texture using gli
-    static std::unique_ptr<Texture2D> loadDDS(const std::string& filePath);
+    // 析构函数（默认即可，基类会处理 OpenGL ID 释放）
+    virtual ~Texture2D() = default;
 
-     // --- 新增：加载普通图片格式的静态工厂方法 ---
-    static std::unique_ptr<Texture2D> loadFromFile(const std::string &filePath,
-                                                   bool generateMipmaps = false,
-                                                   bool useSRGB = false);
+    // 实现基类 Texture 的纯虚函数
+    void allocateStorage(int mipLevels) override;
+    void setParameters() override;
 
-    // 重写基类的纯虚函数
-    void allocateStorage(int mipLevels = 1) override;
-    void setParameters() override; // This method can be generalized or specific to raw data textures
+    // 上传数据到特定 mip 级别 (DSA 方式)
+    void uploadData(const void *data, GLenum format, GLenum type, int level = 0);
 
-    // 特定方法：上传数据 (仍然需要 format 和 type)
-    void uploadData(const void* data, GLenum format, GLenum type, int level = 0);
+    // --- 移除静态工厂方法 ---
+    // 这些加载逻辑将移至 TextureManager
+    // static std::unique_ptr<Texture2D> loadDDS(const std::string &filePath);
+    // static std::unique_ptr<Texture2D> loadFromFile(const std::string &filePath, bool generateMipmaps = false, bool useSRGB = false);
 
-    // 获取尺寸
-    int getWidth() const { return width_; }
-    int getHeight() const { return height_; }
-    int getMipLevels() const { return mipLevels_; } // Added getter for mip levels
+    // Getter for mipLevels_
+    int getMipLevels() const { return mipLevels_; }
 };
 
-#endif
+#endif // TEXTURE2D_H

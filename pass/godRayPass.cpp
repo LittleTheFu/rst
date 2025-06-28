@@ -13,7 +13,7 @@ GodRayPass::GodRayPass(int width, int height)
 
 void GodRayPass::initFramebuffer()
 {
-    colorTexture_ = std::make_unique<Texture2D>(width_, height_, GL_RGBA16F);
+    colorTexture_ = std::make_unique<Texture2D>(Utilities::generateUniqueTextureId(), width_, height_, GL_RGBA16F);
     colorTexture_->setParameters();
 
     frameBuffer_ = std::make_unique<Framebuffer>(width_, height_);

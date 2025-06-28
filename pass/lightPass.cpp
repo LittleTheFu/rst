@@ -3,6 +3,7 @@
 #include <vector>
 #include "pointLightDataForUBO.h"
 #include "debug_utils.h"
+#include "utilities.h"
 
 LightPass::LightPass(int width, int height)
     : RenderPass("LightPass", width, height), screenQuad_()
@@ -18,13 +19,13 @@ LightPass::~LightPass()
 
 void LightPass::init()
 {
-    outputTexture_ = std::make_unique<Texture2D>(width_, height_, GL_RGBA32F);
+    outputTexture_ = std::make_unique<Texture2D>(Utilities::generateUniqueTextureId(),width_, height_, GL_RGBA32F);
     frameBuffer_->attachColorTexture(outputTexture_->id(), GL_COLOR_ATTACHMENT0);
 
-    debugCurrentDepthTexture_ = std::make_unique<Texture2D>(width_, height_, GL_R32F);
+    debugCurrentDepthTexture_ = std::make_unique<Texture2D>(Utilities::generateUniqueTextureId(),width_, height_, GL_R32F);
     frameBuffer_->attachColorTexture(debugCurrentDepthTexture_->id(), GL_COLOR_ATTACHMENT1);
 
-    debugClosestDepthTexture_ = std::make_unique<Texture2D>(width_, height_, GL_R32F);
+    debugClosestDepthTexture_ = std::make_unique<Texture2D>(Utilities::generateUniqueTextureId(),width_, height_, GL_R32F);
     frameBuffer_->attachColorTexture(debugClosestDepthTexture_->id(), GL_COLOR_ATTACHMENT2);
 
     std::vector<GLenum> drawBuffers = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2};

@@ -1,4 +1,6 @@
 #include "utilities.h"
+#include <random>
+#include <iomanip>
 
 Eigen::Vector3f Utilities::worldToScreenSpace(const Eigen::Vector3f &worldPos,
                                               const Eigen::Matrix4f &viewMatrix,
@@ -139,4 +141,13 @@ bool Utilities::SaveTextureToFile(GLuint textureID,
 
     std::cerr << "Unsupported texture type for saving: only GL_FLOAT and GL_UNSIGNED_BYTE are supported.\n";
     return false;
+}
+
+std::string Utilities::generateUniqueTextureId()
+{
+    static std::random_device rd;
+    static std::mt19937_64 gen(rd()); // 使用 64 位生成器
+    std::stringstream ss;
+    ss << "RuntimeTexture_" << std::hex << std::setfill('0') << std::setw(16) << gen();
+    return ss.str();
 }

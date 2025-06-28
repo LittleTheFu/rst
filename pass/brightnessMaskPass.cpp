@@ -1,12 +1,13 @@
 #include "brightnessMaskPass.h"
 #include "debug_utils.h"
+#include "utilities.h"
 
 BrightnessMaskPass::BrightnessMaskPass(int width, int height)
     : RenderPass("BrightnessMaskPass", width, height)
 {
     shader_.load("shader/brightnessMask.vert", "shader/brightnessMask.frag");
 
-    maskTexture_ = std::make_unique<Texture2D>(width_, height_, GL_RGBA8);
+    maskTexture_ = std::make_unique<Texture2D>(Utilities::generateUniqueTextureId(),width_, height_, GL_RGBA8);
     maskTexture_->setParameters();
 
     frameBuffer_ = std::make_unique<Framebuffer>(width_, height_);
@@ -39,7 +40,7 @@ void BrightnessMaskPass::Resize(int width, int height)
 
     deactivateFramebuffer();
 
-    maskTexture_ = std::make_unique<Texture2D>(width_, height_, GL_RGBA8);
+    maskTexture_ = std::make_unique<Texture2D>(Utilities::generateUniqueTextureId(),width_, height_, GL_RGBA8);
     maskTexture_->setParameters();
 
     frameBuffer_ = std::make_unique<Framebuffer>(width_, height_);

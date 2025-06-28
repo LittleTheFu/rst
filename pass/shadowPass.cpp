@@ -4,6 +4,7 @@
 #include "debug_utils.h"
 #include "shadowUtils.h"
 #include "sceneObject.h" // !!! 确保包含 ISceneObject 接口
+#include <utilities.h>
 
 // 辅助函数：初始化 ShadowPass 内部的 Framebuffer 和纹理
 void ShadowPass::initializeFramebufferAndTextures()
@@ -12,10 +13,10 @@ void ShadowPass::initializeFramebufferAndTextures()
     frameBuffer_ = std::make_unique<Framebuffer>(width_, height_);
 
     // 2. 创建一个立方体深度纹理（作为 Shadow Pass 的输出）
-    shadowMapDepthTestTexture_ = std::make_unique<TextureCubeMap>(width_, GL_DEPTH_COMPONENT32F, 1); // 1 个 mip level
+    shadowMapDepthTestTexture_ = std::make_unique<TextureCubeMap>(Utilities::generateUniqueTextureId(), width_, GL_DEPTH_COMPONENT32F, 1); // 1 个 mip level
     shadowMapDepthTestTexture_->setParameters(); // 设置纹理参数
 
-    shadowMapDepthOutputTexture_ = std::make_unique<TextureCubeMap>(width_, GL_R32F, 1); // 1 个 mip level
+    shadowMapDepthOutputTexture_ = std::make_unique<TextureCubeMap>(Utilities::generateUniqueTextureId(), width_, GL_R32F, 1); // 1 个 mip level
     shadowMapDepthOutputTexture_->setParameters(); // 设置纹理参数
 
     // 3. 激活 FBO，并告诉 OpenGL 不渲染到任何颜色附件

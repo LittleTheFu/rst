@@ -2,6 +2,7 @@
 #include <iostream>
 #include "debug_utils.h" // 确保包含调试工具
 #include "sceneObject.h" // !!! 确保包含 ISceneObject 接口
+#include "utilities.h"
 
 GBufferPass::GBufferPass(int width, int height)
     : RenderPass("GBufferPass", width, height)
@@ -59,26 +60,26 @@ void GBufferPass::Render(const std::vector<ISceneObject*>& objects, const Camera
 
 void GBufferPass::initGBuffer()
 {
-    positionTexture_ = std::make_unique<Texture2D>(width_, height_, GL_RGBA32F); // 位置
+    positionTexture_ = std::make_unique<Texture2D>(Utilities::generateUniqueTextureId(),width_, height_, GL_RGBA32F); // 位置
     positionTexture_->setParameters();
 
-    normalTexture_ = std::make_unique<Texture2D>(width_, height_, GL_RGBA32F);   // 法线
+    normalTexture_ = std::make_unique<Texture2D>(Utilities::generateUniqueTextureId(),width_, height_, GL_RGBA32F);   // 法线
     normalTexture_->setParameters();
 
-    albedoTexture_ = std::make_unique<Texture2D>(width_, height_, GL_RGBA8);     // 反照率 + AO
+    albedoTexture_ = std::make_unique<Texture2D>(Utilities::generateUniqueTextureId(),width_, height_, GL_RGBA8);     // 反照率 + AO
     albedoTexture_->setParameters();
 
-    roughnessTexture_ = std::make_unique<Texture2D>(width_, height_, GL_RGBA8);  // 粗糙度
+    roughnessTexture_ = std::make_unique<Texture2D>(Utilities::generateUniqueTextureId(),width_, height_, GL_RGBA8);  // 粗糙度
     roughnessTexture_->setParameters();
 
-    metallicTexture_ = std::make_unique<Texture2D>(width_, height_, GL_RGBA8);   // 金属度
+    metallicTexture_ = std::make_unique<Texture2D>(Utilities::generateUniqueTextureId(),width_, height_, GL_RGBA8);   // 金属度
     metallicTexture_->setParameters();
 
-    aoTexture_ = std::make_unique<Texture2D>(width_, height_, GL_RGBA8);        // AO
+    aoTexture_ = std::make_unique<Texture2D>(Utilities::generateUniqueTextureId(),width_, height_, GL_RGBA8);        // AO
     aoTexture_->setParameters();
 
     // 创建深度纹理
-    depthTexture_ = std::make_unique<Texture2D>(width_, height_, GL_DEPTH_COMPONENT24);
+    depthTexture_ = std::make_unique<Texture2D>(Utilities::generateUniqueTextureId(),width_, height_, GL_DEPTH_COMPONENT24);
 
     // 创建 Framebuffer 对象
     frameBuffer_ = std::make_unique<Framebuffer>(width_, height_);

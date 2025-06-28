@@ -8,7 +8,7 @@
 
 //     // 创建输出 AO 纹理
 //     activateFramebuffer();
-//     aoTexture_ = std::make_unique<Texture2D>(width_, height_, GL_R8);
+//     aoTexture_ = std::make_unique<Texture2D>(Utilities::generateUniqueTextureId(),width_, height_, GL_R8);
 //     frameBuffer_->attachColorTexture(aoTexture_->id(), GL_COLOR_ATTACHMENT0);
 //     frameBuffer_->setDrawBuffers({GL_COLOR_ATTACHMENT0});
 //     frameBuffer_->checkCompleteness();
@@ -98,7 +98,7 @@
 //     frameBuffer_ = std::make_unique<Framebuffer>(width_, height_);
 //     activateFramebuffer();
 
-//     aoTexture_ = std::make_unique<Texture2D>(width_, height_, GL_R8);
+//     aoTexture_ = std::make_unique<Texture2D>(Utilities::generateUniqueTextureId(),width_, height_, GL_R8);
 //     frameBuffer_->attachColorTexture(aoTexture_->id(), GL_COLOR_ATTACHMENT0);
 //     frameBuffer_->setDrawBuffers({GL_COLOR_ATTACHMENT0});
 //     frameBuffer_->checkCompleteness();

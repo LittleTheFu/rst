@@ -114,6 +114,11 @@ set(CAMERA_SOURCE_FILES
     ${CAMERA_DIR}/camera.cpp
 )
 
+set(MANAGER_DIR "manager")
+set(MANAGER_SOURCE_FILES
+    ${MANAGER_DIR}/textureManager.cpp
+)
+
 set(INTERFACE_DIR "interface")
 set(INTERFACE_SOURCE_FILES
 )
@@ -167,6 +172,7 @@ add_executable(rst
     shadowUtils.cpp
     shader.cpp
     ${CAMERA_SOURCE_FILES}
+    ${MANAGER_SOURCE_FILES}
     ${PASS_SOURCE_FILES}
     ${UTILITIES_SOURCE_FILES}
     ${SCENE_SOURCE_FILES}
@@ -189,6 +195,7 @@ target_compile_options(rst PRIVATE /wd4819)
 target_include_directories(rst PRIVATE
     ${CMAKE_SOURCE_DIR}
     ${CMAKE_SOURCE_DIR}/${CAMERA_DIR}
+    ${CMAKE_SOURCE_DIR}/${MANAGER_DIR}
     ${CMAKE_SOURCE_DIR}/${PASS_DIR}
     ${CMAKE_SOURCE_DIR}/${UTILITIES_DIR}
     ${CMAKE_SOURCE_DIR}/${SCENE_DIR}

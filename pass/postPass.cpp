@@ -2,6 +2,7 @@
 #include <iostream>
 #include "debug_utils.h"
 #include <assert.h>
+#include "utilities.h"
 
 PostPass::PostPass(int width, int height)
     : RenderPass("PostPass", width, height),
@@ -45,7 +46,7 @@ void PostPass::Resize(int width, int height)
 
 void PostPass::init()
 {
-    colorTexture_ = std::make_unique<Texture2D>(width_, height_, GL_RGBA32F);
+    colorTexture_ = std::make_unique<Texture2D>(Utilities::generateUniqueTextureId(),width_, height_, GL_RGBA32F);
     colorTexture_->setParameters();
 
     frameBuffer_ = std::make_unique<Framebuffer>(width_, height_);

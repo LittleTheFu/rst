@@ -22,6 +22,9 @@ public:
                                   GLenum type,
                                   const std::string &filename,
                                   bool normalize = false);
+
+    // 注意：这是一个非常简单的ID生成器，生产环境中可能需要更健壮的UUID库
+    static std::string generateUniqueTextureId();
 };
 
 #endif // UTILITIES_H

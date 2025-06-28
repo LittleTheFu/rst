@@ -2,6 +2,7 @@
 #include <iostream>
 #include "debug_utils.h"
 #include <cassert>
+#include "utilities.h"
 
 CombinedPass::CombinedPass(int width, int height)
     : RenderPass("CombinedPass", width, height),
@@ -91,10 +92,10 @@ GLuint CombinedPass::getColorTextureId() const
 
 void CombinedPass::init()
 {
-    colorTexture_ = std::make_unique<Texture2D>(width_, height_, GL_RGBA8); // 颜色
+    colorTexture_ = std::make_unique<Texture2D>(Utilities::generateUniqueTextureId(),width_, height_, GL_RGBA8); // 颜色
     colorTexture_->setParameters();
 
-    depthTexture_ = std::make_unique<Texture2D>(width_, height_, GL_DEPTH_COMPONENT24);
+    depthTexture_ = std::make_unique<Texture2D>(Utilities::generateUniqueTextureId(),width_, height_, GL_DEPTH_COMPONENT24);
     frameBuffer_ = std::make_unique<Framebuffer>(width_, height_);
     frameBuffer_->attachColorTexture(colorTexture_->id(), GL_COLOR_ATTACHMENT0);
 

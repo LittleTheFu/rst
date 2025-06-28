@@ -2,6 +2,7 @@
 #include <iostream>
 #include <vector>
 #include "debug_utils.h"
+#include "utilities.h"
 
 IBLPass::IBLPass(int width, int height,
                  std::shared_ptr<TextureCubeMap> irradianceMap,
@@ -129,7 +130,7 @@ void IBLPass::init()
     frameBuffer_ = std::make_unique<Framebuffer>(width_, height_);
 
     // 创建一个颜色附件纹理并附加到 FBO
-    colorTexture_ = std::make_unique<Texture2D>(width_, height_, GL_RGBA32F, 1);
+    colorTexture_ = std::make_unique<Texture2D>(Utilities::generateUniqueTextureId(),width_, height_, GL_RGBA32F, 1);
     frameBuffer_->attachColorTexture(colorTexture_->id(), GL_COLOR_ATTACHMENT0, 0);
 
     // 设置绘制缓冲区
