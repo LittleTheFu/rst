@@ -5,6 +5,7 @@
             "includePath": [
                 "${workspaceFolder}/**",
                 "${workspaceFolder}/pass",
+                "${workspaceFolder}/physics",
                 "${workspaceFolder}/camera",
                 "${workspaceFolder}/mesh",
                 "${workspaceFolder}/command",

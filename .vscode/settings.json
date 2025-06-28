@@ -117,6 +117,9 @@
         "levenbergmarquardt": "cpp",
         "orderingmethods": "cpp",
         "iterativesolvers": "cpp",
-        "eigenvalues": "cpp"
+        "eigenvalues": "cpp",
+        "csignal": "cpp",
+        "filesystem": "cpp",
+        "shared_mutex": "cpp"
     }
 }

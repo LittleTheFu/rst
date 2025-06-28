@@ -49,6 +49,12 @@ set(UI_SOURCE_FILES
     ${UI_DIR}/uiSystem.cpp
 )
 
+set(PHYSICS_DIR "physics")
+set(PHYSICS_SOURCE_FILES
+    ${PHYSICS_DIR}/physicsSystem.cpp
+)
+
+
 set(SCENE_DIR "scene")
 set(SCENE_SOURCE_FILES
     ${SCENE_DIR}/scene.cpp
@@ -178,6 +184,7 @@ add_executable(rst
     ${CAMERA_SOURCE_FILES}
     ${MANAGER_SOURCE_FILES}
     ${PASS_SOURCE_FILES}
+    ${PHYSICS_SOURCE_FILES}
     ${UTILITIES_SOURCE_FILES}
     ${SCENE_SOURCE_FILES}
     ${UI_SOURCE_FILES}
@@ -201,6 +208,7 @@ target_include_directories(rst PRIVATE
     ${CMAKE_SOURCE_DIR}/${CAMERA_DIR}
     ${CMAKE_SOURCE_DIR}/${MANAGER_DIR}
     ${CMAKE_SOURCE_DIR}/${PASS_DIR}
+    ${CMAKE_SOURCE_DIR}/${PHYSICS_DIR}
     ${CMAKE_SOURCE_DIR}/${UTILITIES_DIR}
     ${CMAKE_SOURCE_DIR}/${SCENE_DIR}
     ${CMAKE_SOURCE_DIR}/${UI_DIR}
