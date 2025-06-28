@@ -22,9 +22,10 @@ namespace Layers
     // ObjectLayer: A more fine-grained filter, determining which object layers collide.
     namespace BroadPhase
     {
-        static constexpr JPH::BroadPhaseLayer NON_MOVING(0);
-        static constexpr JPH::BroadPhaseLayer MOVING(1);
-        static constexpr JPH::BroadPhaseLayer NUM_LAYERS(2);
+        // --- 修正点: 使用 JPH::BroadPhaseLayer::Type 显式构造 ---
+        static constexpr JPH::BroadPhaseLayer NON_MOVING(JPH::BroadPhaseLayer::Type(0));
+        static constexpr JPH::BroadPhaseLayer MOVING(JPH::BroadPhaseLayer::Type(1));
+        static constexpr JPH::BroadPhaseLayer NUM_LAYERS(JPH::BroadPhaseLayer::Type(2));
     }
 
     // Class that helps map JPH::ObjectLayer to JPH::BroadPhaseLayer
@@ -49,23 +50,22 @@ namespace Layers
 
         virtual JPH::uint GetNumBroadPhaseLayers() const override
         {
-            // --- CORRECTED LINE HERE ---
             return (JPH::uint)BroadPhase::NUM_LAYERS.GetValue();
-            // --- END CORRECTED LINE ---
         }
 
     #if defined(JPH_EXTERNAL_PROFILE) || defined(JPH_PROFILE_ENABLED)
         virtual const char* GetBroadPhaseLayerName(JPH::BroadPhaseLayer inBroadPhaseLayer) const override
         {
-            return "fix_me_GetBroadPhaseLayerName";
+            return "fixme";
+            // --- 修正点: 重新启用并修复 switch 语句中的类型转换 ---
             // switch (inBroadPhaseLayer.GetValue())
             // {
-            // case (JPH::uint)BroadPhase::NON_MOVING: return "NON_MOVING";
-            // case (JPH::uint)BroadPhase::MOVING:     return "MOVING";
+            // case BroadPhase::NON_MOVING.GetValue(): return "NON_MOVING";
+            // case BroadPhase::MOVING.GetValue():      return "MOVING";
             // default:                                 JPH_ASSERT(false); return "UNKNOWN";
             // }
         }
-    #endif // JPH_EXTERNAL_PROFILE || JPH_ENABLE_DEBUG_RENDERER
+    #endif // JPH_EXTERNAL_PROFILE || JPH_PROFILE_ENABLED
 
     private:
         JPH::BroadPhaseLayer mObjectToBroadPhase[Object::NUM_LAYERS];
