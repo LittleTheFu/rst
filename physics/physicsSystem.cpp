@@ -38,10 +38,6 @@ inline Eigen::Vector3f ToEigen(const JPH::Vec3& v) {
     return Eigen::Vector3f(v.GetX(), v.GetY(), v.GetZ());
 }
 
-// inline Eigen::Vector3f ToEigen(const JPH::RVec3& v) {
-//     return Eigen::Vector3f(static_cast<float>(v.GetX()), static_cast<float>(v.GetY()), static_cast<float>(v.GetZ()));
-// }
-
 inline JPH::RVec3 ToJoltRVec(const Eigen::Vector3f& v) {
     return JPH::RVec3(static_cast<JPH::Real>(v.x()), static_cast<JPH::Real>(v.y()), static_cast<JPH::Real>(v.z()));
 }
@@ -94,23 +90,32 @@ bool PhysicsSystem::AssertFailedImpl(const char* inExpression, const char* inMes
     std::cerr << std::endl;
     std::abort(); // Or throw an exception, depending on your error handling policy
 
-    // --- 添加返回值，因为函数现在需要返回 bool ---
-    // 这行代码实际上在 std::abort() 之后不会被执行到，
-    // 但为了满足函数的返回类型要求，它必须存在。
-    return false; // 返回 false 通常表示断言失败，不应继续
+    // This line won't be reached if std::abort() is called,
+    // but it's here to satisfy the function's return type.
+    return false; // Return false usually indicates assertion failure, should not continue
 }
 
 PhysicsSystem::PhysicsSystem()
     : mPhysicsSystem(nullptr),
       mTempAllocator(nullptr),
-      mJobSystem(nullptr)
+      mJobSystem(nullptr),
+      // --- IMPORTANT: Initialize interface pointers to nullptr ---
+      mBroadPhaseLayerInterface(nullptr),
+      mObjectVsBroadPhaseLayerFilter(nullptr),
+      mObjectLayerPairFilter(nullptr)
 {
-    // Nothing to do in the constructor, actual initialization happens in Init()
+    // Nothing else to do in the constructor, actual initialization happens in Init()
 }
 
 PhysicsSystem::~PhysicsSystem()
 {
     // Cleanup happens in Shutdown(), ensuring proper order
+    Shutdown(); // Call Shutdown to ensure proper resource release
+
+    // These pointers should be nullptr after Shutdown(), but for safety:
+    delete mObjectLayerPairFilter;
+    delete mObjectVsBroadPhaseLayerFilter;
+    delete mBroadPhaseLayerInterface;
 }
 
 void PhysicsSystem::Init()
@@ -118,43 +123,41 @@ void PhysicsSystem::Init()
     std::cout << "PhysicsSystem::Init() - Initializing Jolt Physics..." << std::endl;
 
     // Register custom allocator and debug functions
-    // Note: If you have a custom memory allocator, you would register it here.
     JPH::RegisterDefaultAllocator();
 
     // Install callbacks
     JPH::Trace = TraceImpl;
-    JPH_IF_ENABLE_ASSERTS(JPH::AssertFailed = AssertFailedImpl); // Note the semicolon inside or after the macro call
+    JPH_IF_ENABLE_ASSERTS(JPH::AssertFailed = AssertFailedImpl);
 
     // Create a factory for serializing / deserializing objects in Jolt.
-    // For now, we just need to create the default types.
     JPH::Factory::sInstance = new JPH::Factory();
 
     // Register all physics types with the factory.
-    // This is required for creating bodies, shapes, constraints etc.
     JPH::RegisterTypes();
 
+    // --- IMPORTANT: Dynamically allocate collision filtering interfaces AFTER Jolt types are registered ---
+    // This ensures that any internal Jolt dependencies (like allocators, factory) are ready.
+    mBroadPhaseLayerInterface = new Layers::BPLayerInterfaceImpl();
+    mObjectVsBroadPhaseLayerFilter = new Layers::ObjectVsBroadPhaseLayerFilterImpl();
+    mObjectLayerPairFilter = new Layers::ObjectLayerPairFilterImpl();
+
     // Create the Jolt Physics system.
-    // Max bodies and other parameters are chosen to be reasonably high.
     mPhysicsSystem = new JPH::PhysicsSystem();
+
+    // Initialize the physics system with the dynamically allocated interfaces
     mPhysicsSystem->Init(cMaxBodies, cNumBodyMutexes, cMaxBodyPairs, cMaxContactConstraints,
-                         mBroadPhaseLayerInterface, mObjectVsBroadPhaseLayerFilter, mObjectLayerPairFilter);
+                         *mBroadPhaseLayerInterface,       // Pass by reference
+                         *mObjectVsBroadPhaseLayerFilter,  // Pass by reference
+                         *mObjectLayerPairFilter);         // Pass by reference
 
     // Create a temporary allocator for the physics system.
-    // This allocator is used for temporary data during simulation.
-    // Adjust size based on scene complexity (more complex scenes need more temp memory).
     mTempAllocator = new JPH::TempAllocatorImpl(10 * 1024 * 1024); // 10 MB
 
     // Create a job system to multi-thread the physics simulation.
-    // Uses C++11 threads by default. Adjust number of threads as needed.
     mJobSystem = new JPH::JobSystemThreadPool(JPH::cMaxPhysicsJobs, JPH::cMaxPhysicsBarriers, std::thread::hardware_concurrency() - 1); // Use all but one core
 
     // Set the gravity.
-    // Jolt uses Y-up by default, so (0, -9.81, 0) is standard Earth gravity.
     mPhysicsSystem->SetGravity(JPH::Vec3(0.0f, -9.81f, 0.0f));
-
-    // Optional: Add a body activation listener or contact listener if you need callbacks
-    // mPhysicsSystem->SetBodyActivationListener(yourActivationListener);
-    // mPhysicsSystem->SetContactListener(yourContactListener);
 
     std::cout << "PhysicsSystem::Init() - Jolt Physics initialized." << std::endl;
 
@@ -171,9 +174,7 @@ void PhysicsSystem::Init()
         JPH::BodyCreationSettings floorSettings(floorShape, JPH::RVec3(0.0f, -1.0f, 0.0f), JPH::Quat::sIdentity(), JPH::EMotionType::Static, Layers::Object::NON_MOVING);
 
         JPH::BodyID floorID = mPhysicsSystem->GetBodyInterface().CreateAndAddBody(floorSettings, JPH::EActivation::DontActivate);
-        // Note: We don't store floorID in our map as it's not tied to a renderable ISceneObject from SceneData for now.
-        // If you had a 'floor' ISceneObject, you would map it here.
-        std::cout << "Added static floor body." << std::endl;
+        std::cout << "Added static floor body (ID: " << floorID.GetIndex() << ")." << std::endl;
     }
 
     // Example: Add a dynamic sphere (we'll associate this with a placeholder ISceneObject later if needed)
@@ -186,12 +187,12 @@ void PhysicsSystem::Init()
 
         // Position at Y=2, so it falls onto the floor
         JPH::BodyCreationSettings sphereSettings(sphereShape, JPH::Vec3(0.0f, 2.0f, 0.0f), JPH::Quat::sIdentity(), JPH::EMotionType::Dynamic, Layers::Object::MOVING);
-        sphereSettings.mOverrideMassProperties = JPH::EOverrideMassProperties::CalculateMassAndInertia;
+        sphereSettings.mOverrideMassProperties = JPH::EOverrideMassProperties::CalculateMassAndInertia; // Correct enum value
         sphereSettings.mMassPropertiesOverride.mMass = 1.0f; // Set a mass for the dynamic body
 
         JPH::BodyID sphereID = mPhysicsSystem->GetBodyInterface().CreateAndAddBody(sphereSettings, JPH::EActivation::Activate);
         mPhysicsSystem->GetBodyInterface().SetLinearVelocity(sphereID, JPH::Vec3(0.0f, -5.0f, 0.0f)); // Give it an initial downward push
-        std::cout << "Added dynamic sphere body." << std::endl;
+        std::cout << "Added dynamic sphere body (ID: " << sphereID.GetIndex() << ")." << std::endl;
 
         // For demonstration, let's keep track of this sphere's ID.
         // In a real application, you'd associate this with an ISceneObject.
@@ -222,44 +223,47 @@ void PhysicsSystem::Update(float inDeltaTime)
     }
 
     // --- Synchronization: Update renderable objects from physics bodies ---
-    // Get all active bodies. You can also iterate through mBodyIdToSceneObjectMap
-    // if you only want to update bodies you explicitly added.
-    JPH::BodyIDVector activeBodyIDs;
-    mPhysicsSystem->GetActiveBodies(JPH::EBodyType::RigidBody, activeBodyIDs);
+    // Get all active rigid bodies.
+    JPH::BodyIDVector activeRigidBodyIDs;
+    // Corrected: EBodyType::RigidBody to get active rigid bodies
+    mPhysicsSystem->GetActiveBodies(JPH::EBodyType::RigidBody, activeRigidBodyIDs); 
 
-    for (JPH::BodyID bodyID : activeBodyIDs)
+    for (JPH::BodyID bodyID : activeRigidBodyIDs)
     {
-        // Check if this BodyID corresponds to one of our managed ISceneObjects
-        auto it = mBodyIdToSceneObjectMap.find(bodyID);
-        if (it != mBodyIdToSceneObjectMap.end())
+        // We might only want to update *dynamic* active bodies, not kinematic or static.
+        // Let's filter for dynamic bodies here.
+        if (bodyInterface.IsAdded(bodyID) && bodyInterface.GetMotionType(bodyID) == JPH::EMotionType::Dynamic)
         {
-            ISceneObject* sceneObject = it->second;
+            // Check if this BodyID corresponds to one of our managed ISceneObjects
+            auto it = mBodyIdToSceneObjectMap.find(bodyID);
+            if (it != mBodyIdToSceneObjectMap.end())
+            {
+                ISceneObject* sceneObject = it->second;
 
-            // Get current position and rotation from physics system
-            JPH::RVec3 joltPosition = bodyInterface.GetCenterOfMassPosition(bodyID);
-            JPH::Quat joltRotation = bodyInterface.GetRotation(bodyID);
+                // Get current position and rotation from physics system
+                JPH::RVec3 joltPosition = bodyInterface.GetCenterOfMassPosition(bodyID);
+                JPH::Quat joltRotation = bodyInterface.GetRotation(bodyID);
 
-            // Convert to Eigen types
-            Eigen::Vector3f eigenPosition = ToEigen(joltPosition);
-            Eigen::Quaternionf eigenRotation = ToEigen(joltRotation);
+                // Convert to Eigen types
+                Eigen::Vector3f eigenPosition = ToEigen(joltPosition);
+                Eigen::Quaternionf eigenRotation = ToEigen(joltRotation);
 
-            // Get current scale from the scene object (assuming scale doesn't change in physics)
-            Eigen::Vector3f eigenScale = sceneObject->getScale(); // Ensure ISceneObject supports getScale()
+                // Get current scale from the scene object (assuming scale doesn't change in physics)
+                // IMPORTANT: Ensure your ISceneObject has a public method getScale() that returns Eigen::Vector3f.
+                // If it returns a scalar for uniform scale, you'll need to adapt this.
+                Eigen::Vector3f eigenScale = sceneObject->getScale(); 
 
-            // Compose the new model matrix and set it
-            Eigen::Matrix4f newModelMatrix = ComposeMatrix(eigenPosition, eigenRotation, eigenScale);
-            sceneObject->setModelMatrix(newModelMatrix);
+                // Compose the new model matrix and set it
+                Eigen::Matrix4f newModelMatrix = ComposeMatrix(eigenPosition, eigenRotation, eigenScale);
+                sceneObject->setModelMatrix(newModelMatrix);
 
-            // Alternatively, if your ISceneObject has direct setPosition/setRotation:
-            // sceneObject->setPosition(eigenPosition);
-            // sceneObject->setRotation(eigenRotation);
-
-            // Optional: Print position for debugging
-            // if (bodyID.GetIndex() == someSphereID.GetIndex()) // If you want to track a specific body
-            // {
-            //     std::cout << "Body " << bodyID.GetIndex() << " Position: "
-            //               << eigenPosition.x() << ", " << eigenPosition.y() << ", " << eigenPosition.z() << std::endl;
-            // }
+                // Optional: Print position for debugging
+                // if (bodyID.GetIndex() == someSphereID.GetIndex()) // If you want to track a specific body
+                // {
+                //      std::cout << "Body " << bodyID.GetIndex() << " Position: "
+                //                       << eigenPosition.x() << ", " << eigenPosition.y() << ", " << eigenPosition.z() << std::endl;
+                // }
+            }
         }
     }
 }
@@ -268,42 +272,71 @@ void PhysicsSystem::Shutdown()
 {
     std::cout << "PhysicsSystem::Shutdown() - Shutting down Jolt Physics..." << std::endl;
 
-    JPH::BodyInterface& bodyInterface = mPhysicsSystem->GetBodyInterface();
-
-    // Remove and destroy all bodies managed by this PhysicsSystem
-    // Iterate over a copy of the map keys to avoid issues during modification
-    std::vector<JPH::BodyID> bodiesToDestroy;
-    for (const auto& pair : mBodyIdToSceneObjectMap)
+    if (mPhysicsSystem != nullptr)
     {
-        bodiesToDestroy.push_back(pair.first);
-    }
-    // Also destroy the static floor body and example sphere if they were created and tracked.
-    // For the example in Init(), these were not stored in mBodyIdToSceneObjectMap,
-    // so you'd need to manually get their IDs and destroy them if they persist outside.
-    // For simplicity, for now we assume all bodies are tied to ISceneObjects.
+        JPH::BodyInterface& bodyInterface = mPhysicsSystem->GetBodyInterface();
 
-    for (JPH::BodyID bodyID : bodiesToDestroy)
+        // Remove and destroy all bodies managed by this PhysicsSystem
+        std::vector<JPH::BodyID> bodiesToDestroy;
+        for (const auto& pair : mBodyIdToSceneObjectMap)
+        {
+            bodiesToDestroy.push_back(pair.first);
+        }
+        
+        for (JPH::BodyID bodyID : bodiesToDestroy)
+        {
+            // Only remove and destroy if the body still exists in the physics system
+            if (bodyInterface.IsAdded(bodyID))
+            {
+                bodyInterface.RemoveBody(bodyID);
+                bodyInterface.DestroyBody(bodyID);
+            }
+        }
+        mBodyIdToSceneObjectMap.clear();
+        mSceneObjectToBodyIdMap.clear();
+
+        // Destroy the physics system
+        delete mPhysicsSystem;
+        mPhysicsSystem = nullptr;
+    }
+    
+    // Destroy allocators (order matters: physics system might use them during its destruction)
+    if (mJobSystem != nullptr)
     {
-        bodyInterface.RemoveBody(bodyID);
-        bodyInterface.DestroyBody(bodyID);
+        delete mJobSystem;
+        mJobSystem = nullptr;
     }
-    mBodyIdToSceneObjectMap.clear();
-    mSceneObjectToBodyIdMap.clear();
+    if (mTempAllocator != nullptr)
+    {
+        delete mTempAllocator;
+        mTempAllocator = nullptr;
+    }
 
-    // Destroy the physics system
-    delete mPhysicsSystem;
-    mPhysicsSystem = nullptr;
-
-    // Destroy allocators
-    delete mJobSystem;
-    mJobSystem = nullptr;
-    delete mTempAllocator;
-    mTempAllocator = nullptr;
+    // Release collision filtering interfaces
+    // Order of deletion should be reverse of creation
+    if (mObjectLayerPairFilter != nullptr)
+    {
+        delete mObjectLayerPairFilter;
+        mObjectLayerPairFilter = nullptr;
+    }
+    if (mObjectVsBroadPhaseLayerFilter != nullptr)
+    {
+        delete mObjectVsBroadPhaseLayerFilter;
+        mObjectVsBroadPhaseLayerFilter = nullptr;
+    }
+    if (mBroadPhaseLayerInterface != nullptr)
+    {
+        delete mBroadPhaseLayerInterface;
+        mBroadPhaseLayerInterface = nullptr;
+    }
 
     // Unregisters all types with the factory and frees the factory itself.
-    JPH::UnregisterTypes();
-    delete JPH::Factory::sInstance;
-    JPH::Factory::sInstance = nullptr;
+    if (JPH::Factory::sInstance != nullptr)
+    {
+        JPH::UnregisterTypes();
+        delete JPH::Factory::sInstance;
+        JPH::Factory::sInstance = nullptr;
+    }
 
     std::cout << "PhysicsSystem::Shutdown() - Jolt Physics shut down." << std::endl;
 }
@@ -320,30 +353,31 @@ JPH::BodyID PhysicsSystem::AddSceneObject(ISceneObject* inSceneObject, JPH::EMot
         std::cerr << "PhysicsSystem::AddSceneObject - ISceneObject '" << inSceneObject->getName() << "' already has a physics body!" << std::endl;
         return mSceneObjectToBodyIdMap[inSceneObject];
     }
+    
+    // Ensure physics system is initialized before getting BodyInterface
+    if (mPhysicsSystem == nullptr)
+    {
+        std::cerr << "PhysicsSystem::AddSceneObject - Physics system not initialized! Call Init() first." << std::endl;
+        return JPH::BodyID();
+    }
 
     JPH::BodyInterface& bodyInterface = mPhysicsSystem->GetBodyInterface();
 
     Eigen::Vector3f initialPos;
     Eigen::Quaternionf initialRot;
-    Eigen::Vector3f initialScale;
+    Eigen::Vector3f initialScale; // Declared here to be used in shape creation
 
     // Extract position, rotation, and scale from the scene object's model matrix
-    // Note: If you want to use the getPosition/getRotation directly, ensure they are implemented correctly
-    // in the concrete Model class to reflect the actual model matrix.
-    // For now, let's rely on decomposing the matrix, which is more robust.
     DecomposeMatrix(inSceneObject->getModelMatrix(), initialPos, initialRot);
-    initialScale = inSceneObject->getScale(); // Assuming getScale() is correct
+    initialScale = inSceneObject->getScale(); // Assuming getScale() returns Eigen::Vector3f
 
     // If no shape is provided, try to create a default box shape based on scale
     if (!inShape)
     {
-        // This is a very rough approximation. For precise physics,
-        // you'd typically extract bounding box or convex hull from your Model's mesh data.
-        // For a generic ISceneObject, a simple box is the easiest default.
-        // If Model exposes AABB/bounding box, you can use that.
-        // For now, let's just use the scale as the half-extents.
         // Jolt BoxShape expects half-extents.
-        JPH::Vec3 halfExtents = ToJolt(initialScale * 0.5f); // Assume base object is 1x1x1 unit cube before scaling
+        // Assuming your ISceneObject's scale directly corresponds to the dimensions.
+        // If the base model is 1x1x1, then scale * 0.5f is correct for half-extents.
+        JPH::Vec3 halfExtents = ToJolt(initialScale * 0.5f);
         JPH::BoxShapeSettings boxShapeSettings(halfExtents);
         boxShapeSettings.SetEmbedded();
         JPH::ShapeSettings::ShapeResult boxShapeResult = boxShapeSettings.Create();
@@ -357,18 +391,17 @@ JPH::BodyID PhysicsSystem::AddSceneObject(ISceneObject* inSceneObject, JPH::EMot
                   << halfExtents.GetX() << ", " << halfExtents.GetY() << ", " << halfExtents.GetZ() << std::endl;
     }
 
-
     JPH::BodyCreationSettings bodySettings(inShape, ToJoltRVec(initialPos), ToJolt(initialRot), inMotionType, inObjectLayer);
     bodySettings.mUserData = reinterpret_cast<JPH::uint64>(inSceneObject); // Store pointer to your scene object
 
     if (inMotionType == JPH::EMotionType::Dynamic)
     {
-        // For dynamic bodies, calculate mass properties based on shape and density.
-        // Or you can override them manually if you know the mass.
-        bodySettings.mOverrideMassProperties = JPH::EOverrideMassProperties::CalculateMassAndInertia;
+        bodySettings.mOverrideMassProperties = JPH::EOverrideMassProperties::CalculateMassAndInertia; // Correct enum value
+        // You can also set a specific density or mass directly if CalculateMassAndInertia isn't sufficient
         // bodySettings.mMassPropertiesOverride.mMass = 1.0f; // Example: Set a specific mass
     }
 
+    // Corrected: Use IsInvalid() for BodyID check
     JPH::BodyID newBodyID = bodyInterface.CreateAndAddBody(bodySettings, JPH::EActivation::Activate);
     if (newBodyID.IsInvalid())
     {
@@ -391,6 +424,13 @@ void PhysicsSystem::RemoveSceneObject(ISceneObject* inSceneObject)
         std::cerr << "PhysicsSystem::RemoveSceneObject - Cannot remove null ISceneObject!" << std::endl;
         return;
     }
+    
+    // Ensure physics system is initialized
+    if (mPhysicsSystem == nullptr)
+    {
+        std::cerr << "PhysicsSystem::RemoveSceneObject - Physics system not initialized!" << std::endl;
+        return;
+    }
 
     auto it = mSceneObjectToBodyIdMap.find(inSceneObject);
     if (it == mSceneObjectToBodyIdMap.end())
@@ -403,8 +443,16 @@ void PhysicsSystem::RemoveSceneObject(ISceneObject* inSceneObject)
     JPH::BodyInterface& bodyInterface = mPhysicsSystem->GetBodyInterface();
 
     // Ensure the body is removed and destroyed
-    bodyInterface.RemoveBody(bodyID);
-    bodyInterface.DestroyBody(bodyID);
+    // Check IsValid to prevent double-deletion or operating on an already destroyed body
+    if (bodyInterface.IsAdded(bodyID))
+    {
+        bodyInterface.RemoveBody(bodyID);
+        bodyInterface.DestroyBody(bodyID);
+    }
+    else
+    {
+         std::cerr << "PhysicsSystem::RemoveSceneObject - Attempted to remove invalid/already removed BodyID " << bodyID.GetIndex() << " for '" << inSceneObject->getName() << "'." << std::endl;
+    }
 
     mBodyIdToSceneObjectMap.erase(bodyID);
     mSceneObjectToBodyIdMap.erase(inSceneObject);

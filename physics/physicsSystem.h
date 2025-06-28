@@ -45,10 +45,7 @@ inline JPH::Vec3 ToJolt(const Eigen::Vector3f& v);
 inline Eigen::Vector3f ToEigen(const JPH::Vec3& v);
 
 // Jolt's RVec3 is double if JPH_DOUBLE_PRECISION is defined, otherwise float
-// So we need to handle this conversion carefully, assuming JPH_DOUBLE_PRECISION is not defined for now.
 // If you enable double precision in Jolt, you'll need to change Eigen::Vector3f to Eigen::Vector3d here.
-// inline Eigen::Vector3f ToEigen(const JPH::RVec3& v);
-
 inline JPH::RVec3 ToJoltRVec(const Eigen::Vector3f& v);
 
 
@@ -81,7 +78,11 @@ public:
     void Shutdown();
 
     // Returns the BodyInterface for interacting with physics bodies.
-    JPH::BodyInterface& GetBodyInterface() { return mPhysicsSystem->GetBodyInterface(); }
+    // Note: This returns a reference to the internal BodyInterface, ensure mPhysicsSystem is valid.
+    JPH::BodyInterface& GetBodyInterface() { 
+        JPH_ASSERT(mPhysicsSystem != nullptr); // Assert that physics system is initialized
+        return mPhysicsSystem->GetBodyInterface(); 
+    }
 
     // Adds a renderable object to the physics simulation.
     // This will create a corresponding Jolt Body based on the ISceneObject's properties.
@@ -109,10 +110,10 @@ private:
     JPH::TempAllocatorImpl* mTempAllocator;
     JPH::JobSystemThreadPool* mJobSystem;
 
-    // Collision filtering
-    Layers::BPLayerInterfaceImpl            mBroadPhaseLayerInterface;
-    Layers::ObjectVsBroadPhaseLayerFilterImpl mObjectVsBroadPhaseLayerFilter;
-    Layers::ObjectLayerPairFilterImpl       mObjectLayerPairFilter;
+    // Collision filtering - Changed to pointers as they are abstract interfaces
+    Layers::BPLayerInterfaceImpl* mBroadPhaseLayerInterface;
+    Layers::ObjectVsBroadPhaseLayerFilterImpl* mObjectVsBroadPhaseLayerFilter;
+    Layers::ObjectLayerPairFilterImpl* mObjectLayerPairFilter;
 
     // Store mapping from Jolt BodyID to your ISceneObject pointers
     std::map<JPH::BodyID, ISceneObject*> mBodyIdToSceneObjectMap;

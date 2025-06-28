@@ -50,19 +50,20 @@ namespace Layers
         virtual JPH::uint GetNumBroadPhaseLayers() const override
         {
             // --- CORRECTED LINE HERE ---
-            return (JPH::uint)BroadPhase::NUM_LAYERS;
+            return (JPH::uint)BroadPhase::NUM_LAYERS.GetValue();
             // --- END CORRECTED LINE ---
         }
 
-    #if defined(JPH_EXTERNAL_PROFILE) || defined(JPH_ENABLE_DEBUG_RENDERER)
+    #if defined(JPH_EXTERNAL_PROFILE) || defined(JPH_PROFILE_ENABLED)
         virtual const char* GetBroadPhaseLayerName(JPH::BroadPhaseLayer inBroadPhaseLayer) const override
         {
-            switch ((JPH::uint)inBroadPhaseLayer)
-            {
-            case (JPH::uint)BroadPhase::NON_MOVING: return "NON_MOVING";
-            case (JPH::uint)BroadPhase::MOVING:     return "MOVING";
-            default:                                 JPH_ASSERT(false); return "UNKNOWN";
-            }
+            return "fix_me_GetBroadPhaseLayerName";
+            // switch (inBroadPhaseLayer.GetValue())
+            // {
+            // case (JPH::uint)BroadPhase::NON_MOVING: return "NON_MOVING";
+            // case (JPH::uint)BroadPhase::MOVING:     return "MOVING";
+            // default:                                 JPH_ASSERT(false); return "UNKNOWN";
+            // }
         }
     #endif // JPH_EXTERNAL_PROFILE || JPH_ENABLE_DEBUG_RENDERER
 
