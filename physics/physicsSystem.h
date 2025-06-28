@@ -47,7 +47,7 @@ inline Eigen::Vector3f ToEigen(const JPH::Vec3& v);
 // Jolt's RVec3 is double if JPH_DOUBLE_PRECISION is defined, otherwise float
 // So we need to handle this conversion carefully, assuming JPH_DOUBLE_PRECISION is not defined for now.
 // If you enable double precision in Jolt, you'll need to change Eigen::Vector3f to Eigen::Vector3d here.
-inline Eigen::Vector3f ToEigen(const JPH::RVec3& v);
+// inline Eigen::Vector3f ToEigen(const JPH::RVec3& v);
 
 inline JPH::RVec3 ToJoltRVec(const Eigen::Vector3f& v);
 
@@ -58,21 +58,11 @@ inline Eigen::Quaternionf ToEigen(const JPH::Quat& q);
 
 // Function to decompose an Eigen::Matrix4f into position and rotation
 // This is crucial because Jolt wants position and quaternion separately.
-inline void DecomposeMatrix(const Eigen::Matrix4f& matrix, Eigen::Vector3f& position, Eigen::Quaternionf& rotation) {
-    position = matrix.block<3, 1>(0, 3);
-    Eigen::Matrix3f rotationMatrix = matrix.block<3, 3>(0, 0);
-    rotation = Eigen::Quaternionf(rotationMatrix);
-    rotation.normalize(); // Ensure quaternion is normalized
-}
+inline void DecomposeMatrix(const Eigen::Matrix4f& matrix, Eigen::Vector3f& position, Eigen::Quaternionf& rotation);
 
 // Function to compose a Model Matrix from position and rotation (and optional scale if needed)
 // Assuming uniform scale, or you need to extend ITransformable for non-uniform scale
-inline Eigen::Matrix4f ComposeMatrix(const Eigen::Vector3f& position, const Eigen::Quaternionf& rotation, const Eigen::Vector3f& scale) {
-    Eigen::Matrix4f modelMatrix = Eigen::Matrix4f::Identity();
-    modelMatrix.block<3, 3>(0, 0) = rotation.toRotationMatrix() * Eigen::DiagonalMatrix<float, 3>(scale);
-    modelMatrix.block<3, 1>(0, 3) = position;
-    return modelMatrix;
-}
+inline Eigen::Matrix4f ComposeMatrix(const Eigen::Vector3f& position, const Eigen::Quaternionf& rotation, const Eigen::Vector3f& scale);
 
 
 class PhysicsSystem

@@ -38,9 +38,9 @@ inline Eigen::Vector3f ToEigen(const JPH::Vec3& v) {
     return Eigen::Vector3f(v.GetX(), v.GetY(), v.GetZ());
 }
 
-inline Eigen::Vector3f ToEigen(const JPH::RVec3& v) {
-    return Eigen::Vector3f(static_cast<float>(v.GetX()), static_cast<float>(v.GetY()), static_cast<float>(v.GetZ()));
-}
+// inline Eigen::Vector3f ToEigen(const JPH::RVec3& v) {
+//     return Eigen::Vector3f(static_cast<float>(v.GetX()), static_cast<float>(v.GetY()), static_cast<float>(v.GetZ()));
+// }
 
 inline JPH::RVec3 ToJoltRVec(const Eigen::Vector3f& v) {
     return JPH::RVec3(static_cast<JPH::Real>(v.x()), static_cast<JPH::Real>(v.y()), static_cast<JPH::Real>(v.z()));
@@ -186,7 +186,7 @@ void PhysicsSystem::Init()
 
         // Position at Y=2, so it falls onto the floor
         JPH::BodyCreationSettings sphereSettings(sphereShape, JPH::Vec3(0.0f, 2.0f, 0.0f), JPH::Quat::sIdentity(), JPH::EMotionType::Dynamic, Layers::Object::MOVING);
-        sphereSettings.mOverrideMassProperties = JPH::EOverrideMassProperties::CalculateAndOverrideMassAndInertia;
+        sphereSettings.mOverrideMassProperties = JPH::EOverrideMassProperties::CalculateMassAndInertia;
         sphereSettings.mMassPropertiesOverride.mMass = 1.0f; // Set a mass for the dynamic body
 
         JPH::BodyID sphereID = mPhysicsSystem->GetBodyInterface().CreateAndAddBody(sphereSettings, JPH::EActivation::Activate);
@@ -225,7 +225,7 @@ void PhysicsSystem::Update(float inDeltaTime)
     // Get all active bodies. You can also iterate through mBodyIdToSceneObjectMap
     // if you only want to update bodies you explicitly added.
     JPH::BodyIDVector activeBodyIDs;
-    mPhysicsSystem->Get<ctrl61>ActiveBodyIDs(activeBodyIDs);
+    mPhysicsSystem->GetActiveBodies(JPH::EBodyType::RigidBody, activeBodyIDs);
 
     for (JPH::BodyID bodyID : activeBodyIDs)
     {
@@ -365,12 +365,12 @@ JPH::BodyID PhysicsSystem::AddSceneObject(ISceneObject* inSceneObject, JPH::EMot
     {
         // For dynamic bodies, calculate mass properties based on shape and density.
         // Or you can override them manually if you know the mass.
-        bodySettings.mOverrideMassProperties = JPH::EOverrideMassProperties::CalculateAndOverrideMassAndInertia;
+        bodySettings.mOverrideMassProperties = JPH::EOverrideMassProperties::CalculateMassAndInertia;
         // bodySettings.mMassPropertiesOverride.mMass = 1.0f; // Example: Set a specific mass
     }
 
     JPH::BodyID newBodyID = bodyInterface.CreateAndAddBody(bodySettings, JPH::EActivation::Activate);
-    if (!newBodyID.IsSet())
+    if (newBodyID.IsInvalid())
     {
         std::cerr << "PhysicsSystem::AddSceneObject - Failed to create Jolt body for '" << inSceneObject->getName() << "'!" << std::endl;
         return JPH::BodyID();
