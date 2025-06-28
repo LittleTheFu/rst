@@ -66,7 +66,7 @@ public:
     // void DrawRay(const Eigen::Vector3f& origin, const Eigen::Vector3f& direction, float length, const Eigen::Vector3f& color) const;
 
 private:
-    std::unique_ptr<Shader> shader_;  // 调试渲染器使用的着色器
+    std::shared_ptr<Shader> shader_;  // 调试渲染器使用的着色器
     DebugBox debugBox_;               // 用于绘制立方体线框的 DebugBox 实例
 
     Eigen::Matrix4f viewMatrix_;      // 当前的视图矩阵

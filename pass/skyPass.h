@@ -31,7 +31,7 @@ private:
     void initFrameBuffer();
 
 private:
-    Shader shader_;
+    std::shared_ptr<Shader> shader_;
     SkyboxCube skyboxCube_;
 
     std::shared_ptr<TextureCubeMap> skyboxTexture_; // 天空盒纹理

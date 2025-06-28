@@ -36,7 +36,7 @@ public:
     GLint getRevealTextureId() const;
 
 private:
-    Shader shader_;
+    std::shared_ptr<Shader> shader_;
 
     // OIT Accumulation Buffer 和 Revealage Buffer
     std::unique_ptr<Texture2D> accumTexture_;  // 存储累积的颜色和不透明度

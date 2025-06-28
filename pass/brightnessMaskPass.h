@@ -17,7 +17,7 @@ public:
     GLuint getOutputTextureId() const;
 
 private:
-    Shader shader_;
+    std::shared_ptr<Shader> shader_;
     std::unique_ptr<Texture2D> maskTexture_;
 
     ScreenQuad screenQuad_;

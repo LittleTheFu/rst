@@ -22,7 +22,8 @@
                 "${workspaceFolder}/third/stb_image/include",
                 "${workspaceFolder}/third/assimp/include",
                 "${workspaceFolder}/build/third/assimp/include",
-                "${workspaceFolder}/third/gli"
+                "${workspaceFolder}/third/gli",
+                "${workspaceFolder}/manager"
             ],
             "defines": [
                 "_DEBUG",

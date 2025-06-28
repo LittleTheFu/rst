@@ -3,11 +3,12 @@
 #include "godRayPass.h"
 #include "debug_utils.h"
 #include "utilities.h"
+#include "shaderManager.h"
 
 GodRayPass::GodRayPass(int width, int height)
     : RenderPass("GodRayPass", width, height)
 {
-    shader_.load("shader/godray.vert", "shader/godray.frag");
+    shader_ = ShaderManager::getInstance().loadShader("shader/godray.vert", "shader/godray.frag");
     initFramebuffer();
 }
 
@@ -37,16 +38,16 @@ void GodRayPass::Render(GLuint brightnessTexture,
 
     Eigen::Vector2f lightScreenPos = Utilities::worldToScreenSpace(lightPos, viewMatrix, projMatrix).head<2>();
 
-    shader_.use();
-    shader_.setVec2("lightScreenPos", lightScreenPos);
-    shader_.setFloat("exposure", exposure);
-    shader_.setFloat("decay", decay);
-    shader_.setFloat("density", density);
-    shader_.setFloat("weight", weight);
-    shader_.setInt("numSamples", samples);
+    shader_->use();
+    shader_->setVec2("lightScreenPos", lightScreenPos);
+    shader_->setFloat("exposure", exposure);
+    shader_->setFloat("decay", decay);
+    shader_->setFloat("density", density);
+    shader_->setFloat("weight", weight);
+    shader_->setInt("numSamples", samples);
 
     glBindTextureUnit(0, brightnessTexture);
-    shader_.setInt("brightnessTex", 0);
+    shader_->setInt("brightnessTex", 0);
 
     screenQuad_.render();
 

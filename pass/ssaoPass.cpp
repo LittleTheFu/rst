@@ -4,7 +4,7 @@
 // SSAOPass::SSAOPass(int width, int height)
 //     : RenderPass("SSAOPass", width, height), screenQuad_()
 // {
-//     shader_.load("shader/ssao.vert", "shader/ssao.frag");
+//     ShaderManager::getInstance().loadShader("shader/ssao.vert", "shader/ssao.frag");
 
 //     // 创建输出 AO 纹理
 //     activateFramebuffer();

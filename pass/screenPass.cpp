@@ -1,12 +1,13 @@
 #include "screenPass.h"
 #include <iostream>
 #include "debug_utils.h" // 确保包含调试工具
+#include "shaderManager.h"
 
 ScreenPass::ScreenPass(int width, int height)
     : RenderPass("ScreenPass", width, height),
       screenQuad_()
 {
-    shader_.load("shader/screen.vert", "shader/screen.frag");
+    shader_ = ShaderManager::getInstance().loadShader("shader/screen.vert", "shader/screen.frag");
 }
 
 // 实现基类的纯虚函数 Render()，不带参数
@@ -18,10 +19,10 @@ void ScreenPass::Render(GLuint colorTextureID)
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
-    shader_.use();
+    shader_->use();
 
     glBindTextureUnit(0, colorTextureID);
-    shader_.setInt("colorTexture", 0);
+    shader_->setInt("colorTexture", 0);
 
     screenQuad_.render(); 
 

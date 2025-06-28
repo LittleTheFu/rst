@@ -26,7 +26,7 @@ public:
     GLuint getShadowMapDepthOutputTextureId() const { return shadowMapDepthOutputTexture_->id(); }
 
 private:
-    Shader shader_;
+    std::shared_ptr<Shader> shader_;
 
     // 阴影立方体贴图的封装对象
     std::unique_ptr<TextureCubeMap> shadowMapDepthTestTexture_;

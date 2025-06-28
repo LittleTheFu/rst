@@ -116,6 +116,7 @@
         "polynomials": "cpp",
         "levenbergmarquardt": "cpp",
         "orderingmethods": "cpp",
-        "iterativesolvers": "cpp"
+        "iterativesolvers": "cpp",
+        "eigenvalues": "cpp"
     }
 }

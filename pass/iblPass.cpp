@@ -3,6 +3,7 @@
 #include <vector>
 #include "debug_utils.h"
 #include "utilities.h"
+#include "shaderManager.h"
 
 IBLPass::IBLPass(int width, int height,
                  std::shared_ptr<TextureCubeMap> irradianceMap,
@@ -14,7 +15,7 @@ IBLPass::IBLPass(int width, int height,
       brdfLUT_(brdfLUT),
       screenQuad_()
 {
-    shader_.load("shader/ibl.vert", "shader/ibl.frag"); // IBL 着色器路径
+    shader_ = ShaderManager::getInstance().loadShader("shader/ibl.vert", "shader/ibl.frag"); // IBL 着色器路径
 
     init();
 }
@@ -62,38 +63,38 @@ void IBLPass::Render(GLuint gPositionID, GLuint gNormalID, GLuint gAlbedoID,
     // 3. 禁用深度测试
     disableState(GL_DEPTH_TEST);
 
-    shader_.use();
+    shader_->use();
 
     glBindTextureUnit(0, gPositionID);
-    shader_.setInt("gPosition", 0);
+    shader_->setInt("gPosition", 0);
 
     glBindTextureUnit(1, gNormalID);
-    shader_.setInt("gNormal", 1);
+    shader_->setInt("gNormal", 1);
 
     glBindTextureUnit(2, gAlbedoID);
-    shader_.setInt("gAlbedo", 2);
+    shader_->setInt("gAlbedo", 2);
 
     glBindTextureUnit(3, gRoughnessID);
-    shader_.setInt("gRoughness", 3);
+    shader_->setInt("gRoughness", 3);
 
     glBindTextureUnit(4, gMetallicID);
-    shader_.setInt("gMetallic", 4);
+    shader_->setInt("gMetallic", 4);
 
     glBindTextureUnit(5, gAOID);
-    shader_.setInt("gAO", 5);
+    shader_->setInt("gAO", 5);
 
     irradianceMap_->activate(6);
-    shader_.setInt("irradianceMap", 6);
+    shader_->setInt("irradianceMap", 6);
 
     prefilterMap_->activate(7);
-    shader_.setInt("prefilterMap", 7);
+    shader_->setInt("prefilterMap", 7);
 
     brdfLUT_->activate(8);
-    shader_.setInt("brdfLUT", 8);
+    shader_->setInt("brdfLUT", 8);
 
     // 7. 设置 Uniform 变量
-    shader_.setVec3("viewPos", camera.Position);
-    shader_.setFloat("maxReflectionLOD", 1);
+    shader_->setVec3("viewPos", camera.Position);
+    shader_->setFloat("maxReflectionLOD", 1);
 
     // 8. 渲染全屏四边形
     // renderQuad(); // 假设你有一个 renderQuad() 辅助函数来绘制全屏四边形

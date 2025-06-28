@@ -3,12 +3,13 @@
 #include "debug_utils.h"
 #include <cassert>
 #include "utilities.h"
+#include "shaderManager.h"
 
 CombinedPass::CombinedPass(int width, int height)
     : RenderPass("CombinedPass", width, height),
       screenQuad_()
 {
-    shader_.load("shader/combine.vert", "shader/combine.frag");
+    shader_ = ShaderManager::getInstance().loadShader("shader/combine.vert", "shader/combine.frag");
     init();
 }
 
@@ -35,38 +36,38 @@ void CombinedPass::Render(GLuint directLightTextureID,
 
     disableState(GL_DEPTH_TEST);
 
-    shader_.use();
+    shader_->use();
 
     glBindTextureUnit(0, directLightTextureID);
-    shader_.setInt("directLightTexture", 0);
+    shader_->setInt("directLightTexture", 0);
 
     glBindTextureUnit(1, iblTextureID);
-    shader_.setInt("iblTexture", 1);
+    shader_->setInt("iblTexture", 1);
 
     glBindTextureUnit(2, gpassDepthTextureID);
-    shader_.setInt("gpassDepthTexture", 2);
+    shader_->setInt("gpassDepthTexture", 2);
 
     glBindTextureUnit(3, oitAccumTextureID);
-    shader_.setInt("accumTexture", 3);
+    shader_->setInt("accumTexture", 3);
 
     glBindTextureUnit(4, oitRevealTextureID);
-    shader_.setInt("revealTexture", 4);
+    shader_->setInt("revealTexture", 4);
 
     glBindTextureUnit(5, skyboxTextureID);
-    shader_.setInt("skyboxTexture", 5);
+    shader_->setInt("skyboxTexture", 5);
 
     glBindTextureUnit(6, ssrTextureID);
-    shader_.setInt("ssrTexture", 6);
+    shader_->setInt("ssrTexture", 6);
 
     glBindTextureUnit(7, godRayTextureID);
-    shader_.setInt("godRayTexture", 7);
+    shader_->setInt("godRayTexture", 7);
 
     float max = 3.0f;
-    shader_.setFloat("ssrWeight", std::clamp(ssrWeight, 0.0f, max));
-    shader_.setFloat("iblWeight", std::clamp(iblWeight, 0.0f, max));
-    shader_.setFloat("lightWeight", std::clamp(lightWeight, 0.0f, max));
-    shader_.setFloat("oitWeight", std::clamp(oitWeight, 0.0f, max));
-    shader_.setFloat("godRayWeight", std::clamp(godRayWeight, 0.0f, max));
+    shader_->setFloat("ssrWeight", std::clamp(ssrWeight, 0.0f, max));
+    shader_->setFloat("iblWeight", std::clamp(iblWeight, 0.0f, max));
+    shader_->setFloat("lightWeight", std::clamp(lightWeight, 0.0f, max));
+    shader_->setFloat("oitWeight", std::clamp(oitWeight, 0.0f, max));
+    shader_->setFloat("godRayWeight", std::clamp(godRayWeight, 0.0f, max));
 
     screenQuad_.render();
 

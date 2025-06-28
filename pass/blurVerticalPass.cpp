@@ -4,12 +4,13 @@
 #include <assert.h>
 #include <Eigen/Dense>
 #include "utilities.h"
+#include "shaderManager.h"
 
 BlurVerticalPass::BlurVerticalPass(int width, int height)
     : RenderPass("BlurVerticalPass", width, height),
       screenQuad_()
 {
-    shader_.load("shader/blurY.vert", "shader/blurY.frag");
+    shader_ = ShaderManager::getInstance().loadShader("shader/blurY.vert", "shader/blurY.frag");
     init();
 }
 
@@ -21,10 +22,10 @@ void BlurVerticalPass::Render(GLuint inputTexture)
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
-    shader_.use();
+    shader_->use();
     glBindTextureUnit(0, inputTexture);
-    shader_.setInt("image", 0);
-    shader_.setVec2("texelSize", Eigen::Vector2f(1.0f / width_, 1.0f / height_));
+    shader_->setInt("image", 0);
+    shader_->setVec2("texelSize", Eigen::Vector2f(1.0f / width_, 1.0f / height_));
 
     screenQuad_.render();
     deactivateFramebuffer();

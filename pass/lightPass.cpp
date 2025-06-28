@@ -4,11 +4,12 @@
 #include "pointLightDataForUBO.h"
 #include "debug_utils.h"
 #include "utilities.h"
+#include "shaderManager.h"
 
 LightPass::LightPass(int width, int height)
     : RenderPass("LightPass", width, height), screenQuad_()
 {
-    shader_.load("shader/light.vert", "shader/light.frag");
+   shader_ = ShaderManager::getInstance().loadShader("shader/light.vert", "shader/light.frag");
 
     init();
 }
@@ -33,7 +34,7 @@ void LightPass::init()
 
     frameBuffer_->checkCompleteness();
 
-    lightBindingPoint_ = shader_.getUniformBlockIndex("PointLightBlock");
+    lightBindingPoint_ = shader_->getUniformBlockIndex("PointLightBlock");
     objectLightUBO_.create(sizeof(PointLightDataForUBO), GL_DYNAMIC_DRAW);
     objectLightUBO_.bindToBindingPoint(lightBindingPoint_);
 }
@@ -55,31 +56,31 @@ void LightPass::Render(GLuint positionTextureID,
     clearBuffers(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     disableState(GL_DEPTH_TEST);
-    shader_.use();
+    shader_->use();
 
     glBindTextureUnit(0, positionTextureID);
-    shader_.setInt("positionTexture", 0);
+    shader_->setInt("positionTexture", 0);
 
     glBindTextureUnit(1, normalTextureID);
-    shader_.setInt("normalTexture", 1);
+    shader_->setInt("normalTexture", 1);
 
     glBindTextureUnit(2, albedoTextureID);
-    shader_.setInt("albedoTexture", 2);
+    shader_->setInt("albedoTexture", 2);
 
     glBindTextureUnit(3, roughnessTextureID);
-    shader_.setInt("roughnessTexture", 3);
+    shader_->setInt("roughnessTexture", 3);
 
     glBindTextureUnit(4, metallicTextureID);
-    shader_.setInt("metallicTexture", 4);
+    shader_->setInt("metallicTexture", 4);
 
     glBindTextureUnit(5, aoTextureID);
-    shader_.setInt("aoTexture", 5);
+    shader_->setInt("aoTexture", 5);
 
     glBindTextureUnit(6, shadowMapID);
-    shader_.setInt("shadowMapTexture", 6);
+    shader_->setInt("shadowMapTexture", 6);
 
-    shader_.setVec3("cameraPos", camera.Position);
-    shader_.setFloat("shadowCameraFarClip", 100.0f);
+    shader_->setVec3("cameraPos", camera.Position);
+    shader_->setFloat("shadowCameraFarClip", 100.0f);
 
     PointLightDataForUBO lightData;
     lightData.position = light.position;

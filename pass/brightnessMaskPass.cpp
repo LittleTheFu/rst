@@ -1,11 +1,12 @@
 #include "brightnessMaskPass.h"
 #include "debug_utils.h"
 #include "utilities.h"
+#include "shaderManager.h"
 
 BrightnessMaskPass::BrightnessMaskPass(int width, int height)
     : RenderPass("BrightnessMaskPass", width, height)
 {
-    shader_.load("shader/brightnessMask.vert", "shader/brightnessMask.frag");
+    shader_ = ShaderManager::getInstance().loadShader("shader/brightnessMask.vert", "shader/brightnessMask.frag");
 
     maskTexture_ = std::make_unique<Texture2D>(Utilities::generateUniqueTextureId(),width_, height_, GL_RGBA8);
     maskTexture_->setParameters();
@@ -21,10 +22,10 @@ void BrightnessMaskPass::Render(GLuint inputTexture)
     setViewport(width_, height_);
     clearBuffers(GL_COLOR_BUFFER_BIT);
 
-    shader_.use();
+    shader_->use();
 
     glBindTextureUnit(0, inputTexture);
-    shader_.setInt("sceneTexture", 0);
+    shader_->setInt("sceneTexture", 0);
 
     screenQuad_.render();
 

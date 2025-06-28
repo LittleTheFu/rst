@@ -32,7 +32,7 @@ public:
     GLint getAOTextureId() const;
 
 private:
-    Shader shader_; // G-Buffer 着色器
+    std::shared_ptr<Shader> shader_; // G-Buffer 着色器
 
     // G-Buffer 纹理的 unique_ptr
     std::unique_ptr<Texture2D> positionTexture_; // 存储世界空间位置

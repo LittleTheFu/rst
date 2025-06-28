@@ -3,12 +3,13 @@
 #include <iostream>
 #include "debug_utils.h"
 #include "utilities.h"
+#include "shaderManager.h"
 
 SSRPass::SSRPass(int width, int height)
     : RenderPass("SSRPass", width, height),
       screenQuad_()
 {
-    shader_.load("shader/ssr.vert", "shader/ssr.frag");
+    shader_ = ShaderManager::getInstance().loadShader("shader/ssr.vert", "shader/ssr.frag");
     init();
 }
 
@@ -26,28 +27,28 @@ void SSRPass::Render(GLuint normalTextureID,
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     disableState(GL_DEPTH_TEST);
 
-    shader_.use();
+    shader_->use();
 
     // 设置矩阵
-    shader_.setMat4("uProjectionMatrix", projectionMatrix);
-    shader_.setMat4("uViewMatrix", viewMatrix);
-    shader_.setVec2("uScreenSize", Eigen::Vector2f(width_, height_));
+    shader_->setMat4("uProjectionMatrix", projectionMatrix);
+    shader_->setMat4("uViewMatrix", viewMatrix);
+    shader_->setVec2("uScreenSize", Eigen::Vector2f(width_, height_));
 
     // 绑定纹理
     glBindTextureUnit(0, normalTextureID);
-    shader_.setInt("gNormal", 0);
+    shader_->setInt("gNormal", 0);
 
     glBindTextureUnit(1, depthTextureID);
-    shader_.setInt("gDepth", 1);
+    shader_->setInt("gDepth", 1);
 
     glBindTextureUnit(2, colorTextureID);
-    shader_.setInt("sceneColor", 2);
+    shader_->setInt("sceneColor", 2);
 
     glBindTextureUnit(3, metallicTextureID);
-    shader_.setInt("gMetallic", 3);
+    shader_->setInt("gMetallic", 3);
 
     glBindTextureUnit(4, roughnessTextureID);
-    shader_.setInt("gRoughness", 4);
+    shader_->setInt("gRoughness", 4);
 
     screenQuad_.render();
     deactivateFramebuffer();

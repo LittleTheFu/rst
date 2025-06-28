@@ -3,12 +3,13 @@
 #include "debug_utils.h"
 #include <assert.h>
 #include "utilities.h"
+#include "shaderManager.h"
 
 PostPass::PostPass(int width, int height)
     : RenderPass("PostPass", width, height),
       screenQuad_()
 {
-    shader_.load("shader/post.vert", "shader/post.frag");
+    shader_ = ShaderManager::getInstance().loadShader("shader/post.vert", "shader/post.frag");
     init();
 }
 
@@ -22,11 +23,11 @@ void PostPass::Render(GLuint colorTextureID)
     glClear(GL_COLOR_BUFFER_BIT);
 
     // 绑定 Screen Shader
-    shader_.use();
+    shader_->use();
 
     // 绑定输入纹理
     glBindTextureUnit(0, colorTextureID);
-    shader_.setInt("colorTexture", 0);
+    shader_->setInt("colorTexture", 0);
 
     screenQuad_.render();
 

@@ -38,7 +38,7 @@ private:
     void init();
 
 private:
-    Shader shader_;
+    std::shared_ptr<Shader> shader_;
     ScreenQuad screenQuad_;
 
     UniformBuffer objectLightUBO_;

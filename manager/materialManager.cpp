@@ -94,7 +94,22 @@ std::shared_ptr<Material> MaterialManager::internalLoadMaterial(
     const std::string& extension,
     bool flipY)
 {
-    // MaterialFactory 承担了从文件系统加载纹理并创建 Material 对象的职责。
-    // MaterialManager 只是协调这个过程，并进行缓存。
-    return MaterialFactory::CreateMaterialFromDirectory(materialID, directory, extension, flipY);
+    auto material = std::make_shared<Material>(materialID);
+
+    auto loadTex = [&](const std::string &type) -> std::shared_ptr<Texture2D>
+    {
+        std::string path = directory + "/" + type + extension;
+        auto tex = TextureManager::getInstance().loadTexture2D(path, false, type == "albedo" ? true : false);
+        if (!tex)
+            std::cerr << "WARNING::MATERIAL_FACTORY::Failed to load " << type << " texture at " << path << std::endl;
+        return tex;
+    };
+
+    material->setAlbedoMap(loadTex("albedo"));
+    material->setNormalMap(loadTex("normal"));
+    material->setRoughnessMap(loadTex("roughness"));
+    material->setMetallicMap(loadTex("metallic"));
+    material->setAmbientOcclusionMap(loadTex("ao"));
+
+    return material;
 }

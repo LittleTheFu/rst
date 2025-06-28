@@ -4,13 +4,13 @@
 #include <vector>
 #include "debug_utils.h" // 确保包含调试工具
 #include "utilities.h"
-
+#include "shaderManager.h"
 
 SkyPass::SkyPass(int width, int height, std::shared_ptr<TextureCubeMap> skyboxTexture)
     : RenderPass("SkyPass", width, height),
       skyboxTexture_(skyboxTexture)
 {
-    shader_.load("shader/skybox.vert", "shader/skybox.frag");
+    shader_ = ShaderManager::getInstance().loadShader("shader/skybox.vert", "shader/skybox.frag");
     initFrameBuffer();
 }
 
@@ -55,7 +55,7 @@ void SkyPass::Render(const Camera &camera)
     // glDepthMask(GL_FALSE);  // 禁用深度写入！
 
     // 4. 使用天空盒 Shader
-    shader_.use();
+    shader_->use();
 
     // // 提取旋转部分：保留左上 3x3，构造新的 4x4 矩阵
     Eigen::Matrix4f view = camera.GetViewMatrix();
@@ -66,12 +66,12 @@ void SkyPass::Render(const Camera &camera)
     // 对于天空盒，我们只需要 View 矩阵的旋转部分（移除平移）
     Eigen::Matrix4f projection = camera.GetProjectionMatrix();
 
-    shader_.setMat4("view", rotationOnly);
-    shader_.setMat4("projection", projection);
+    shader_->setMat4("view", rotationOnly);
+    shader_->setMat4("projection", projection);
 
     // 6. 绑定天空盒纹理
     skyboxTexture_->activate(0); // 绑定到纹理单元 0
-    shader_.setInt("skybox", 0);
+    shader_->setInt("skybox", 0);
 
     skyboxCube_.render();
 

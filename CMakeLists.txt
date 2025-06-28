@@ -118,6 +118,7 @@ set(MANAGER_DIR "manager")
 set(MANAGER_SOURCE_FILES
     ${MANAGER_DIR}/textureManager.cpp
     ${MANAGER_DIR}/materialManager.cpp
+    ${MANAGER_DIR}/shaderManager.cpp
 )
 
 set(INTERFACE_DIR "interface")

@@ -4,6 +4,7 @@
 #include "pointLightDataForUBO.h"
 #include "sceneObject.h" // !!! 确保包含 ISceneObject 接口
 #include "utilities.h"
+#include "shaderManager.h"
 
 OitPass::OitPass(int width,
                  int height,
@@ -15,10 +16,10 @@ OitPass::OitPass(int width,
       prefilterMap_(prefilterMap),
       brdfLUT_(brdfLUT)
 {
-    shader_.load("shader/oit.vert", "shader/oit.frag");
+    shader_ = ShaderManager::getInstance().loadShader("shader/oit.vert", "shader/oit.frag");
 
     // 初始化 Uniform Buffer Object
-    lightBindingPoint_ = shader_.getUniformBlockIndex("PointLightBlock");
+    lightBindingPoint_ = shader_->getUniformBlockIndex("PointLightBlock");
     objectLightUBO_.create(sizeof(PointLightDataForUBO), GL_DYNAMIC_DRAW);
     objectLightUBO_.bindToBindingPoint(lightBindingPoint_);
 
@@ -65,23 +66,23 @@ void OitPass::Render(const std::vector<ISceneObject*> &objects, // 传入 IScene
     glBlendFunci(1, GL_ZERO, GL_ONE_MINUS_SRC_COLOR); // reveal: src * 0 + dest * (1 - src_color)
     glBlendEquationi(1, GL_FUNC_ADD); 
 
-    shader_.use();
+    shader_->use();
 
     // 绑定 IBL 纹理
     irradianceMap_->activate(6);
-    shader_.setInt("irradianceMap", 6);
+    shader_->setInt("irradianceMap", 6);
 
     prefilterMap_->activate(7);
-    shader_.setInt("prefilterMap", 7);
+    shader_->setInt("prefilterMap", 7);
 
     brdfLUT_->activate(8);
-    shader_.setInt("brdfLUT", 8);
+    shader_->setInt("brdfLUT", 8);
 
-    shader_.setFloat("maxReflectionLOD", 1);
+    shader_->setFloat("maxReflectionLOD", 1);
 
-    shader_.setVec3("cameraPos", camera.getPosition());
-    shader_.setMat4("projection", camera.GetProjectionMatrix());
-    shader_.setMat4("view", camera.GetViewMatrix());
+    shader_->setVec3("cameraPos", camera.getPosition());
+    shader_->setMat4("projection", camera.GetProjectionMatrix());
+    shader_->setMat4("view", camera.GetViewMatrix());
 
     // 更新光源 UBO
     PointLightDataForUBO lightData;
@@ -99,12 +100,12 @@ void OitPass::Render(const std::vector<ISceneObject*> &objects, // 传入 IScene
             continue;
 
         // 设置模型矩阵
-        shader_.setMat4("model", obj->getModelMatrix());
+        shader_->setMat4("model", obj->getModelMatrix());
         
         // 调用 ISceneObject 的 draw 方法，并传入 OIT 着色器
         // ISceneObject::draw 负责绑定 VAO、VBO、EBO 并绘制几何体
         // 并且应该设置透明材质所需的 uniform，例如 albedoColor, opacity 等
-        obj->render(shader_); 
+        obj->render(*shader_); 
     }
 
     // 恢复 OpenGL 状态

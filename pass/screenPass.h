@@ -20,7 +20,7 @@ public:
     void Resize(int width, int height) override;
 
 private:
-    Shader shader_;
+    std::shared_ptr<Shader> shader_;
 
     ScreenQuad screenQuad_;
 };

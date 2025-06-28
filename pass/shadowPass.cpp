@@ -5,6 +5,15 @@
 #include "shadowUtils.h"
 #include "sceneObject.h" // !!! 确保包含 ISceneObject 接口
 #include <utilities.h>
+#include "shaderManager.h"
+
+ShadowPass::ShadowPass(int width, int height)
+    : RenderPass("ShadowPass", width, height)
+{
+    shader_ = ShaderManager::getInstance().loadShader("shader/depth.vert", "shader/depth.frag");
+
+    initializeFramebufferAndTextures();
+}
 
 // 辅助函数：初始化 ShadowPass 内部的 Framebuffer 和纹理
 void ShadowPass::initializeFramebufferAndTextures()
@@ -33,14 +42,6 @@ void ShadowPass::initializeFramebufferAndTextures()
     frameBuffer_->deactivate();
 }
 
-ShadowPass::ShadowPass(int width, int height)
-    : RenderPass("ShadowPass", width, height)
-{
-    shader_.load("shader/depth.vert", "shader/depth.frag");
-
-    initializeFramebufferAndTextures();
-}
-
 // !!! 关键改动 !!!
 // Render 方法现在接收 const std::vector<ISceneObject*>& 对象列表
 void ShadowPass::Render(const std::vector<ISceneObject*>& objects, const PointLight &light)
@@ -56,10 +57,10 @@ void ShadowPass::Render(const std::vector<ISceneObject*>& objects, const PointLi
     setViewport(width_, height_);
 
     float farPlane = 100.0f;
-    shader_.use();
+    shader_->use();
 
-    shader_.setVec3("lightPos", light.position); // 光源位置
-    shader_.setFloat("farPlane", farPlane);      // 阴影贴图的远裁剪面距离
+    shader_->setVec3("lightPos", light.position); // 光源位置
+    shader_->setFloat("farPlane", farPlane);      // 阴影贴图的远裁剪面距离
 
     std::vector<Eigen::Matrix4f> lightSpaceMatrices =
         ShadowUtils::CalculatePointLightSpaceMatrices(
@@ -91,7 +92,7 @@ void ShadowPass::Render(const std::vector<ISceneObject*>& objects, const PointLi
         glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
 
-        shader_.setMat4("lightSpaceMatrix", lightSpaceMatrices[face]); // 设置当前面的视图投影矩阵
+        shader_->setMat4("lightSpaceMatrix", lightSpaceMatrices[face]); // 设置当前面的视图投影矩阵
         
         // !!! 关键改动 !!!
         // 6. 渲染所有可投射阴影的 ISceneObject
@@ -101,12 +102,12 @@ void ShadowPass::Render(const std::vector<ISceneObject*>& objects, const PointLi
                 continue; // 避免空指针
 
             // 每个 ISceneObject 都需要能提供自己的模型矩阵
-            shader_.setMat4("model", obj->getModelMatrix()); 
+            shader_->setMat4("model", obj->getModelMatrix()); 
             
             // !!! 关键改动 !!!
             // 调用 ISceneObject 的 draw 方法，并传入 shader
             // 确保 ISceneObject::draw(Shader&) 能够正确处理自己的渲染逻辑
-            obj->render(shader_); 
+            obj->render(*shader_); 
         }
     }
 

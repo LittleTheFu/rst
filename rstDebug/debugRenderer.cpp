@@ -2,6 +2,7 @@
 #include "debug_utils.h"    // Your GL_CHECK_ERROR() macro
 #include <Eigen/Geometry>   // For Eigen::Translation3f, Eigen::Scaling
 #include <iostream>
+#include <shaderManager.h>
 
 // DebugRenderer 构造函数
 DebugRenderer::DebugRenderer() : debugBox_() {
@@ -11,7 +12,7 @@ DebugRenderer::DebugRenderer() : debugBox_() {
 
 // 初始化着色器
 void DebugRenderer::InitShader(const std::string& vertexPath, const std::string& fragmentPath) {
-    shader_ = std::make_unique<Shader>(vertexPath.c_str(), fragmentPath.c_str());
+    shader_ = ShaderManager::getInstance().loadShader(vertexPath.c_str(), fragmentPath.c_str());
     GL_CHECK_ERROR();
     if (!shader_ || !shader_->isValid()) {
         std::cerr << "ERROR: DebugRenderer shader initialization failed!" << std::endl;

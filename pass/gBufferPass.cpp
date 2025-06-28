@@ -3,11 +3,12 @@
 #include "debug_utils.h" // 确保包含调试工具
 #include "sceneObject.h" // !!! 确保包含 ISceneObject 接口
 #include "utilities.h"
+#include "shaderManager.h"
 
 GBufferPass::GBufferPass(int width, int height)
     : RenderPass("GBufferPass", width, height)
 {
-    shader_.load("shader/gPass.vert", "shader/gPass.frag");
+    shader_ = ShaderManager::getInstance().loadShader("shader/gPass.vert", "shader/gPass.frag");
     initGBuffer(); // 初始化 G-Buffer FBO 和纹理
 }
 
@@ -29,11 +30,11 @@ void GBufferPass::Render(const std::vector<ISceneObject*>& objects, const Camera
     glCullFace(GL_BACK); // 剔除背面
 
     // 4. 绑定 G-Buffer Shader
-    shader_.use();
+    shader_->use();
 
     // 5. 设置 Uniform 变量
-    shader_.setMat4("projection", camera.GetProjectionMatrix());
-    shader_.setMat4("view", camera.GetViewMatrix());
+    shader_->setMat4("projection", camera.GetProjectionMatrix());
+    shader_->setMat4("view", camera.GetViewMatrix());
 
     // 6. 渲染场景中的所有 ISceneObject
     // !!! 关键改动 !!!
@@ -42,14 +43,14 @@ void GBufferPass::Render(const std::vector<ISceneObject*>& objects, const Camera
         if (obj == nullptr) continue;
 
         // 每个 ISceneObject 都需要能提供自己的模型矩阵
-        shader_.setMat4("model", obj->getModelMatrix()); 
+        shader_->setMat4("model", obj->getModelMatrix()); 
         
         // !!! 关键改动 !!!
         // 调用 ISceneObject 的 draw 方法，并传入 shader
         // ISceneObject 的 draw 方法负责绑定 VAO、VBO、EBO 并绘制几何体，
         // 同时应在内部设置材质相关的 uniform （例如 albedoColor, roughnessFactor, metallicFactor）
         // G-Buffer Shader (gPass.vert/frag) 将接收这些材质属性并写入 G-Buffer 纹理
-        obj->render(shader_); 
+        obj->render(*shader_); 
     }
 
     // 7. 解绑 G-Buffer Pass 的 Framebuffer

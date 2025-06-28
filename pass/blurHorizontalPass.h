@@ -20,7 +20,7 @@ private:
     void init();
 
 private:
-    Shader shader_;
+    std::shared_ptr<Shader> shader_;
     std::unique_ptr<Texture2D> colorTexture_;
     ScreenQuad screenQuad_;
 };

@@ -30,7 +30,7 @@ public:
 private:
     void initFramebuffer();
 
-    Shader shader_;
+    std::shared_ptr<Shader> shader_;
     std::unique_ptr<Texture2D> colorTexture_; // 输出贴图
 
     ScreenQuad screenQuad_; // 用于渲染全屏四边形
