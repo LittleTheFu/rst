@@ -62,7 +62,7 @@ set(UTILITIES_SOURCE_FILES
 set(MATERIAL_DIR "material")
 set(MATERIAL_SOURCE_FILES
     ${MATERIAL_DIR}/material.cpp
-    ${MATERIAL_DIR}/materialFactory.cpp
+    # ${MATERIAL_DIR}/materialFactory.cpp
 )
 
 set(PASS_DIR "pass")
@@ -117,6 +117,7 @@ set(CAMERA_SOURCE_FILES
 set(MANAGER_DIR "manager")
 set(MANAGER_SOURCE_FILES
     ${MANAGER_DIR}/textureManager.cpp
+    ${MANAGER_DIR}/materialManager.cpp
 )
 
 set(INTERFACE_DIR "interface")

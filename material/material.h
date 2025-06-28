@@ -6,13 +6,23 @@
 #include <Eigen/Dense>
 #include "Texture.h"
 #include "shader.h"
+#include "asset.h"
 
-class Material
+class Material : public IAsset
 {
 public:
     Material(const std::string &name = "default_material");
     ~Material() = default;
 
+//hotfix,I will be back here later...
+public:
+    // IAsset 接口实现
+    const std::string& getID() const override { return assetId_; } // 将 name_ 用作 ID
+    AssetType getType() const override { return AssetType::Material; } // 返回材质类型
+private:
+    std::string assetId_;
+
+public:
     std::string getName() const { return name_; }
     void setName(const std::string &name) { name_ = name; }
 

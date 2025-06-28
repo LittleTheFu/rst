@@ -5,6 +5,7 @@
 #include "model.h"
 #include "sceneObject.h"
 #include <textureManager.h>
+#include <materialManager.h>
 
 std::unique_ptr<SceneData> sceneFactory::createScene()
 {
@@ -44,12 +45,12 @@ std::unique_ptr<SceneData> sceneFactory::createScene()
         std::cerr << "ERROR::SCENE::Failed to load BRDF LUT! Check path and DDS format." << std::endl;
     }
 
-    std::shared_ptr<Material> goldMaterial = MaterialFactory::CreateMaterialFromDirectory("goldMaterial", "gold");
-    std::shared_ptr<Material> plasticMaterial = MaterialFactory::CreateMaterialFromDirectory("plasticMaterial", "plastic");
-    std::shared_ptr<Material> rustedIronMaterial = MaterialFactory::CreateMaterialFromDirectory("rustedIronMaterial", "rusted_iron");
-    std::shared_ptr<Material> grassMaterial = MaterialFactory::CreateMaterialFromDirectory("grassMaterial", "grass");
-    std::shared_ptr<Material> wallMaterial = MaterialFactory::CreateMaterialFromDirectory("wallMaterial", "wall");
-    std::shared_ptr<Material> silverMaterial = MaterialFactory::CreateMaterialFromDirectory("silverMaterial", "silver");
+    std::shared_ptr<Material> goldMaterial = MaterialManager::getInstance().loadMaterial("goldMaterial", "gold");
+    std::shared_ptr<Material> plasticMaterial = MaterialManager::getInstance().loadMaterial("plasticMaterial", "plastic");
+    std::shared_ptr<Material> rustedIronMaterial = MaterialManager::getInstance().loadMaterial("rustedIronMaterial", "rusted_iron");
+    std::shared_ptr<Material> grassMaterial = MaterialManager::getInstance().loadMaterial("grassMaterial", "grass");
+    std::shared_ptr<Material> wallMaterial = MaterialManager::getInstance().loadMaterial("wallMaterial", "wall");
+    std::shared_ptr<Material> silverMaterial = MaterialManager::getInstance().loadMaterial("silverMaterial", "silver");
 
     std::shared_ptr<Texture2D> gunAlbedoTexture = TextureManager::getInstance().loadTexture2D("gun/Textures/Cerberus_A.tga", false, true);
     std::shared_ptr<Texture2D> gunNormalTexture = TextureManager::getInstance().loadTexture2D("gun/Textures/Cerberus_N.tga");
