@@ -29,9 +29,9 @@
 #include <Eigen/Dense>
 
 #include <iostream> // For Jolt trace/assert
-#include <map>      // To map Jolt BodyID to your ISceneObject
-#include <vector>   // To store BodyIDs
-#include <memory>   // For std::unique_ptr
+#include <map>// To map Jolt BodyID to your ISceneObject
+#include <vector> // To store BodyIDs
+#include <memory> // For std::unique_ptr
 
 // Include the collision layers header
 #include "PhysicsLayers.h"
