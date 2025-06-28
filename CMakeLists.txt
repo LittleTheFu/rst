@@ -18,6 +18,8 @@ add_subdirectory(third/assimp)
 add_subdirectory(third/lodepng)
 add_subdirectory(third/gli)
 add_subdirectory(third/imgui)
+add_subdirectory(third/JoltPhysics/Build)
+
 
 
 set(BUILD_TESTING OFF CACHE BOOL "Disable Eigen tests")
@@ -231,6 +233,7 @@ target_link_libraries(rst
     assimp
     gli
     imgui
+    Jolt 
 )
 
 add_custom_command(
