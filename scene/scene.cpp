@@ -46,10 +46,47 @@ void Scene::init()
     GL_CHECK_ERROR();
 
     objectPicker_ = std::make_unique<ObjectPicker>(sceneData_.get(), sceneData_->camera.get());
+
+    physicsSystem_ = std::make_unique<PhysicsSystem>();
+    physicsSystem_->Init();
+
+    for (const auto &objPtr : sceneData_->opaqueObjects)
+    {
+        if (objPtr)
+        {
+            // 你需要根据物体类型或属性来决定它是静态还是动态
+            // 举例：假设你的"teapot.obj"和"gun/Cerberus_LP.FBX"是动态的，其他是静态的
+            // 注意：getName() 返回的是模型路径字符串，你可能需要根据实际情况调整判断逻辑
+            // if (objPtr->getName().find("teapot.obj") != std::string::npos ||
+            //     objPtr->getName().find("gun/Cerberus_LP.FBX") != std::string::npos)
+            if(true)
+            {
+                // 动态物体：会受力移动，与静态物体和动态物体碰撞
+                physicsSystem_->AddSceneObject(objPtr.get(), JPH::EMotionType::Dynamic, Layers::Object::MOVING);
+            }
+            else
+            {
+                // 静态物体：通常是地面、墙壁等，固定不动，但其他物体可以与它们碰撞
+                physicsSystem_->AddSceneObject(objPtr.get(), JPH::EMotionType::Static, Layers::Object::NON_MOVING);
+            }
+        }
+    }
+
+    // 遍历所有透明物体
+    for (const auto &objPtr : sceneData_->transparentObjects)
+    {
+        if (objPtr)
+        {
+            // 假设透明物体通常需要动态物理效果
+            physicsSystem_->AddSceneObject(objPtr.get(), JPH::EMotionType::Dynamic, Layers::Object::MOVING);
+        }
+    }
 }
 
-void Scene::updateScene()
+void Scene::updateScene(float delta)
 {
+    physicsSystem_->Update(delta); // 将 deltaTime 传递给物理系统进行模拟
+
     static int count = 0;
     count++;
     count %= 8000;
@@ -57,11 +94,11 @@ void Scene::updateScene()
     x_light *= 1.0f;
     sceneData_->light->position = Eigen::Vector3f(x_light, x_light, 3.0f);
 
-    Eigen::Vector3f offset = Eigen::Vector3f(0.0f, 0.5f, 0.0f);
-    if (sceneData_->cursor)
-    {
-        sceneData_->cursor->setPosition(sceneData_->light->position + offset);
-    }
+    // Eigen::Vector3f offset = Eigen::Vector3f(0.0f, 0.5f, 0.0f);
+    // if (sceneData_->cursor)
+    // {
+    //     sceneData_->cursor->setPosition(sceneData_->light->position + offset);
+    // }
 }
 
 void Scene::renderFinalPass()
@@ -227,9 +264,9 @@ std::vector<ISceneObject *> Scene::getAllSceneObjects() const
     return allObjects;
 }
 
-void Scene::run()
+void Scene::run(float delta)
 {
-    updateScene();
+    updateScene(delta);
 
     skyPass_->Render(*sceneData_->camera);
     GL_CHECK_ERROR();

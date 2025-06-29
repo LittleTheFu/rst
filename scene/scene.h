@@ -34,6 +34,8 @@
 #include "debugRenderer.h"
 #include "objectPicker.h"
 
+#include "physicsSystem.h"
+
 class Scene
 {
 public:
@@ -66,11 +68,11 @@ public:
 
 public:
     void init();
-    void run();
+    void run(float delta);
     void resize(int width, int height);
 
 private:
-    void updateScene();
+    void updateScene(float delta);
     void renderFinalPass();
     void debugDraw();
 
@@ -134,6 +136,7 @@ private:
     std::unique_ptr<ScreenPass> screenPass_;
 
     std::unique_ptr<DebugRenderer> debugRenderer_;
+    std::unique_ptr<PhysicsSystem> physicsSystem_;
 
 public:
     std::unique_ptr<ObjectPicker> objectPicker_;

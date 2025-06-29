@@ -375,7 +375,7 @@ void Window::render()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // 4. 执行场景的渲染逻辑
-    scene_->run();
+    scene_->run(deltaTime_);
 
     // 5. 渲染 ImGui 界面到 OpenGL
     uiSystem_->Render();

@@ -65,12 +65,12 @@ std::unique_ptr<SceneData> sceneFactory::createScene()
     gunMaterial->setMetallicMap(gunMetallicTexture);
     gunMaterial->setAmbientOcclusionMap(gunAoTexture);
 
-    float scale_gun = 0.02f;
-    std::unique_ptr<Model> gunModel = std::make_unique<Model>("gun/Cerberus_LP.FBX");
-    gunModel->setScale(Eigen::Vector3f(scale_gun, scale_gun, scale_gun));
-    gunModel->setRotation(Eigen::Quaternionf(M_PI / 4, 0.0f, 1.0f, 0.0f));
-    gunModel->setPosition(Eigen::Vector3f(4.0f, 3.0f, 2.0f));
-    sceneData->opaqueObjects.push_back(std::move(gunModel));
+    // float scale_gun = 0.02f;
+    // std::unique_ptr<Model> gunModel = std::make_unique<Model>("gun/Cerberus_LP.FBX");
+    // gunModel->setScale(Eigen::Vector3f(scale_gun, scale_gun, scale_gun));
+    // gunModel->setRotation(Eigen::Quaternionf(M_PI / 4, 0.0f, 1.0f, 0.0f));
+    // gunModel->setPosition(Eigen::Vector3f(4.0f, 3.0f, 2.0f));
+    // sceneData->opaqueObjects.push_back(std::move(gunModel));
 
     std::unique_ptr<Model> ironTeapotModel = std::make_unique<Model>("teapot.obj");
     ironTeapotModel->setMaterial(rustedIronMaterial);

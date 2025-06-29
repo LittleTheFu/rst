@@ -111,7 +111,7 @@ void PhysicsSystem::Init()
     mTempAllocator = new JPH::TempAllocatorImpl(10 * 1024 * 1024);
     mJobSystem = new JPH::JobSystemThreadPool(JPH::cMaxPhysicsJobs, JPH::cMaxPhysicsBarriers, std::thread::hardware_concurrency() - 1);
 
-    mPhysicsSystem->SetGravity(JPH::Vec3(0.0f, -9.81f, 0.0f));
+    mPhysicsSystem->SetGravity(JPH::Vec3(0.0f, -9.81f * 0.001f, 0.0f));
     mPhysicsSystem->SetContactListener(this);
 
     std::cout << "PhysicsSystem::Init() - Jolt Physics initialized." << std::endl;
@@ -145,43 +145,78 @@ void PhysicsSystem::Init()
     }
 }
 
+// --- 常量定义（确保这些常量在 PhysicsSystem.cpp 的顶部或合适的位置定义）---
+// 物理模拟的固定时间步长（例如 60Hz，即每秒 60 步）
+// const float cFixedTimestep = 1.0f / 60.0f;
+// 每帧最多允许进行多少次物理步进，防止渲染帧率过低时物理模拟跟不上，
+// 避免“螺旋式死亡”（spiral of death）
+// const int cMaxPhysicsStepsPerFrame = 5;
+
 void PhysicsSystem::Update(float inDeltaTime)
 {
-    float internalDeltaTime = cFixedTimestep;
+    // 用于处理可变帧率的固定时间步长逻辑
+    // inDeltaTime 是从 Window::render() 传递进来的实际帧时间
     float simulationTimeRemaining = inDeltaTime;
     int stepsTaken = 0;
 
+    // 获取 Jolt 物理系统的 BodyInterface，用于操作物理体
     JPH::BodyInterface& bodyInterface = mPhysicsSystem->GetBodyInterface();
 
+    // 循环进行物理步进，直到用完当前帧的时间或者达到最大步进次数
     while (simulationTimeRemaining > 0.0f && stepsTaken < cMaxPhysicsStepsPerFrame)
     {
-        mPhysicsSystem->Update(internalDeltaTime, 1, mTempAllocator, mJobSystem);
-        simulationTimeRemaining -= internalDeltaTime;
-        stepsTaken++;
+        // 核心的 Jolt 物理世界更新调用。
+        // cFixedTimestep: 每次步进的时间量。
+        // 1: 碰撞子步数 (Collision Steps)。Jolt 文档通常推荐为 1。
+        // mTempAllocator: 临时内存分配器。
+        // mJobSystem: 作业系统，用于多线程计算。
+        mPhysicsSystem->Update(cFixedTimestep, 1, mTempAllocator, mJobSystem);
+        
+        simulationTimeRemaining -= cFixedTimestep; // 减去已消耗的物理时间
+        stepsTaken++;                             // 增加已采取的物理步数
     }
 
-    if (!mDynamicSphereBodyID.IsInvalid())
+    // --- 物理状态到渲染状态的同步（核心逻辑）---
+    // 1. 获取所有当前活跃的物理体。
+    //    活跃的物理体是指那些位置或旋转在上一物理步中发生变化的物体（例如，正在移动、碰撞或掉落）。
+    JPH::BodyIDVector activeRigidBodyIDs;
+    mPhysicsSystem->GetActiveBodies(JPH::EBodyType::RigidBody, activeRigidBodyIDs);
+
+    // 2. 遍历每一个活跃的物理体，并更新其对应的渲染对象（ISceneObject）。
+    for (JPH::BodyID bodyID : activeRigidBodyIDs)
     {
-        if (bodyInterface.IsActive(mDynamicSphereBodyID))
+        // 检查这个 BodyID 是否仍然有效，并且在我们的映射表中是否存在对应的 ISceneObject。
+        // bodyInterface.IsAdded(bodyID) 确保物理体仍在物理世界中。
+        if (bodyInterface.IsAdded(bodyID) && mBodyIdToSceneObjectMap.count(bodyID))
         {
-            JPH::RVec3 joltPosition = bodyInterface.GetCenterOfMassPosition(mDynamicSphereBodyID);
+            // 通过 BodyID 从映射表中获取对应的 ISceneObject 指针。
+            ISceneObject* sceneObject = mBodyIdToSceneObjectMap[bodyID];
+
+            // 从 Jolt 物理体获取其最新的世界空间位置和旋转。
+            JPH::RVec3 joltPosition = bodyInterface.GetCenterOfMassPosition(bodyID);
+            JPH::Quat joltRotation = bodyInterface.GetRotation(bodyID);
+
+            // 将 Jolt 的数学类型（JPH::RVec3, JPH::Quat）转换为你渲染引擎使用的 Eigen 类型。
             Eigen::Vector3f eigenPosition = ToEigen(joltPosition);
-            // --- 修正点: 获取物理时间 ---
-            // std::cout << "Dynamic Sphere Position: ("
-            //           << eigenPosition.x() << ", "
-            //           << eigenPosition.y() << ", "
-            //           << eigenPosition.z() << ") Time: " << mPhysicsSystem->GetTime() << std::endl;
-        }
-        else
-        {
-            static bool printed_sleep = false;
-            if (!printed_sleep)
-            {
-                std::cout << "Dynamic Sphere has gone to sleep." << std::endl;
-                printed_sleep = true;
-            }
+            Eigen::Quaternionf eigenRotation = ToEigen(joltRotation);
+
+            // 获取 ISceneObject 自身的缩放。
+            // 缩放通常不随物理模拟而改变，所以我们使用对象当前的缩放值。
+            Eigen::Vector3f eigenScale = sceneObject->getScale(); 
+
+            // 使用最新的位置、旋转和原有的缩放来组合出新的模型矩阵。
+            Eigen::Matrix4f newModelMatrix = ComposeMatrix(eigenPosition, eigenRotation, eigenScale);
+
+            // **将新计算出的模型矩阵应用到 ISceneObject。**
+            // 这是最关键的一步，它将物理模拟的结果同步到渲染对象上，
+            // 确保渲染时物体显示在正确的位置和姿态。
+            sceneObject->setModelMatrix(newModelMatrix);
         }
     }
+
+    // 注意：你之前代码中关于 mDynamicSphereBodyID 的硬编码部分可以删除，
+    // 因为现在所有添加到物理系统的动态物体都会通过上面的循环进行通用处理和同步。
+    // if (!mDynamicSphereBodyID.IsInvalid()) { /* ... */ }
 }
 
 JPH::ValidateResult PhysicsSystem::OnContactValidate(const JPH::Body& inBody1, const JPH::Body& inBody2, JPH::RVec3Arg inBaseOffset, const JPH::CollideShapeResult& inCollisionResult)
