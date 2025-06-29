@@ -102,13 +102,13 @@ std::unique_ptr<SceneData> sceneFactory::createScene()
 
     std::unique_ptr<Model> planeModelTop = std::make_unique<Model>("plane.obj");
     planeModelTop->setMaterial(silverMaterial);
-    planeModelTop->setScale(Eigen::Vector3f(7.0f, 7.0f, 16.0f));
+    planeModelTop->setScale(Eigen::Vector3f(20.0f, 20.0f, 20.0f));
     planeModelTop->setPosition(Eigen::Vector3f(0.0f, -0.5f, -10.0f));
     sceneData->opaqueObjects.push_back(std::move(planeModelTop));
 
     std::unique_ptr<Model> planeModelBottom = std::make_unique<Model>("plane.obj");
     planeModelBottom->setMaterial(goldMaterial);
-    planeModelBottom->setScale(Eigen::Vector3f(-7.0f, 7.0f, 16.0f));
+    planeModelBottom->setScale(Eigen::Vector3f(-20.0f, 20.0f, 20.0f));
     planeModelBottom->setPosition(Eigen::Vector3f(0.0f, -0.8f, -10.0f));
     sceneData->opaqueObjects.push_back(std::move(planeModelBottom));
 
