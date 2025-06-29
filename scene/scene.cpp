@@ -5,6 +5,14 @@
 #include "utilities.h"
 #include "model.h"
 
+// Jolt-specific includes
+#include <Jolt/Physics/PhysicsSystem.h> // Required for JPH::DebugRenderer::sInstance
+// Make sure this is "joltDebugRenderer.h" as you renamed it
+#include "joltDebugRenderer.h" // Your custom Jolt debug renderer
+
+// (Assuming your Scene.h has been updated as per the previous response
+// to change debugRenderer_ type to std::unique_ptr<JoltDebugRenderer>)
+
 void Scene::init()
 {
     sceneData_ = std::move(sceneFactory::createScene());
@@ -41,9 +49,15 @@ void Scene::init()
     postPass_ = std::make_unique<PostPass>(sceneData_->screenWidth, sceneData_->screenHeight);
     screenPass_ = std::make_unique<ScreenPass>(sceneData_->screenWidth, sceneData_->screenHeight);
 
-    debugRenderer_ = std::make_unique<DebugRenderer>();
-    debugRenderer_->InitShader("shader/debug.vert", "shader/debug.frag");
+    // --- JoltDebugRenderer Initialization ---
+    // Make sure debugRenderer_ is of type std::unique_ptr<JoltDebugRenderer> in Scene.h
+    debugRenderer_ = std::make_unique<JoltDebugRenderer>();
+    debugRenderer_->Init(); // Call Init for JoltDebugRenderer
     GL_CHECK_ERROR();
+
+    // !!! CRUCIAL STEP: Register your JoltDebugRenderer with Jolt's global instance !!!
+    JPH::DebugRenderer::sInstance = debugRenderer_.get();
+    std::cout << "JoltDebugRenderer registered with Jolt's global instance." << std::endl;
 
     objectPicker_ = std::make_unique<ObjectPicker>(sceneData_.get(), sceneData_->camera.get());
 
@@ -54,28 +68,21 @@ void Scene::init()
     {
         if (objPtr)
         {
-            // 你需要根据物体类型或属性来决定它是静态还是动态
-            // 举例：假设你的"teapot.obj"和"gun/Cerberus_LP.FBX"是动态的，其他是静态的
-            // 注意：getName() 返回的是模型路径字符串，你可能需要根据实际情况调整判断逻辑
             if (objPtr->getName().find("teapot") != std::string::npos)
             {
-                // 动态物体：会受力移动，与静态物体和动态物体碰撞
                 physicsSystem_->AddSceneObject(objPtr.get(), JPH::EMotionType::Dynamic, Layers::Object::MOVING);
             }
             else
             {
-                // 静态物体：通常是地面、墙壁等，固定不动，但其他物体可以与它们碰撞
                 physicsSystem_->AddSceneObject(objPtr.get(), JPH::EMotionType::Static, Layers::Object::NON_MOVING);
             }
         }
     }
 
-    // 遍历所有透明物体
     for (const auto &objPtr : sceneData_->transparentObjects)
     {
         if (objPtr)
         {
-            // 假设透明物体通常需要动态物理效果
             physicsSystem_->AddSceneObject(objPtr.get(), JPH::EMotionType::Dynamic, Layers::Object::MOVING);
         }
     }
@@ -83,7 +90,7 @@ void Scene::init()
 
 void Scene::updateScene(float delta)
 {
-    physicsSystem_->Update(delta); // 将 deltaTime 传递给物理系统进行模拟
+    physicsSystem_->Update(delta); // Pass deltaTime to the physics system for simulation
 
     static int count = 0;
     count++;
@@ -92,11 +99,7 @@ void Scene::updateScene(float delta)
     x_light *= 1.0f;
     sceneData_->light->position = Eigen::Vector3f(x_light, x_light, 3.0f);
 
-    // Eigen::Vector3f offset = Eigen::Vector3f(0.0f, 0.5f, 0.0f);
-    // if (sceneData_->cursor)
-    // {
-    //     sceneData_->cursor->setPosition(sceneData_->light->position + offset);
-    // }
+    // No need for cursor update if it's just for light position visualization
 }
 
 void Scene::renderFinalPass()
@@ -165,62 +168,23 @@ void Scene::renderFinalPass()
     GL_CHECK_ERROR();
 }
 
+// --- Modified debugDraw() ---
 void Scene::debugDraw()
 {
+    // Bind to default framebuffer to draw directly to screen
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glViewport(0, 0, sceneData_->screenWidth, sceneData_->screenHeight);
 
-    debugRenderer_->SetMatrices(sceneData_->camera->GetViewMatrix(), sceneData_->camera->GetProjectionMatrix());
+    // Clear any accumulated debug data from the previous frame
+    debugRenderer_->Clear();
 
-    for (const auto &objPtr : sceneData_->opaqueObjects)
-    {
-        if (objPtr)
-        {
-            Model *model = dynamic_cast<Model *>(objPtr.get());
-            if (model)
-            {
-                std::unique_ptr<AABB> worldAABB = model->getWorldAABB();
-                if (worldAABB)
-                {
-                    debugRenderer_->DrawAABB(*worldAABB, Eigen::Vector3f(1.0f, 1.0f, 0.0f));
-                }
-            }
-        }
-    }
+    // Tell the PhysicsSystem to draw its debug information.
+    // This will internally call JoltDebugRenderer's DrawTriangle/DrawLine methods
+    // via JPH::DebugRenderer::sInstance.
+    physicsSystem_->DrawDebug();
 
-    for (const auto &objPtr : sceneData_->transparentObjects)
-    {
-        if (objPtr)
-        {
-            Model *model = dynamic_cast<Model *>(objPtr.get());
-            if (model)
-            {
-                std::unique_ptr<AABB> worldAABB = model->getWorldAABB();
-                if (worldAABB)
-                {
-                    debugRenderer_->DrawAABB(*worldAABB, Eigen::Vector3f(0.0f, 1.0f, 1.0f));
-                }
-            }
-        }
-    }
-
-    if (sceneData_->cursor)
-    {
-        Model *cursorModel = dynamic_cast<Model *>(sceneData_->cursor.get());
-        if (cursorModel)
-        {
-            std::unique_ptr<AABB> worldAABB = cursorModel->getWorldAABB();
-            if (worldAABB)
-            {
-                debugRenderer_->DrawAABB(*worldAABB, Eigen::Vector3f(1.0f, 0.0f, 1.0f));
-            }
-        }
-    }
-
-    if (sceneData_->light)
-    {
-        debugRenderer_->DrawPointLight(*sceneData_->light, 0.2f, Eigen::Vector3f(1.0f, 0.0f, 0.0f));
-    }
+    // Finally, flush (render) all accumulated debug data using the camera's matrices.
+    debugRenderer_->Flush(sceneData_->camera->GetViewMatrix(), sceneData_->camera->GetProjectionMatrix());
 
     GL_CHECK_ERROR();
 }
@@ -362,11 +326,13 @@ void Scene::run(float delta)
     postPass_->Render(depthOfFieldPass_->getColorTextureId());
     GL_CHECK_ERROR();
 
-    renderFinalPass();
+    renderFinalPass(); // Renders the final scene to the screen
 
-    if (isDebugDraw_)
+    // --- Debug Draw after all other rendering ---
+    // This ensures debug lines/shapes are always visible on top
+    if (isDebugDraw_ && debugRenderer_ && physicsSystem_)
     {
-        debugDraw();
+        debugDraw(); // Call the dedicated debug drawing function
     }
 }
 
@@ -391,6 +357,7 @@ void Scene::resize(int width, int height)
     if (oitPass_) oitPass_->Resize(width, height);
 
     sceneData_->camera->setAspectRatio(static_cast<float>(width) / height);
+    // JoltDebugRenderer usually doesn't need a resize call as it uses the camera's matrices directly.
 }
 
 void Scene::saveTextures()

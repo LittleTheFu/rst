@@ -49,7 +49,36 @@ inline Eigen::Matrix4f ComposeMatrix(const Eigen::Vector3f& position, const Eige
     return modelMatrix;
 }
 
-void PhysicsSystem::TraceImpl(const char* inFMT, ...)
+void PhysicsSystem::DrawDebug() {
+    // Check if the debug renderer is set and physics system is initialized
+    if (JPH::DebugRenderer::sInstance != nullptr && mPhysicsSystem != nullptr) {
+        // Create an instance of drawing settings
+        JPH::BodyManager::DrawSettings bodyDrawSettings;
+        
+        // Configure what you want to draw
+        bodyDrawSettings.mDrawShape = true;           // Draw collision shapes (e.g., wireframe)
+        bodyDrawSettings.mDrawBoundingBox = true;     // Draw Axis-Aligned Bounding Boxes
+        bodyDrawSettings.mDrawWorldTransform = true;  // Draw body's world coordinate axes
+        bodyDrawSettings.mDrawCenterOfMassTransform = true; // Draw body's center of mass axes
+        bodyDrawSettings.mDrawVelocity = true;        // Draw velocity vectors
+        bodyDrawSettings.mDrawMassAndInertia = false; // Usually not needed for visual debug
+
+        // --- Now, correctly call DrawBodies with the settings and your renderer ---
+        mPhysicsSystem->DrawBodies(bodyDrawSettings, JPH::DebugRenderer::sInstance); 
+
+        // --- Other debug visualizations (these usually only take the renderer) ---
+        // mPhysicsSystem->DrawConstraints(JPH::DebugRenderer::sInstance);
+        // mPhysicsSystem->DrawConstraintLimits(JPH::DebugRenderer::sInstance);
+        // mPhysicsSystem->DrawConstraintReferenceFrame(JPH::DebugRenderer::sInstance);
+
+        // You can also enable broadphase debugging if needed
+        // mPhysicsSystem->DrawBroadPhase(JPH::DebugRenderer::sInstance);
+        // And forces, if applicable
+        // mPhysicsSystem->DrawForces(JPH::DebugRenderer::sInstance);
+    }
+}
+
+void PhysicsSystem::TraceImpl(const char *inFMT, ...)
 {
     va_list args;
     va_start(args, inFMT);

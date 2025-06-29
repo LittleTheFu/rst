@@ -72,6 +72,8 @@ public:
     // Getter for the dynamic sphere's BodyID for main.cpp to query its position
     JPH::BodyID GetDynamicSphereBodyID() const { return mDynamicSphereBodyID; }
 
+    void DrawDebug();
+    
 private:
     static void TraceImpl(const char* inFMT, ...);
     static bool AssertFailedImpl(const char* inExpression, const char* inMessage, const char* inFile, JPH::uint inLine);

@@ -1,18 +1,87 @@
 #ifndef JOLT_DEBUG_RENDERER_H
 #define JOLT_DEBUG_RENDERER_H
 
-// #define JPH_DEBUG_RENDERER (1) // 这一行应该由 CMakeLists.txt 控制，所以在这里注释掉
-#include <Jolt/Jolt.h> // 这是 Jolt 的主头文件，通常会包含 Core.h, Math/Vec3.h, Core/Color.h 等基础类型
+// #define JPH_DEBUG_RENDERER (1) // 这一行通常由 CMakeLists.txt 或项目设置控制
+#include <Jolt/Jolt.h> // Jolt 的主头文件，包含核心类型
 
-#include <Jolt/Renderer/DebugRenderer.h> // Jolt's base debug renderer interface
+#include <Jolt/Renderer/DebugRenderer.h> // Jolt 的调试渲染器接口
 
-// 你自己的头文件
+// 引入你自己的 OpenGL 封装类
+#include "VertexArray.h"
+#include "VertexBuffer.h"
+#include "IndexBuffer.h"
+#include "shader.h" // 你的 Shader 类
+#include "debug_utils.h" // For GL_CHECK_ERROR()
+
 #include <glad/glad.h>
 #include <Eigen/Dense>
 #include <vector>
 #include <memory>
-#include <string_view> // 明确包含 string_view
-#include "shader.h" // Your Shader class
+#include <string_view>
+#include <cstddef>     // For offsetof
+
+// ====================================================================
+// START: JoltGLBatch - 封装你的 OpenGL 资源管理类
+// ====================================================================
+
+// JoltGLBatch 将持有 VertexArray, VertexBuffer, IndexBuffer 的实例。
+// 由于你的 GLResource 体系已经处理了资源的创建和释放（通过移动语义和析构函数），
+// 这里的 JoltGLBatch 只需要拥有这些对象即可。
+class JoltGLBatch : public JPH::RefTargetVirtual
+{
+public:
+    // 构造函数：接受 move 进来的 VertexArray, VertexBuffer, IndexBuffer
+    // 这确保了资源的唯一所有权从临时对象转移到这个批处理对象
+    JoltGLBatch(VertexArray&& va, VertexBuffer&& vb, IndexBuffer&& ib)
+        : mVertexArray(std::move(va)), mVertexBuffer(std::move(vb)), mIndexBuffer(std::move(ib))
+    {
+    }
+
+    // --- 核心修正：实现 JPH::RefTargetVirtual 的 Release() 方法 ---
+    // 这个方法会在 Jolt 的引用计数降为 0 时被调用，负责销毁对象本身。
+    virtual void Release() override
+    {
+        // 直接删除 'this' 指针。
+        // 这会触发 JoltGLBatch 的析构函数，
+        // 进而调用其成员变量 mVertexArray, mVertexBuffer, mIndexBuffer 的析构函数，
+        // 从而正确释放底层的 OpenGL 资源。
+        delete this;
+    }
+
+    void AddRef() override
+    {
+        //TODO: later....
+    }
+
+    // 析构函数：由 JPH::Ref 智能指针在引用计数归零时调用。
+    // 其成员变量 (mVertexArray, mVertexBuffer, mIndexBuffer) 会自动调用它们的析构函数，
+    // 从而正确释放 OpenGL 资源 (通过 GLResource 的 release() 机制)。
+    // 因此，这里不需要额外的 glDelete* 调用。
+    ~JoltGLBatch() = default;
+
+    // 获取索引数量，用于 glDrawElements 调用
+    int getIndexCount() const { return static_cast<int>(mIndexBuffer.getCount()); }
+    // 获取索引类型，用于 glDrawElements 调用
+    GLenum getIndexType() const { return mIndexBuffer.getType(); }
+
+    // 暴露 VertexArray 的 bind/unbind 方法，方便 DrawGeometry 调用
+    void bind() const { mVertexArray.bind(); }
+    void unbind() const { mVertexArray.unbind(); }
+
+private:
+    VertexArray  mVertexArray;
+    VertexBuffer mVertexBuffer;
+    IndexBuffer  mIndexBuffer;
+
+    // 禁用复制，只允许移动
+    JoltGLBatch(const JoltGLBatch&) = delete;
+    JoltGLBatch& operator=(const JoltGLBatch&) = delete;
+};
+
+// ====================================================================
+// END: JoltGLBatch
+// ====================================================================
+
 
 /**
  * @brief Implements JPH::DebugRenderer to visualize Jolt physics bodies.
@@ -40,95 +109,51 @@ public:
 
     // --- JPH::DebugRenderer Interface Implementations ---
 
-    /**
-     * @brief Called by Jolt to draw a single triangle.
-     * Vertices and color are accumulated internally.
-     */
-    // 签名修改：使用 RVec3Arg, ColorArg 并添加 ECastShadow 参数及默认值
     virtual void DrawTriangle(JPH::RVec3Arg inV1, JPH::RVec3Arg inV2, JPH::RVec3Arg inV3, JPH::ColorArg inColor, JPH::DebugRenderer::ECastShadow inCastShadow = JPH::DebugRenderer::ECastShadow::Off) override;
-
-    /**
-     * @brief Called by Jolt to draw a single line.
-     * Vertices and color are accumulated internally.
-     */
-    // 签名修改：使用 RVec3Arg, ColorArg
     virtual void DrawLine(JPH::RVec3Arg inFrom, JPH::RVec3Arg inTo, JPH::ColorArg inColor) override;
-
-    /**
-     * @brief Called by Jolt to draw a point. (Simplified/Ignored for now)
-     * NOTE: JPH::DebugRenderer does NOT have a virtual DrawPoint method.
-     * We remove 'override' and make it a regular member function if you wish to use it.
-     * Jolt will typically call DrawMarker (a non-virtual helper) which then calls DrawLine/DrawTriangle.
-     */
-    // 移除 override 关键字，因为基类没有这个虚函数
-    // 如果 Jolt 不会直接调用这个，你可以保留它作为你自己的辅助函数
-    void DrawPoint(JPH::RVec3Arg inP, JPH::ColorArg inColor, float inSize); // 改变参数类型以匹配 Jolt 风格
-
-    /**
-     * @brief Called by Jolt to draw complex geometry (like collision shapes).
-     * This function often delegates to DrawTriangle/DrawLine for basic rendering.
-     */
-    // 签名修改：使用 RMat44Arg, ColorArg，并添加正确的枚举类型和默认值
-    // GeometryRef 也需要 JPH::DebugRenderer:: 前缀
+    void DrawPoint(JPH::RVec3Arg inP, JPH::ColorArg inColor, float inSize);
+    
     virtual void DrawGeometry(JPH::RMat44Arg inModelMatrix, const JPH::AABox &inWorldSpaceBounds, float inLODScaleSq, JPH::ColorArg inModelColor, const JPH::DebugRenderer::GeometryRef &inGeometry, JPH::DebugRenderer::ECullMode inCullMode = JPH::DebugRenderer::ECullMode::CullBackFace, JPH::DebugRenderer::ECastShadow inCastShadow = JPH::DebugRenderer::ECastShadow::On, JPH::DebugRenderer::EDrawMode inDrawMode = JPH::DebugRenderer::EDrawMode::Solid) override;
     
-    /**
-     * @brief Called by Jolt to draw 3D text. (Simplified/Ignored for now)
-     */
-    // 签名修改：使用 RVec3Arg, ColorArg，并添加默认值
     virtual void DrawText3D(JPH::RVec3Arg inPosition, const std::string_view &inString, JPH::ColorArg inColor = JPH::Color::sWhite, float inHeight = 0.5f) override;
 
-    // --- Custom Management Functions ---
+    // --- 实现缺失的纯虚函数 ---
+    // 这些函数创建并返回一个三角形批次，用于高效渲染
+    virtual JPH::DebugRenderer::Batch CreateTriangleBatch(const JPH::DebugRenderer::Triangle *inTriangles, int inTriangleCount) override;
+    virtual JPH::DebugRenderer::Batch CreateTriangleBatch(const JPH::DebugRenderer::Vertex *inVertices, int inVertexCount, const JPH::uint32 *inIndices, int inIndexCount) override;
 
-    /**
-     * @brief Clears all accumulated vertex data, preparing for a new frame.
-     */
-    void Clear(); // 通常 JoltDebugRenderer 命名为 ClearTransientPrimitives 更合适
-
-    /**
-     * @brief Renders all accumulated debug geometry.
-     * @param view The current view matrix from the camera.
-     * @param projection The current projection matrix from the camera.
-     */
+    // --- 自定义管理函数 ---
+    void Clear();
     void Flush(const Eigen::Matrix4f& view, const Eigen::Matrix4f& projection);
 
 private:
-    // Buffers to store collected triangle data
     std::vector<float> mTriangleVertices;
     std::vector<float> mTriangleColors;
-
-    // Buffers to store collected line data
     std::vector<float> mLineVertices;
     std::vector<float> mLineColors;
 
-    // OpenGL Vertex Array Objects and Vertex Buffer Objects for triangles
     GLuint mTriangleVAO = 0;
     GLuint mTriangleVBO = 0;
     GLuint mTriangleColorVBO = 0;
 
-    // OpenGL Vertex Array Objects and Vertex Buffer Objects for lines
     GLuint mLineVAO = 0;
     GLuint mLineVBO = 0;
     GLuint mLineColorVBO = 0;
 
-    std::shared_ptr<Shader> mShader; // Shader for debug rendering (uses your Shader class)
-    std::shared_ptr<Shader> mWireframeShader; // 新增：用于线框渲染的着色器
+    std::shared_ptr<Shader> mShader;
+    std::shared_ptr<Shader> mWireframeShader;
 
-    // Cached OpenGL state to restore after rendering debug visuals
     mutable GLint originalPolygonMode_[2];
     mutable GLboolean originalCullFaceEnabled_;
     mutable GLboolean originalDepthTestEnabled_;
     mutable GLboolean originalDepthMaskEnabled_;
-    mutable GLboolean originalBlendEnabled_; // 新增：保存和恢复 GL_BLEND 状态
-    mutable GLint originalBlendSrcFunc_;    // 新增：保存和恢复混合源因子
-    mutable GLint originalBlendDstFunc_;    // 新增：保存和恢复混合目标因子
+    mutable GLboolean originalBlendEnabled_;
+    mutable GLint originalBlendSrcFunc_;
+    mutable GLint originalBlendDstFunc_;
 
-    // Helper functions for Jolt to Eigen conversion
-    // 注意：这里 ToEigen 中的 JPH::Vec3 和 JPH::Color 仍然需要 JPH:: 前缀
     inline Eigen::Vector3f ToEigen(const JPH::Vec3& v) { return Eigen::Vector3f(v.GetX(), v.GetY(), v.GetZ()); }
     inline Eigen::Vector4f ToEigen(const JPH::Color& c) { return Eigen::Vector4f(c.r / 255.0f, c.g / 255.0f, c.b / 255.0f, c.a / 255.0f); }
 
-    // Utility functions for saving/restoring GL state
     void SaveGLState() const;
     void RestoreGLState() const;
 };

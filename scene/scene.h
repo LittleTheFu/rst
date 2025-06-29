@@ -31,10 +31,11 @@
 #include "SceneData.h"
 #include "depthOfFieldPass.h"
 
-#include "debugRenderer.h"
+// #include "debugRenderer.h" // 移除或注释掉这个，因为它可能与JoltDebugRenderer冲突
+#include "joltDebugRenderer.h" // <--- 引入你的 JoltDebugRenderer
 #include "objectPicker.h"
 
-#include "physicsSystem.h"
+#include "physicsSystem.h" // 确保 PhysicsSystem 包含 Jolt 的相关逻辑
 
 class Scene
 {
@@ -68,13 +69,13 @@ public:
 
 public:
     void init();
-    void run(float delta);
+    void run(float delta); // 游戏/渲染主循环
     void resize(int width, int height);
 
 private:
     void updateScene(float delta);
     void renderFinalPass();
-    void debugDraw();
+    void debugDraw(); // <--- 你的调试绘制函数
 
 public:
     void setSelectedObject(ISceneObject* obj) { selectedObject_ = obj; };
@@ -135,7 +136,8 @@ private:
     std::unique_ptr<PostPass> postPass_;
     std::unique_ptr<ScreenPass> screenPass_;
 
-    std::unique_ptr<DebugRenderer> debugRenderer_;
+    // !!! IMPORTANT CHANGE HERE !!!
+    std::unique_ptr<JoltDebugRenderer> debugRenderer_; // <--- 改为你的 JoltDebugRenderer 类型
     std::unique_ptr<PhysicsSystem> physicsSystem_;
 
 public:
