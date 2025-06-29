@@ -86,11 +86,12 @@ std::unique_ptr<SceneData> sceneFactory::createScene()
     ironTeapotModel->setPosition(Eigen::Vector3f(0.0f, 0.0f, 0.0f));
     sceneData->opaqueObjects.push_back(std::move(ironTeapotModel));
 
+    float boxScale = 30.0f;
     std::unique_ptr<Model> boxModel = std::make_unique<Model>("bx.obj");
     boxModel->setMaterial(wallMaterial);
     boxModel->setPosition(Eigen::Vector3f(0.0f, 0.0f, -38.0f));
-    boxModel->setScale(Eigen::Vector3f(12.0f, 12.0f, 12.0f));
-    // sceneData->opaqueObjects.push_back(std::move(boxModel));
+    boxModel->setScale(Eigen::Vector3f(boxScale, boxScale, boxScale));
+    sceneData->opaqueObjects.push_back(std::move(boxModel));
 
     float grassTeapotScale = 1.0f;
     std::unique_ptr<Model> grassTeapotModel = std::make_unique<Model>("teapot.obj");

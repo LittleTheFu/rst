@@ -34,7 +34,7 @@ public:
     float fov = 45.0f;           // 视野
     float aspectRatio = 800.0f / 600.0f; // 屏幕宽高比
     float nearClip = 0.1f;       // 近裁剪面距离
-    float farClip = 50.0f;       // 远裁剪面距离
+    float farClip = 100.0f;       // 远裁剪面距离
 
     // 相机位置和方向向量
     Eigen::Vector3f Position;  // 相机在世界中的位置

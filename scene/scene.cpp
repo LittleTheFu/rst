@@ -68,7 +68,8 @@ void Scene::init()
     {
         if (objPtr)
         {
-            if (objPtr->getName().find("teapot") != std::string::npos)
+            if (objPtr->getName().find("teapot") != std::string::npos ||
+                objPtr->getName().find("Bot") != std::string::npos)
             {
                 physicsSystem_->AddSceneObject(objPtr.get(), JPH::EMotionType::Dynamic, Layers::Object::MOVING);
             }
