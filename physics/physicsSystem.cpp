@@ -56,12 +56,12 @@ void PhysicsSystem::DrawDebug() {
         JPH::BodyManager::DrawSettings bodyDrawSettings;
         
         // Configure what you want to draw
-        bodyDrawSettings.mDrawShape = true;           // Draw collision shapes (e.g., wireframe)
+        bodyDrawSettings.mDrawShape = false;           // Draw collision shapes (e.g., wireframe)
         bodyDrawSettings.mDrawBoundingBox = true;     // Draw Axis-Aligned Bounding Boxes
-        bodyDrawSettings.mDrawWorldTransform = true;  // Draw body's world coordinate axes
-        bodyDrawSettings.mDrawCenterOfMassTransform = true; // Draw body's center of mass axes
-        bodyDrawSettings.mDrawVelocity = true;        // Draw velocity vectors
-        bodyDrawSettings.mDrawMassAndInertia = false; // Usually not needed for visual debug
+        // bodyDrawSettings.mDrawWorldTransform = true;  // Draw body's world coordinate axes
+        // bodyDrawSettings.mDrawCenterOfMassTransform = true; // Draw body's center of mass axes
+        // bodyDrawSettings.mDrawVelocity = true;        // Draw velocity vectors
+        // bodyDrawSettings.mDrawMassAndInertia = false; // Usually not needed for visual debug
 
         // --- Now, correctly call DrawBodies with the settings and your renderer ---
         mPhysicsSystem->DrawBodies(bodyDrawSettings, JPH::DebugRenderer::sInstance); 
@@ -140,7 +140,7 @@ void PhysicsSystem::Init()
     mTempAllocator = new JPH::TempAllocatorImpl(10 * 1024 * 1024);
     mJobSystem = new JPH::JobSystemThreadPool(JPH::cMaxPhysicsJobs, JPH::cMaxPhysicsBarriers, std::thread::hardware_concurrency() - 1);
 
-    mPhysicsSystem->SetGravity(JPH::Vec3(0.0f, -9.81f, 0.0f));
+    mPhysicsSystem->SetGravity(JPH::Vec3(0.0f, -9.81f * 1.0f, 0.0f));
     mPhysicsSystem->SetContactListener(this);
 
     std::cout << "PhysicsSystem::Init() - Jolt Physics initialized." << std::endl;
@@ -340,7 +340,8 @@ JPH::BodyID PhysicsSystem::AddSceneObject(ISceneObject* inSceneObject, JPH::EMot
 
     if (!inShape)
     {
-        JPH::Vec3 halfExtents = ToJolt(initialScale * 0.5f);
+        JPH::Vec3 halfExtents = ToJolt(inSceneObject->getLocalBoundingBoxHalfExtents());
+        // JPH::Vec3 halfExtents = ToJolt(initialScale * inSceneObject->getLocalBoundingBoxHalfExtents());
         JPH::BoxShapeSettings boxShapeSettings(halfExtents);
         boxShapeSettings.SetEmbedded();
         JPH::ShapeSettings::ShapeResult boxShapeResult = boxShapeSettings.Create();

@@ -79,6 +79,19 @@ void Model::setScale(const Eigen::Vector3f& scale) {
     updateModelMatrix(); // 缩放改变，更新模型矩阵
 }
 
+Eigen::Vector3f Model::getLocalBoundingBoxHalfExtents() const
+{
+    Eigen::Vector3f localExtents = getWorldAABB()->GetSize();
+
+    //hot fix,why?it's now only be used by physics system.
+    float minValue = 0.1f;
+    localExtents.x() = std::max(localExtents.x(), minValue);
+    localExtents.y() = std::max(localExtents.y(), minValue);
+    localExtents.z() = std::max(localExtents.z(), minValue);
+   
+    return localExtents / 2.0f;
+}
+
 std::unique_ptr<AABB> Model::getWorldAABB() const {
     if (meshes_.empty()) {
         return nullptr; // 如果没有 Mesh，则没有 AABB

@@ -30,6 +30,8 @@ public:
     Eigen::Vector3f getScale() const override;
     void setScale(const Eigen::Vector3f &scale) override;
 
+    Eigen::Vector3f getLocalBoundingBoxHalfExtents() const override;
+
     const std::string &getName() const override { return name_; }
 
     std::unique_ptr<AABB> getWorldAABB() const;
