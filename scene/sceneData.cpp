@@ -72,6 +72,13 @@ std::unique_ptr<SceneData> sceneFactory::createScene()
     // gunModel->setPosition(Eigen::Vector3f(4.0f, 3.0f, 2.0f));
     // sceneData->opaqueObjects.push_back(std::move(gunModel));
 
+    float girlScale = 0.01f;
+    std::unique_ptr<Model> girlModel = std::make_unique<Model>("XBot.fbx");
+    girlModel->setScale(Eigen::Vector3f(girlScale, girlScale, girlScale));
+    girlModel->setPosition(Eigen::Vector3f(-2.0f, 1.0f, 6.0f));
+    sceneData->opaqueObjects.push_back(std::move(girlModel));
+
+
     float ironTeapotScale = 1.0f;
     std::unique_ptr<Model> ironTeapotModel = std::make_unique<Model>("teapot.obj");
     ironTeapotModel->setMaterial(rustedIronMaterial);
