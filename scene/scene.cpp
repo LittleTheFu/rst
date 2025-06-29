@@ -57,9 +57,7 @@ void Scene::init()
             // 你需要根据物体类型或属性来决定它是静态还是动态
             // 举例：假设你的"teapot.obj"和"gun/Cerberus_LP.FBX"是动态的，其他是静态的
             // 注意：getName() 返回的是模型路径字符串，你可能需要根据实际情况调整判断逻辑
-            // if (objPtr->getName().find("teapot.obj") != std::string::npos ||
-            //     objPtr->getName().find("gun/Cerberus_LP.FBX") != std::string::npos)
-            if(true)
+            if (objPtr->getName().find("teapot") != std::string::npos)
             {
                 // 动态物体：会受力移动，与静态物体和动态物体碰撞
                 physicsSystem_->AddSceneObject(objPtr.get(), JPH::EMotionType::Dynamic, Layers::Object::MOVING);

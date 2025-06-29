@@ -111,38 +111,10 @@ void PhysicsSystem::Init()
     mTempAllocator = new JPH::TempAllocatorImpl(10 * 1024 * 1024);
     mJobSystem = new JPH::JobSystemThreadPool(JPH::cMaxPhysicsJobs, JPH::cMaxPhysicsBarriers, std::thread::hardware_concurrency() - 1);
 
-    mPhysicsSystem->SetGravity(JPH::Vec3(0.0f, -9.81f * 0.001f, 0.0f));
+    mPhysicsSystem->SetGravity(JPH::Vec3(0.0f, -9.81f, 0.0f));
     mPhysicsSystem->SetContactListener(this);
 
     std::cout << "PhysicsSystem::Init() - Jolt Physics initialized." << std::endl;
-
-    // Static floor
-    {
-        JPH::BoxShapeSettings floorShapeSettings(JPH::Vec3(100.0f, 1.0f, 100.0f));
-        floorShapeSettings.SetEmbedded();
-        JPH::ShapeSettings::ShapeResult floorShapeResult = floorShapeSettings.Create();
-        JPH_ASSERT(floorShapeResult.IsValid());
-        JPH::ShapeRefC floorShape = floorShapeResult.Get();
-        JPH::BodyCreationSettings floorSettings(floorShape, JPH::RVec3(0.0f, -1.0f, 0.0f), JPH::Quat::sIdentity(), JPH::EMotionType::Static, Layers::Object::NON_MOVING);
-        JPH::BodyID floorID = mPhysicsSystem->GetBodyInterface().CreateAndAddBody(floorSettings, JPH::EActivation::DontActivate);
-        std::cout << "Added static floor body (ID: " << floorID.GetIndex() << ")." << std::endl;
-    }
-
-    // Dynamic sphere
-    {
-        JPH::SphereShapeSettings sphereShapeSettings(0.5f);
-        sphereShapeSettings.SetEmbedded();
-        JPH::ShapeSettings::ShapeResult sphereShapeResult = sphereShapeSettings.Create();
-        JPH_ASSERT(sphereShapeResult.IsValid());
-        JPH::ShapeRefC sphereShape = sphereShapeResult.Get();
-        JPH::BodyCreationSettings sphereSettings(sphereShape, JPH::Vec3(0.0f, 2.0f, 0.0f), JPH::Quat::sIdentity(), JPH::EMotionType::Dynamic, Layers::Object::MOVING);
-        sphereSettings.mOverrideMassProperties = JPH::EOverrideMassProperties::CalculateMassAndInertia;
-        sphereSettings.mMassPropertiesOverride.mMass = 1.0f;
-
-        mDynamicSphereBodyID = mPhysicsSystem->GetBodyInterface().CreateAndAddBody(sphereSettings, JPH::EActivation::Activate);
-        mPhysicsSystem->GetBodyInterface().SetLinearVelocity(mDynamicSphereBodyID, JPH::Vec3(0.0f, -5.0f, 0.0f));
-        std::cout << "Added dynamic sphere body (ID: " << mDynamicSphereBodyID.GetIndex() << ")." << std::endl;
-    }
 }
 
 // --- 常量定义（确保这些常量在 PhysicsSystem.cpp 的顶部或合适的位置定义）---

@@ -12,6 +12,8 @@ set(CMAKE_CXX_STANDARD 17)
 #     add_compile_options("/source-charset:utf-8")
 # endif()
 
+add_compile_definitions(JPH_DEBUG_RENDERER)
+
 
 add_subdirectory(third/sdl)
 add_subdirectory(third/assimp)
@@ -52,6 +54,7 @@ set(UI_SOURCE_FILES
 set(PHYSICS_DIR "physics")
 set(PHYSICS_SOURCE_FILES
     ${PHYSICS_DIR}/physicsSystem.cpp
+    ${PHYSICS_DIR}/joltDebugRenderer.cpp
 )
 
 
@@ -201,6 +204,7 @@ add_executable(rst
 )
 
 target_compile_options(rst PRIVATE /wd4819)
+
 
 
 target_include_directories(rst PRIVATE
