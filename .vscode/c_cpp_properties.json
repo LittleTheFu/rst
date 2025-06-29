@@ -29,7 +29,8 @@
             "defines": [
                 "_DEBUG",
                 "UNICODE",
-                "_UNICODE"
+                "_UNICODE",
+                "JPH_DEBUG_RENDERER"
             ],
             "windowsSdkVersion": "10.0.22621.0",
             "compilerPath": "cl.exe",
