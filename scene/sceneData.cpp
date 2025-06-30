@@ -78,6 +78,12 @@ std::unique_ptr<SceneData> sceneFactory::createScene()
     girlModel->setPosition(Eigen::Vector3f(-2.0f, 1.0f, 6.0f));
     sceneData->opaqueObjects.push_back(std::move(girlModel));
 
+    float anmScale = 0.01f;
+    std::unique_ptr<Model> anmModel = std::make_unique<Model>("StandingClap.fbx");
+    anmModel->setScale(Eigen::Vector3f(anmScale, anmScale, anmScale));
+    anmModel->setPosition(Eigen::Vector3f(2.0f, 1.0f, 6.0f));
+    sceneData->opaqueObjects.push_back(std::move(anmModel));
+
 
     float ironTeapotScale = 1.0f;
     std::unique_ptr<Model> ironTeapotModel = std::make_unique<Model>("teapot.obj");
