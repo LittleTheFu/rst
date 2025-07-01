@@ -75,7 +75,7 @@ std::unique_ptr<SceneData> sceneFactory::createScene()
     float girlScale = 0.01f;
     std::unique_ptr<Model> girlModel = std::make_unique<Model>("XBot.fbx");
     girlModel->setScale(Eigen::Vector3f(girlScale, girlScale, girlScale));
-    girlModel->setPosition(Eigen::Vector3f(-2.0f, 1.0f, 6.0f));
+    girlModel->setPosition(Eigen::Vector3f(-1.0f, 0.0f, 6.0f));
     sceneData->opaqueObjects.push_back(std::move(girlModel));
 
     float anmScale = 0.01f;
