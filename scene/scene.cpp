@@ -61,38 +61,38 @@ void Scene::init()
 
     objectPicker_ = std::make_unique<ObjectPicker>(sceneData_.get(), sceneData_->camera.get());
 
-    physicsSystem_ = std::make_unique<PhysicsSystem>();
-    physicsSystem_->Init();
+    // physicsSystem_ = std::make_unique<PhysicsSystem>();
+    // physicsSystem_->Init();
 
-    for (const auto &objPtr : sceneData_->opaqueObjects)
-    {
-        if (objPtr)
-        {
-            if (objPtr->getName().find("teapot") != std::string::npos ||
-                objPtr->getName().find("Bot") != std::string::npos ||
-                objPtr->getName().find("StandingClap") != std::string::npos)
-            {
-                physicsSystem_->AddSceneObject(objPtr.get(), JPH::EMotionType::Dynamic, Layers::Object::MOVING);
-            }
-            else
-            {
-                physicsSystem_->AddSceneObject(objPtr.get(), JPH::EMotionType::Static, Layers::Object::NON_MOVING);
-            }
-        }
-    }
+    // for (const auto &objPtr : sceneData_->opaqueObjects)
+    // {
+    //     if (objPtr)
+    //     {
+    //         if (objPtr->getName().find("teapot") != std::string::npos ||
+    //             objPtr->getName().find("Bot") != std::string::npos ||
+    //             objPtr->getName().find("StandingClap") != std::string::npos)
+    //         {
+    //             physicsSystem_->AddSceneObject(objPtr.get(), JPH::EMotionType::Dynamic, Layers::Object::MOVING);
+    //         }
+    //         else
+    //         {
+    //             physicsSystem_->AddSceneObject(objPtr.get(), JPH::EMotionType::Static, Layers::Object::NON_MOVING);
+    //         }
+    //     }
+    // }
 
-    for (const auto &objPtr : sceneData_->transparentObjects)
-    {
-        if (objPtr)
-        {
-            physicsSystem_->AddSceneObject(objPtr.get(), JPH::EMotionType::Dynamic, Layers::Object::MOVING);
-        }
-    }
+    // for (const auto &objPtr : sceneData_->transparentObjects)
+    // {
+    //     if (objPtr)
+    //     {
+    //         physicsSystem_->AddSceneObject(objPtr.get(), JPH::EMotionType::Dynamic, Layers::Object::MOVING);
+    //     }
+    // }
 }
 
 void Scene::updateScene(float delta)
 {
-    physicsSystem_->Update(delta); // Pass deltaTime to the physics system for simulation
+    // physicsSystem_->Update(delta); // Pass deltaTime to the physics system for simulation
 
     static int count = 0;
     count++;
