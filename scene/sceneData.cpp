@@ -82,6 +82,7 @@ std::unique_ptr<SceneData> sceneFactory::createScene()
     std::unique_ptr<Model> anmModel = std::make_unique<Model>("StandingClap.fbx");
     anmModel->setScale(Eigen::Vector3f(anmScale, anmScale, anmScale));
     anmModel->setPosition(Eigen::Vector3f(2.0f, 1.0f, 6.0f));
+    // anmModel->playAnimation("Take 003");
     sceneData->opaqueObjects.push_back(std::move(anmModel));
 
 

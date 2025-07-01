@@ -33,7 +33,8 @@ void Model::render(Shader& shader) const {
     shader.setMat4("model", modelMatrix_); 
 
     // 新增：传递骨骼变换矩阵到Shader
-    if (animator_ && animator_->GetCurrentAnimation()) { // 仅当有Animator且正在播放动画时才传递
+    // if (animator_ && animator_->GetCurrentAnimation()) { // 仅当有Animator且正在播放动画时才传递
+    if(false)   { //for debug
         shader.setBool("isAnimated", true); // 通知Shader这是个动画模型
         const auto& boneMatrices = animator_->GetFinalBoneMatrices();
         for (int i = 0; i < boneMatrices.size(); ++i) {
