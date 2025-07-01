@@ -92,17 +92,17 @@ void Scene::init()
 
 void Scene::updateScene(float delta)
 {
-    // for (auto &objPtr : sceneData_->opaqueObjects)
-    // {
-    //     if (objPtr)
-    //     {
-    //         if(dynamic_cast<Model*>(objPtr.get()))
-    //         {
-    //             Model* model = dynamic_cast<Model*>(objPtr.get());
-    //             model->update(delta);
-    //         }
-    //     }
-    // }
+    for (auto &objPtr : sceneData_->opaqueObjects)
+    {
+        if (objPtr)
+        {
+            if(dynamic_cast<Model*>(objPtr.get()))
+            {
+                Model* model = dynamic_cast<Model*>(objPtr.get());
+                model->update(delta);
+            }
+        }
+    }
 
     // physicsSystem_->Update(delta); // Pass deltaTime to the physics system for simulation
 

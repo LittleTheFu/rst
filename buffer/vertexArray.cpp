@@ -48,6 +48,7 @@ void VertexArray::unbind() const
 }
 
 // 设置顶点属性 (DSA 方式)
+// 新增 isInteger 参数，并根据其选择调用 glVertexArrayAttribFormat 或 glVertexArrayAttribIFormat
 void VertexArray::setAttribute(
     GLuint attribIndex,
     const VertexBuffer &vbo,
@@ -55,16 +56,22 @@ void VertexArray::setAttribute(
     GLenum type,
     GLboolean normalized,
     GLuint relativeOffset,
-    GLsizei stride, // <-- 添加这个参数
-    GLuint bindingIndex)
+    GLsizei stride,
+    GLuint bindingIndex,
+    bool isInteger) // <-- 接收 isInteger 参数
 {
     // 1. 将 VertexBuffer 绑定到 VAO 的一个绑定点
     // vaoID, bindingIndex, bufferID, offset (VBO内的起始偏移), stride (单个完整顶点的字节大小)
     glVertexArrayVertexBuffer(id_, bindingIndex, vbo.id(), 0, stride);
 
-    // 2. 设置属性的格式
-    // vaoID, attribIndex, size, type, normalized, relativeOffset (属性在单个顶点内的偏移)
-    glVertexArrayAttribFormat(id_, attribIndex, size, type, normalized, relativeOffset);
+    // 2. 设置属性的格式 - 根据 isInteger 参数选择正确的函数
+    if (isInteger) {
+        // 对于整数属性，使用 glVertexArrayAttribIFormat
+        glVertexArrayAttribIFormat(id_, attribIndex, size, type, relativeOffset);
+    } else {
+        // 对于浮点属性，使用 glVertexArrayAttribFormat
+        glVertexArrayAttribFormat(id_, attribIndex, size, type, normalized, relativeOffset);
+    }
 
     // 3. 将属性索引与绑定点关联
     // vaoID, attribIndex, bindingIndex

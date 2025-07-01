@@ -55,7 +55,7 @@ void Mesh::setupMesh()
     
     // ======== 新增用于骨骼动画的顶点属性 ========
     // 骨骼ID (GL_INT)
-    VAO_->setAttribute(5, *VBO_, 4, GL_INT, GL_FALSE, offsetof(Vertex, boneIDs), sizeof(Vertex), 1); // 第二个参数 1 表示这是整数属性
+    VAO_->setAttribute(5, *VBO_, 4, GL_INT, GL_FALSE, offsetof(Vertex, boneIDs), sizeof(Vertex), 1, true); // 第二个参数 1 表示这是整数属性
     // 骨骼权重 (GL_FLOAT)
     VAO_->setAttribute(6, *VBO_, 4, GL_FLOAT, GL_FALSE, offsetof(Vertex, boneWeights), sizeof(Vertex), 0); 
     // ===========================================
