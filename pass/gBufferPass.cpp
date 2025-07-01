@@ -8,7 +8,8 @@
 GBufferPass::GBufferPass(int width, int height)
     : RenderPass("GBufferPass", width, height)
 {
-    shader_ = ShaderManager::getInstance().loadShader("shader/gPass.vert", "shader/gPass.frag");
+    // shader_ = ShaderManager::getInstance().loadShader("shader/gPass.vert", "shader/gPass.frag");
+    shader_ = ShaderManager::getInstance().loadShader("shader/animated_model.vert", "shader/gPass.frag");
     initGBuffer(); // 初始化 G-Buffer FBO 和纹理
 }
 

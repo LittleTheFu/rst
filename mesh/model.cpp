@@ -10,32 +10,56 @@
 // #include <Eigen/Geometry>
 
 Model::Model(const std::string& path)
-    : position_(0.0f, 0.0f, 0.0f),  // 初始化位置
-      rotation_(Eigen::Quaternionf::Identity()), // 初始化为单位四元数（无旋转）
-      scale_(1.0f, 1.0f, 1.0f)      // 初始化缩放为1
+    : position_(0.0f, 0.0f, 0.0f),
+      rotation_(Eigen::Quaternionf::Identity()),
+      scale_(1.0f, 1.0f, 1.0f)
 {
     loadModel(path);
-    // 从文件路径中提取模型名称，如果没有 Assimp 根节点名称，可以用这个
     size_t lastSlash = path.find_last_of("/\\");
     name_ = (lastSlash == std::string::npos) ? path : path.substr(lastSlash + 1);
     size_t dotPos = name_.find_last_of('.');
     if (dotPos != std::string::npos) {
-        name_ = name_.substr(0, dotPos); // 移除文件扩展名
+        name_ = name_.substr(0, dotPos);
     }
+    updateModelMatrix();
+}
 
-    updateModelMatrix(); // 初始更新模型矩阵
+Model::~Model() {
+    // unique_ptr 会自动管理Animator的生命周期
 }
 
 // --- IRenderable 接口实现 ---
 void Model::render(Shader& shader) const {
-    // 首先，将 Model 自身的模型矩阵作为 Uniform 传递到着色器
-    // 这个矩阵是所有子 Mesh 的“父变换”
     shader.setMat4("model", modelMatrix_); 
 
-    // 渲染 Model 内部的每个 Mesh
-    // Mesh 自己的 render 方法应该处理其相对于 Model 的局部变换
+    // 新增：传递骨骼变换矩阵到Shader
+    if (animator_ && animator_->GetCurrentAnimation()) { // 仅当有Animator且正在播放动画时才传递
+        // shader.setBool("isAnimated", true); // 通知Shader这是个动画模型
+        shader.setBool("isAnimated", false); //debug
+        const auto& boneMatrices = animator_->GetFinalBoneMatrices();
+        for (int i = 0; i < boneMatrices.size(); ++i) {
+            shader.setMat4("finalBoneMatrices[" + std::to_string(i) + "]", boneMatrices[i]);
+        }
+    } else {
+        shader.setBool("isAnimated", false); // 通知Shader这是个静态模型
+    }
+
     for (const auto& mesh : meshes_) {
-        mesh->render(shader); // Mesh::render 内部会结合 shader 中已有的 "model" 矩阵（即这里的 modelMatrix_）
+        mesh->render(shader);
+    }
+}
+
+// 新增：更新动画的方法
+void Model::update(float deltaTime) {
+    if (animator_) {
+        animator_->UpdateAnimation(deltaTime);
+    }
+}
+
+// 新增：播放动画的方法
+void Model::playAnimation(const std::string& animationName) {
+    if (animator_) {
+        animator_->PlayAnimation(animationName);
     }
 }
 
@@ -155,6 +179,8 @@ void Model::updateModelMatrix() {
 
 void Model::loadModel(const std::string& path) {
     Assimp::Importer importer;
+    // 添加 aiProcess_LimitBoneWeights 处理，确保每个顶点最多4个骨骼影响
+    // aiProcess_PopulateArmatureData 对某些格式（如glTF）有用，但FBX通常不需要显式此项
     const aiScene* scene = importer.ReadFile(path, 
         aiProcess_Triangulate | 
         aiProcess_GenNormals | 
@@ -162,29 +188,59 @@ void Model::loadModel(const std::string& path) {
         aiProcess_FlipUVs |
         aiProcess_JoinIdenticalVertices | 
         aiProcess_GenBoundingBoxes |
-        aiProcess_LimitBoneWeights | // 如果有骨骼动画，这个很有用
-        aiProcess_ValidateDataStructure); // 验证数据结构
+        aiProcess_LimitBoneWeights | // 限制每个顶点影响的骨骼数量 (Assimp默认4)
+        aiProcess_ValidateDataStructure); 
 
     if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
         std::cerr << "ERROR::MODEL::ASSIMP::" << importer.GetErrorString() << std::endl;
         return;
     }
 
-    // 提取模型文件所在的目录
-    directory_ = path.substr(0, path.find_last_of("/\\") + 1); // 确保目录以斜杠结尾
+    directory_ = path.substr(0, path.find_last_of("/\\") + 1);
+    size_t lastSlash = path.find_last_of("/\\");
+    name_ = (lastSlash == std::string::npos) ? path : path.substr(lastSlash + 1);
+    size_t dotPos = name_.find_last_of('.');
+    if (dotPos != std::string::npos) {
+        name_ = name_.substr(0, dotPos);
+    }
 
-    // 可以选择从 Assimp 根节点获取模型名称
-    // if (scene->mRootNode && scene->mRootNode->mName.length > 0) {
-    //     name_ = scene->mRootNode->mName.C_Str();
-    // } else {
-    //     // 如果没有节点名称，则使用文件名作为 Model 名称 (已在构造函数中处理)
-    // }
+    // 1. 在处理节点前，先扫描所有网格以收集骨骼信息
+    // 这样Animator在构建骨骼层次时就能知道所有骨骼的ID和它们的名称
+    int boneCounter = 0;
+    for (unsigned int i = 0; i < scene->mNumMeshes; ++i) {
+        aiMesh* mesh = scene->mMeshes[i];
+        if (mesh->HasBones()) {
+            for (unsigned int j = 0; j < mesh->mNumBones; ++j) {
+                aiBone* bone = mesh->mBones[j];
+                std::string boneName = bone->mName.C_Str();
+                if (boneInfoMap_.find(boneName) == boneInfoMap_.end()) {
+                    // 如果骨骼是第一次遇到，分配一个ID
+                    boneInfoMap_[boneName] = boneCounter++;
+                    // 骨骼的 inverseBindPoseTransform 会在 Animator::BuildBoneHierarchy 中设置
+                    // 或者你可以在这里创建一个结构体来存储，然后传递给 Animator
+                    // 这里我们只传递 boneInfoMap_ (名称->ID)
+                    // Animator 会自己从 aiMesh 遍历来找到 offsetMatrix
+                }
+            }
+        }
+    }
     
-    // 递归处理 Assimp 场景的根节点
-    processNode(scene->mRootNode, scene);
+    // 2. 初始化 Animator
+    animator_ = std::make_unique<Animator>();
+    animator_->Init(scene, boneInfoMap_); // 传递 Assimp 场景和收集到的骨骼信息
+
+    // 3. 递归处理 Assimp 场景的根节点及其子节点
+    // 在这里，我们只处理网格数据，骨骼层次和动画数据已由 Animator 处理
+    processNode(scene->mRootNode, scene, Eigen::Matrix4f::Identity()); // 根节点的父变换是单位矩阵
 }
 
-void Model::processNode(aiNode* node, const aiScene* scene) {
+
+// 修改 processNode 以传递 Assimp 节点自身的变换矩阵
+void Model::processNode(aiNode* node, const aiScene* scene, const Eigen::Matrix4f& parentTransform) {
+    Eigen::Matrix4f nodeTransform = AssimpUtils::ConvertAssimpMat4ToEigen(node->mTransformation);
+    Eigen::Matrix4f currentGlobalTransform = parentTransform * nodeTransform;
+    nodeTransformMap_[node->mName.C_Str()] = currentGlobalTransform; // 存储节点的全局变换
+
     // 处理当前节点的所有 Mesh
     for (unsigned int i = 0; i < node->mNumMeshes; ++i) {
         aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
@@ -192,7 +248,7 @@ void Model::processNode(aiNode* node, const aiScene* scene) {
     }
     // 递归处理子节点
     for (unsigned int i = 0; i < node->mNumChildren; ++i) {
-        processNode(node->mChildren[i], scene);
+        processNode(node->mChildren[i], scene, currentGlobalTransform); // 传递当前节点的全局变换作为子节点的父变换
     }
 }
 
@@ -201,12 +257,47 @@ std::unique_ptr<Mesh> Model::processMesh(aiMesh* mesh, const aiScene* scene) {
     std::vector<unsigned int> indices;
     std::shared_ptr<Material> material = nullptr;
 
-    // 1. 处理顶点数据
     bool hasNormals = mesh->HasNormals();
-    // Assimp 允许有多个纹理坐标集 (UV channels)，我们通常只用第一个 (mTextureCoords[0])
     bool hasTextureCoords = mesh->HasTextureCoords(0); 
     bool hasTangents = mesh->HasTangentsAndBitangents();
 
+    // 预设骨骼ID和权重为0
+    Eigen::Vector4i tempBoneIDs = Eigen::Vector4i::Zero();
+    Eigen::Vector4f tempBoneWeights = Eigen::Vector4f::Zero();
+
+    // 临时存储每个顶点的骨骼影响信息
+    std::vector<std::vector<std::pair<int, float>>> boneInfluences(mesh->mNumVertices);
+
+    // 1. 处理骨骼权重和ID (在遍历顶点之前)
+    if (mesh->HasBones()) {
+        for (unsigned int i = 0; i < mesh->mNumBones; ++i) {
+            aiBone* bone = mesh->mBones[i];
+            std::string boneName = bone->mName.C_Str();
+            int boneID = -1;
+            
+            // 从预先构建的 boneInfoMap 中获取骨骼ID
+            auto it = boneInfoMap_.find(boneName);
+            if (it != boneInfoMap_.end()) {
+                boneID = it->second;
+            } else {
+                std::cerr << "WARNING::MODEL::processMesh: Bone '" << boneName << "' found in mesh but not in global bone map! Assigning dummy ID." << std::endl;
+                // 这不应该发生如果 boneInfoMap 在 loadModel 中正确收集了所有骨骼
+                // 暂时给一个无效ID，实际可能导致问题
+                boneID = MAX_BONES; 
+            }
+
+            for (unsigned int j = 0; j < bone->mNumWeights; ++j) {
+                aiVertexWeight weight = bone->mWeights[j];
+                unsigned int vertexId = weight.mVertexId;
+                float w = weight.mWeight;
+                if (vertexId < mesh->mNumVertices) {
+                    boneInfluences[vertexId].push_back({boneID, w});
+                }
+            }
+        }
+    }
+
+    // 2. 处理顶点数据
     for (unsigned int i = 0; i < mesh->mNumVertices; ++i) {
         Vertex vertex;
         vertex.position = AssimpUtils::ConvertAssimpVec3ToEigen(mesh->mVertices[i]);
@@ -227,14 +318,32 @@ std::unique_ptr<Mesh> Model::processMesh(aiMesh* mesh, const aiScene* scene) {
             vertex.tangent = AssimpUtils::ConvertAssimpVec3ToEigen(mesh->mTangents[i]);
             vertex.bitangent = AssimpUtils::ConvertAssimpVec3ToEigen(mesh->mBitangents[i]);
         } else {
-            // 如果没有切线/副切线，可以使用默认值或在着色器中计算
             vertex.tangent = Eigen::Vector3f::Zero();
             vertex.bitangent = Eigen::Vector3f::Zero();
+        }
+
+        // 填充顶点的 boneIDs 和 boneWeights
+        // 限制最多4个骨骼影响，按权重降序排列并归一化
+        if (!boneInfluences[i].empty()) {
+            // 按权重降序排序
+            std::sort(boneInfluences[i].begin(), boneInfluences[i].end(), 
+                      [](const auto& a, const auto& b){ return a.second > b.second; });
+
+            float totalWeight = 0.0f;
+            for (int k = 0; k < std::min((int)boneInfluences[i].size(), 4); ++k) {
+                vertex.boneIDs[k] = boneInfluences[i][k].first;
+                vertex.boneWeights[k] = boneInfluences[i][k].second;
+                totalWeight += boneInfluences[i][k].second;
+            }
+            // 归一化权重，确保和为1
+            if (totalWeight > 0.0f) {
+                vertex.boneWeights /= totalWeight;
+            }
         }
         vertices.push_back(vertex);
     }
 
-    // 2. 处理索引数据
+    // 3. 处理索引数据 (保持不变)
     for (unsigned int i = 0; i < mesh->mNumFaces; ++i) {
         aiFace face = mesh->mFaces[i];
         for (unsigned int j = 0; j < face.mNumIndices; ++j) {
@@ -242,19 +351,16 @@ std::unique_ptr<Mesh> Model::processMesh(aiMesh* mesh, const aiScene* scene) {
         }
     }
 
-    // 3. 处理材质
+    // 4. 处理材质 (保持不变)
     if (mesh->mMaterialIndex >= 0) {
         aiMaterial* aiMat = scene->mMaterials[mesh->mMaterialIndex];
         material = processMaterial(aiMat);
     }
-    // 如果没有材质或者处理失败，可以给一个默认材质
     if (!material) {
-        material = std::make_shared<Material>(); // 创建一个默认的Material实例
-        material->setAlbedoColor(Eigen::Vector3f(0.8f, 0.8f, 0.8f)); // 设置一个默认颜色
+        material = std::make_shared<Material>();
+        material->setAlbedoColor(Eigen::Vector3f(0.8f, 0.8f, 0.8f));
     }
 
-    // 返回一个新创建的 Mesh 对象
-    // Mesh 名称来自 Assimp 的 aiMesh->mName
     return std::make_unique<Mesh>(mesh->mName.C_Str(), vertices, indices, material);
 }
 

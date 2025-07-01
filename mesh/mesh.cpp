@@ -16,7 +16,6 @@ Mesh::Mesh(const std::string &name,
       material_(material),
       localAABB_()
 {
-
     if (!vertices_.empty())
     {
         for (const auto &vert : vertices_)
@@ -53,6 +52,13 @@ void Mesh::setupMesh()
     VAO_->setAttribute(2, *VBO_, 2, GL_FLOAT, GL_FALSE, offsetof(Vertex, texCoords), sizeof(Vertex), 0);
     VAO_->setAttribute(3, *VBO_, 3, GL_FLOAT, GL_FALSE, offsetof(Vertex, tangent), sizeof(Vertex), 0);
     VAO_->setAttribute(4, *VBO_, 3, GL_FLOAT, GL_FALSE, offsetof(Vertex, bitangent), sizeof(Vertex), 0);
+    
+    // ======== 新增用于骨骼动画的顶点属性 ========
+    // 骨骼ID (GL_INT)
+    VAO_->setAttribute(5, *VBO_, 4, GL_INT, GL_FALSE, offsetof(Vertex, boneIDs), sizeof(Vertex), 1); // 第二个参数 1 表示这是整数属性
+    // 骨骼权重 (GL_FLOAT)
+    VAO_->setAttribute(6, *VBO_, 4, GL_FLOAT, GL_FALSE, offsetof(Vertex, boneWeights), sizeof(Vertex), 0); 
+    // ===========================================
 
     VAO_->unbind();
 }
@@ -61,6 +67,12 @@ void Mesh::render(Shader &shader) const
 {
     shader.use();
 
+    // Mesh 自己的 modelMatrix_ 仍然是相对于其父级（即 Model 自身的 modelMatrix_）
+    // 或者，如果 Mesh 也有自己的 Assimp 节点变换，那么这个 modelMatrix_ 可以用来表示
+    // Mesh 在其父节点坐标系中的局部变换。
+    // 在这个体系中，Mesh 的 modelMatrix_ 只是一个局部的变换，最终的世界变换
+    // 会由 Model 传递给 Shader 的 "model" 矩阵和 "meshLocalTransform" 共同构成
+    // 即 finalModelMatrix = model * meshLocalTransform;
     shader.setMat4("meshLocalTransform", modelMatrix_);
 
     if (material_)
@@ -73,6 +85,7 @@ void Mesh::render(Shader &shader) const
     glDrawElements(GL_TRIANGLES, indices_.size(), GL_UNSIGNED_INT, 0);
     VAO_->unbind();
 }
+
 
 Eigen::Matrix4f Mesh::getModelMatrix() const
 {

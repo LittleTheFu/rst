@@ -118,6 +118,9 @@ set(MESH_SOURCE_FILES
     ${MESH_DIR}/mesh.cpp
     ${MESH_DIR}/model.cpp
     ${MESH_DIR}/assimpUtils.cpp
+    ${MESH_DIR}/animation.cpp
+    ${MESH_DIR}/animator.cpp
+    ${MESH_DIR}/bone.cpp
 )
 
 set(CAMERA_DIR "camera")
