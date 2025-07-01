@@ -109,9 +109,9 @@ void Scene::updateScene(float delta)
     static int count = 0;
     count++;
     count %= 8000;
-    float x_light = count / 1200.0f - 3.0f;
+    float x_light = count / 1200.0f - 1.0f;
     x_light *= 1.0f;
-    sceneData_->light->position = Eigen::Vector3f(x_light, x_light, 3.0f);
+    sceneData_->light->position = Eigen::Vector3f(x_light, x_light, 8.0f);
 
     // No need for cursor update if it's just for light position visualization
 }
