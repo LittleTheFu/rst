@@ -75,13 +75,13 @@ std::unique_ptr<SceneData> sceneFactory::createScene()
     float girlScale = 0.01f;
     std::unique_ptr<Model> girlModel = std::make_unique<Model>("XBot.fbx");
     girlModel->setScale(Eigen::Vector3f(girlScale, girlScale, girlScale));
-    girlModel->setPosition(Eigen::Vector3f(-1.0f, 0.0f, 6.0f));
+    girlModel->setPosition(Eigen::Vector3f(-1.0f, 20.0f, 6.0f));
     sceneData->opaqueObjects.push_back(std::move(girlModel));
 
     float anmScale = 0.01f;
     std::unique_ptr<Model> anmModel = std::make_unique<Model>("StandingClap.fbx");
     anmModel->setScale(Eigen::Vector3f(anmScale, anmScale, anmScale));
-    anmModel->setPosition(Eigen::Vector3f(0.0f, 0.0f, 6.0f));
+    anmModel->setPosition(Eigen::Vector3f(0.0f, 20.0f, 6.0f));
     // anmModel->playAnimation("Take 003");
     sceneData->opaqueObjects.push_back(std::move(anmModel));
 
