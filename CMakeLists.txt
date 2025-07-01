@@ -46,7 +46,7 @@ set(TEXTURE_SOURCE_FILES
     ${TEXTURE_DIR}/textureCubeMap.cpp
 )
 
-set(UI_DIR "ui")
+set(UI_DIR "debugUI")
 set(UI_SOURCE_FILES
     ${UI_DIR}/uiSystem.cpp
 )

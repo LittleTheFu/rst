@@ -12,7 +12,7 @@
                 "${workspaceFolder}/command/cameraCommand",
                 "${workspaceFolder}/utilities",
                 "${workspaceFolder}/scene",
-                "${workspaceFolder}/ui",
+                "${workspaceFolder}/debugUI",
                 "${workspaceFolder}/texture",
                 "${workspaceFolder}/buffer",
                 "${workspaceFolder}/material",
