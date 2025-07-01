@@ -76,7 +76,7 @@ std::unique_ptr<SceneData> sceneFactory::createScene()
     std::unique_ptr<Model> girlModel = std::make_unique<Model>("XBot.fbx");
     girlModel->setScale(Eigen::Vector3f(girlScale, girlScale, girlScale));
     girlModel->setPosition(Eigen::Vector3f(-2.0f, 1.0f, 6.0f));
-    sceneData->opaqueObjects.push_back(std::move(girlModel));
+    // sceneData->opaqueObjects.push_back(std::move(girlModel));
 
     float anmScale = 0.01f;
     std::unique_ptr<Model> anmModel = std::make_unique<Model>("StandingClap.fbx");
@@ -90,39 +90,38 @@ std::unique_ptr<SceneData> sceneFactory::createScene()
     ironTeapotModel->setMaterial(rustedIronMaterial);
     ironTeapotModel->setScale(Eigen::Vector3f(ironTeapotScale, ironTeapotScale, ironTeapotScale));
     ironTeapotModel->setPosition(Eigen::Vector3f(0.0f, 0.0f, 0.0f));
-    sceneData->opaqueObjects.push_back(std::move(ironTeapotModel));
+    // sceneData->opaqueObjects.push_back(std::move(ironTeapotModel));
 
     float boxScale = 30.0f;
     std::unique_ptr<Model> boxModel = std::make_unique<Model>("bx.obj");
     boxModel->setMaterial(wallMaterial);
     boxModel->setPosition(Eigen::Vector3f(0.0f, 0.0f, -38.0f));
     boxModel->setScale(Eigen::Vector3f(boxScale, boxScale, boxScale));
-    sceneData->opaqueObjects.push_back(std::move(boxModel));
+    // sceneData->opaqueObjects.push_back(std::move(boxModel));
 
     float grassTeapotScale = 1.0f;
     std::unique_ptr<Model> grassTeapotModel = std::make_unique<Model>("teapot.obj");
     grassTeapotModel->setMaterial(grassMaterial);
     grassTeapotModel->setScale(Eigen::Vector3f(grassTeapotScale, grassTeapotScale, grassTeapotScale));
     grassTeapotModel->setPosition(Eigen::Vector3f(0.0f, 4.0f, 0.0f));
-    sceneData->opaqueObjects.push_back(std::move(grassTeapotModel));
-    // sceneData->transparentObjects.push_back(std::move(grassTeapotModel));
+    // sceneData->opaqueObjects.push_back(std::move(grassTeapotModel));
 
     std::unique_ptr<Model> planeModelTop = std::make_unique<Model>("plane.obj");
     planeModelTop->setMaterial(silverMaterial);
     planeModelTop->setScale(Eigen::Vector3f(20.0f, 20.0f, 20.0f));
     planeModelTop->setPosition(Eigen::Vector3f(0.0f, -0.5f, -10.0f));
-    sceneData->opaqueObjects.push_back(std::move(planeModelTop));
+    // sceneData->opaqueObjects.push_back(std::move(planeModelTop));
 
     std::unique_ptr<Model> planeModelBottom = std::make_unique<Model>("plane.obj");
     planeModelBottom->setMaterial(goldMaterial);
     planeModelBottom->setScale(Eigen::Vector3f(-20.0f, 20.0f, 20.0f));
     planeModelBottom->setPosition(Eigen::Vector3f(0.0f, -0.8f, -10.0f));
-    sceneData->opaqueObjects.push_back(std::move(planeModelBottom));
+    // sceneData->opaqueObjects.push_back(std::move(planeModelBottom));
 
     std::unique_ptr<Model> cursorModel = std::make_unique<Model>("bx.obj");
     cursorModel->setMaterial(plasticMaterial);
     cursorModel->setScale(Eigen::Vector3f(0.2f, 0.2f, 0.2f));
-    sceneData->cursor = std::move(cursorModel);
+    // sceneData->cursor = std::move(cursorModel);
 
     return sceneData;
 }
