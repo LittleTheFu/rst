@@ -80,7 +80,7 @@ void LightPass::Render(GLuint positionTextureID,
     shader_->setInt("shadowMapTexture", 6);
 
     shader_->setVec3("cameraPos", camera.Position);
-    shader_->setFloat("shadowCameraFarClip", 100.0f);
+    shader_->setFloat("shadowCameraFarClip", camera.farClip);
 
     PointLightDataForUBO lightData;
     lightData.position = light.position;
