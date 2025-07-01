@@ -31,6 +31,8 @@ UiSystem::UiSystem(SDL_Window *window, SDL_GLContext glContext)
 
     ImGui_ImplSDL2_InitForOpenGL(window, glContext);
     ImGui_ImplOpenGL3_Init("#version 460");
+
+    SDL_StopTextInput();
 }
 
 UiSystem::~UiSystem()
