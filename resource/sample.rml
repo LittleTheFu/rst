@@ -3,18 +3,26 @@
         <title>RmlUi Integration Test</title>
         <style>
             body {
-                font-family: "Roboto"; /* <--- 确保这里是 "Roboto" */
+                font-family: "Roboto";
                 font-size: 30px;
-                color: #00FF00; /* 亮绿色，更容易辨认 */
-                background-color: red; /* 不透明的红色背景 */
-                width: 400px;
-                height: 100px;
-                margin: auto;
-                top: 50px;
-                position: absolute;
-                padding: 10px;
-                text-align: center;
-                line-height: 80px;
+                color: #000000; /* 亮绿色文字 */
+                background-color: transparent; /* <--- 将背景改为透明 */
+                /* 移除以下属性，让 body 元素只包裹内容，不创建显式矩形框 */
+                /* width: 400px; */
+                /* height: 100px; */
+                /* margin: auto; */
+                /* top: 50px; */
+                /* position: absolute; */
+                /* padding: 10px; */
+                
+                text-align: center; /* 文字居中 */
+                line-height: 1.2; /* 调整行高，让文字看起来更紧凑，或者根据需要调整 */
+            }
+            h1 {
+                /* h1 标签默认会占据一行，并且有默认的外边距 */
+                /* 如果你希望文字更紧凑，可以调整 h1 的外边距 */
+                margin: 0; /* 移除 h1 的默认外边距 */
+                padding: 0; /* 移除 h1 的默认内边距 */
             }
         </style>
     </head>
