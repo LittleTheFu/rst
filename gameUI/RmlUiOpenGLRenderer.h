@@ -52,7 +52,7 @@ public:
      * @param target_width 渲染目标的宽度。
      * @param target_height 渲染目标的高度。
      */
-    void SetViewport(int target_width, int target_height); // <--- 移除 override 关键字
+    void SetViewport(int target_width, int target_height);
 
     /**
      * @brief 渲染 RmlUi 生成的几何体。
@@ -61,13 +61,18 @@ public:
      * @param texture 纹理句柄，如果为 0 则表示无纹理。
      * @param translation 几何体的平移矩阵。
      */
-    void RenderGeometry(Rml::Vertex* vertices, int num_vertices, int* indices, int num_indices, Rml::TextureHandle texture, const Rml::Vector2f& translation); // <--- 移除 override 关键字，修正 Rml:: 到 Rml::
+    void RenderGeometry(Rml::Vertex *vertices,
+                        int num_vertices,
+                        int *indices,
+                        int num_indices,
+                        Rml::TextureHandle texture,
+                        const Rml::Vector2f &translation) override;
 
     /**
      * @brief 启用或禁用裁剪。
      * @param enable 如果为 true 则启用裁剪，否则禁用。
      */
-    void EnableScissorRegion(bool enable); // <--- 移除 override 关键字
+    void EnableScissorRegion(bool enable) override;
 
     /**
      * @brief 设置裁剪矩形。
@@ -76,7 +81,7 @@ public:
      * @param width 裁剪矩形的宽度。
      * @param height 裁剪矩形的高度。
      */
-    void SetScissorRegion(int x, int y, int width, int height); // <--- 移除 override 关键字
+    void SetScissorRegion(int x, int y, int width, int height) override;
 
     /**
      * @brief 生成一个纹理。
@@ -85,7 +90,7 @@ public:
      * @param source_dimensions 纹理的尺寸。
      * @return 如果生成成功返回 true，否则返回 false。
      */
-    bool LoadTexture(Rml::TextureHandle& texture_handle, Rml::Vector2i& texture_dimensions, const Rml::String& source); // <--- 移除 override 关键字，修正 Rml:: 到 Rml::
+    bool LoadTexture(Rml::TextureHandle& texture_handle, Rml::Vector2i& texture_dimensions, const Rml::String& source) override;
 
     /**
      * @brief 生成一个纹理。
@@ -94,13 +99,13 @@ public:
      * @param source_dimensions 纹理的尺寸。
      * @return 如果生成成功返回 true，否则返回 false。
      */
-    bool GenerateTexture(Rml::TextureHandle& texture_handle, const Rml::byte* source, const Rml::Vector2i& source_dimensions); // <--- 移除 override 关键字，修正 Rml:: 到 Rml::
+    bool GenerateTexture(Rml::TextureHandle& texture_handle, const Rml::byte* source, const Rml::Vector2i& source_dimensions) override;
 
     /**
      * @brief 释放一个纹理。
      * @param texture 纹理句柄。
      */
-    void ReleaseTexture(Rml::TextureHandle texture); // <--- 移除 override 关键字，修正 Rml:: 到 Rml::
+    void ReleaseTexture(Rml::TextureHandle texture) override;
 
     /**
      * @brief 释放所有纹理。
