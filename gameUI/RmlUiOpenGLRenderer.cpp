@@ -4,127 +4,19 @@
 #include "shaderManager.h"
 #include "openGLStateSaver.h"
 
-// #include "stb_image_wrapper.h" // 假设你有这个文件，用于加载图像
-
-// RmlUi 渲染器所需的着色器代码（非常简单）
-const char* RMLUI_VERTEX_SHADER_SOURCE = R"(
-#version 460 core
-layout (location = 0) in vec2 aPos;
-layout (location = 1) in vec4 aColor;
-layout (location = 2) in vec2 aTexCoord;
-
-out vec4 vColor;
-out vec2 vTexCoord;
-
-uniform mat4 projection;
-uniform vec2 translation; // RmlUi 提供的平移
-
-void main()
-{
-    gl_Position = projection * vec4(aPos + translation, 0.0, 1.0);
-    vColor = aColor;
-    vTexCoord = aTexCoord;
-}
-)";
-
-const char* RMLUI_FRAGMENT_SHADER_SOURCE = R"(
-#version 460 core
-out vec4 FragColor;
-
-in vec4 vColor;
-in vec2 vTexCoord;
-
-uniform sampler2D uTexture;
-uniform bool hasTexture;
-
-void main()
-{
-    if (hasTexture) {
-        FragColor = vColor * texture(uTexture, vTexCoord);
-    } else {
-        FragColor = vColor;
-    }
-}
-)";
 
 RmlUiOpenGLRenderer::RmlUiOpenGLRenderer() : rmlUiShader_(nullptr) {
-    // 构造函数中不执行 OpenGL 调用，因为上下文可能尚未准备好
 }
 
 RmlUiOpenGLRenderer::~RmlUiOpenGLRenderer() {
-    // 析构函数中也不执行 OpenGL 调用，因为上下文可能已被销毁
-    // 纹理和着色器由 shared_ptr 自动管理
 }
 
 bool RmlUiOpenGLRenderer::Initialize() {
-    // 在这里加载并编译 RmlUi 的着色器
     rmlUiShader_ = ShaderManager::getInstance().loadShader(
         "shader/rmlui.vert", // 假设你的着色器文件路径
         "shader/rmlui.frag"
     );
-
-    if (!rmlUiShader_) {
-        std::cerr << "Error: Failed to load RmlUi shaders from files. Attempting to compile from hardcoded strings." << std::endl;
-        try {
-            GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-            glShaderSource(vertexShader, 1, &RMLUI_VERTEX_SHADER_SOURCE, NULL);
-            glCompileShader(vertexShader);
-            GLint success;
-            glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-            if (!success) {
-                char infoLog[512];
-                glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
-                std::cerr << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
-                glDeleteShader(vertexShader);
-                return false;
-            }
-
-            GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-            glShaderSource(fragmentShader, 1, &RMLUI_FRAGMENT_SHADER_SOURCE, NULL);
-            glCompileShader(fragmentShader);
-            glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
-            if (!success) {
-                char infoLog[512];
-                glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
-                std::cerr << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
-                glDeleteShader(vertexShader);
-                glDeleteShader(fragmentShader);
-                return false;
-            }
-
-            GLuint programId = glCreateProgram();
-            glAttachShader(programId, vertexShader);
-            glAttachShader(programId, fragmentShader);
-            glLinkProgram(programId);
-            glGetProgramiv(programId, GL_LINK_STATUS, &success);
-            if (!success) {
-                char infoLog[512];
-                glGetProgramInfoLog(programId, 512, NULL, infoLog);
-                std::cerr << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
-                glDeleteProgram(programId);
-                glDeleteShader(vertexShader);
-                glDeleteShader(fragmentShader);
-                return false;
-            }
-
-            glDeleteShader(vertexShader);
-            glDeleteShader(fragmentShader);
-
-            rmlUiShader_ = std::make_shared<Shader>(); 
-            rmlUiShader_->ID = programId; 
-            
-            if (!rmlUiShader_->isValid()) {
-                 std::cerr << "Error: RmlUi shader compiled from string is invalid." << std::endl;
-                 rmlUiShader_ = nullptr;
-                 return false;
-            }
-
-        } catch (const std::exception& e) {
-            std::cerr << "Exception during RmlUi shader compilation from string: " << e.what() << std::endl;
-            rmlUiShader_ = nullptr;
-            return false;
-        }
-    }
+    assert(rmlUiShader_);//debug
 
     if (!rmlUiShader_ || !rmlUiShader_->isValid()) {
         std::cerr << "Error: RmlUi shader is not valid after initialization." << std::endl;
@@ -317,7 +209,6 @@ bool RmlUiOpenGLRenderer::GenerateTexture(Rml::TextureHandle& texture_handle, co
     return true;
 }
 
-// <--- 修正 Rml:: 到 Rml::
 void RmlUiOpenGLRenderer::ReleaseTexture(Rml::TextureHandle texture_handle) {
     auto it = textureMap_.find(texture_handle);
     if (it != textureMap_.end()) {
