@@ -1,0 +1,50 @@
+<rml>
+    <head>
+        <title>RmlUi Sample</title>
+        <link type="text/css" href="sample.rcss"/>
+        <style>
+            body {
+                font-family: "Noto Sans CJK SC"; /* 使用你加载的字体名称 */
+                font-size: 16px;
+                color: white;
+                background-color: rgba(0, 0, 0, 0.5);
+                width: 300px;
+                height: 200px;
+                margin: auto; /* 居中显示 */
+                top: 50px; /* 从顶部偏移 */
+                left: 50px;
+                position: absolute; /* 使用绝对定位 */
+                border: 1px solid #444;
+                padding: 10px;
+            }
+            h1 {
+                text-align: center;
+                color: #00FFFF; /* 青色 */
+            }
+            p {
+                margin-top: 10px;
+                text-align: center;
+            }
+            button {
+                display: block;
+                width: 100%;
+                padding: 8px;
+                margin-top: 15px;
+                background-color: #007BFF;
+                color: white;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+            }
+            button:hover {
+                background-color: #0056b3;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Hello RmlUi!</h1>
+        <p>This is a test UI rendered by RmlUi.</p>
+        <p>FPS: <span id="fps_display">N/A</span></p>
+        <button id="close_button">Close Window</button>
+    </body>
+</rml>
