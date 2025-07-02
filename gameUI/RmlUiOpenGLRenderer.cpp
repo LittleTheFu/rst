@@ -34,7 +34,6 @@ void RmlUiOpenGLRenderer::SetViewport(int target_width, int target_height) {
     projectionMatrix_(1, 3) = 1.0f;
 }
 
-// <--- 修正 Rml:: 到 Rml::
 void RmlUiOpenGLRenderer::RenderGeometry(Rml::Vertex* vertices, int num_vertices, int* indices, int num_indices, Rml::TextureHandle texture_handle, const Rml::Vector2f& translation) {
     if (!rmlUiShader_ || !rmlUiShader_->isValid()) {
         std::cerr << "Error: RmlUi shader is not valid during RenderGeometry." << std::endl;
@@ -130,7 +129,6 @@ void RmlUiOpenGLRenderer::SetScissorRegion(int x, int y, int width, int height) 
     glScissor(x, viewport[3] - (y + height), width, height);
 }
 
-// <--- 修正 Rml:: 到 Rml::
 bool RmlUiOpenGLRenderer::LoadTexture(Rml::TextureHandle& texture_handle, Rml::Vector2i& texture_dimensions, const Rml::String& source) {
     std::string path = source; // 直接使用 Rml::String 类型的 source
 
@@ -154,7 +152,6 @@ bool RmlUiOpenGLRenderer::LoadTexture(Rml::TextureHandle& texture_handle, Rml::V
     return false;
 }
 
-// <--- 修正 Rml:: 到 Rml::
 bool RmlUiOpenGLRenderer::GenerateTexture(Rml::TextureHandle& texture_handle, const Rml::byte* source, const Rml::Vector2i& source_dimensions) {
     if (!source || source_dimensions.x <= 0 || source_dimensions.y <= 0) {
         texture_handle = 0;
