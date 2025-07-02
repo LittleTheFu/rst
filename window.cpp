@@ -3,175 +3,287 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <iostream>
-#include "imgui.h" // 确保包含 ImGui 头文件，因为使用了 ImGui::GetIO().WantCaptureMouse
+#include "imgui.h"
 
-// RmlUi 字体加载辅助函数
-// 你可能需要根据你的字体文件路径调整
-void LoadRmlUiFonts() {
-    // 假设你的字体文件在 "assets/fonts/" 目录下
-    // NotoSansCJKsc-Regular.otf 是一个常见的支持中文的字体
-    // 你需要确保这个字体文件存在于你的项目路径中
-    Rml::LoadFontFace("Roboto-Regular.ttf", true, Rml::Style::FontWeight::Normal, 0); 
-
-
-    
-    // 加载粗体 (Bold)
-    // Rml::LoadFontFace("NotoSansSC-Bold.ttf", true, Rml::Style::FontWeight::Bold, 0);
-
-    // 可以加载更多字体
-    // Rml::FontDatabase::LoadFontFace("assets/fonts/OpenSans-Regular.ttf", "Open Sans");
+void LoadRmlUiFonts()
+{
+    Rml::LoadFontFace("Roboto-Regular.ttf", true, Rml::Style::FontWeight::Normal, 0);
 }
 
 // 辅助函数：将 SDL_Keycode 映射到 Rml::Input::KeyIdentifier
 // 这是一个简化的映射，对于所有键，你可能需要一个更完整的 switch-case
-Rml::Input::KeyIdentifier SDLKeyToRmlKey(SDL_Keycode sdl_key) {
+Rml::Input::KeyIdentifier SDLKeyToRmlKey(SDL_Keycode sdl_key)
+{
     using namespace Rml::Input;
-    switch (sdl_key) {
-        case SDLK_BACKSPACE: return KI_BACK;
-        case SDLK_TAB: return KI_TAB;
-        case SDLK_CLEAR: return KI_CLEAR;
-        case SDLK_RETURN: return KI_RETURN;
-        case SDLK_PAUSE: return KI_PAUSE;
-        case SDLK_ESCAPE: return KI_ESCAPE;
-        case SDLK_SPACE: return KI_SPACE;
-        case SDLK_EXCLAIM: return KI_OEM_1; // !
-        case SDLK_QUOTEDBL: return KI_OEM_7; // "
-        case SDLK_HASH: return KI_OEM_5; // #
-        case SDLK_DOLLAR: return KI_OEM_4; // $
-        case SDLK_AMPERSAND: return KI_OEM_7; // &
-        case SDLK_QUOTE: return KI_OEM_7; // '
-        case SDLK_LEFTPAREN: return KI_9; // (
-        case SDLK_RIGHTPAREN: return KI_0; // )
-        case SDLK_ASTERISK: return KI_8; // *
-        case SDLK_PLUS: return KI_OEM_PLUS; // +
-        case SDLK_COMMA: return KI_OEM_COMMA; // ,
-        case SDLK_MINUS: return KI_OEM_MINUS; // -
-        case SDLK_PERIOD: return KI_OEM_PERIOD; // .
-        case SDLK_SLASH: return KI_OEM_2; // /
-        case SDLK_0: return KI_0;
-        case SDLK_1: return KI_1;
-        case SDLK_2: return KI_2;
-        case SDLK_3: return KI_3;
-        case SDLK_4: return KI_4;
-        case SDLK_5: return KI_5;
-        case SDLK_6: return KI_6;
-        case SDLK_7: return KI_7;
-        case SDLK_8: return KI_8;
-        case SDLK_9: return KI_9;
-        case SDLK_COLON: return KI_OEM_1; // :
-        case SDLK_SEMICOLON: return KI_OEM_1; // ;
-        case SDLK_LESS: return KI_OEM_COMMA; // <
-        case SDLK_EQUALS: return KI_OEM_PLUS; // =
-        case SDLK_GREATER: return KI_OEM_PERIOD; // >
-        case SDLK_QUESTION: return KI_OEM_2; // ?
-        case SDLK_AT: return KI_2; // @
-        case SDLK_LEFTBRACKET: return KI_OEM_4; // [
-        case SDLK_BACKSLASH: return KI_OEM_5; // \
+    switch (sdl_key)
+    {
+    case SDLK_BACKSPACE:
+        return KI_BACK;
+    case SDLK_TAB:
+        return KI_TAB;
+    case SDLK_CLEAR:
+        return KI_CLEAR;
+    case SDLK_RETURN:
+        return KI_RETURN;
+    case SDLK_PAUSE:
+        return KI_PAUSE;
+    case SDLK_ESCAPE:
+        return KI_ESCAPE;
+    case SDLK_SPACE:
+        return KI_SPACE;
+    case SDLK_EXCLAIM:
+        return KI_OEM_1; // !
+    case SDLK_QUOTEDBL:
+        return KI_OEM_7; // "
+    case SDLK_HASH:
+        return KI_OEM_5; // #
+    case SDLK_DOLLAR:
+        return KI_OEM_4; // $
+    case SDLK_AMPERSAND:
+        return KI_OEM_7; // &
+    case SDLK_QUOTE:
+        return KI_OEM_7; // '
+    case SDLK_LEFTPAREN:
+        return KI_9; // (
+    case SDLK_RIGHTPAREN:
+        return KI_0; // )
+    case SDLK_ASTERISK:
+        return KI_8; // *
+    case SDLK_PLUS:
+        return KI_OEM_PLUS; // +
+    case SDLK_COMMA:
+        return KI_OEM_COMMA; // ,
+    case SDLK_MINUS:
+        return KI_OEM_MINUS; // -
+    case SDLK_PERIOD:
+        return KI_OEM_PERIOD; // .
+    case SDLK_SLASH:
+        return KI_OEM_2; // /
+    case SDLK_0:
+        return KI_0;
+    case SDLK_1:
+        return KI_1;
+    case SDLK_2:
+        return KI_2;
+    case SDLK_3:
+        return KI_3;
+    case SDLK_4:
+        return KI_4;
+    case SDLK_5:
+        return KI_5;
+    case SDLK_6:
+        return KI_6;
+    case SDLK_7:
+        return KI_7;
+    case SDLK_8:
+        return KI_8;
+    case SDLK_9:
+        return KI_9;
+    case SDLK_COLON:
+        return KI_OEM_1; // :
+    case SDLK_SEMICOLON:
+        return KI_OEM_1; // ;
+    case SDLK_LESS:
+        return KI_OEM_COMMA; // <
+    case SDLK_EQUALS:
+        return KI_OEM_PLUS; // =
+    case SDLK_GREATER:
+        return KI_OEM_PERIOD; // >
+    case SDLK_QUESTION:
+        return KI_OEM_2; // ?
+    case SDLK_AT:
+        return KI_2; // @
+    case SDLK_LEFTBRACKET:
+        return KI_OEM_4; // [
+    case SDLK_BACKSLASH:
+        return KI_OEM_5; // \
         case SDLK_RIGHTBRACKET: return KI_OEM_6; // ]
-        case SDLK_CARET: return KI_6; // ^
-        case SDLK_UNDERSCORE: return KI_OEM_MINUS; // _
-        case SDLK_BACKQUOTE: return KI_OEM_3; // `
-        case SDLK_a: return KI_A;
-        case SDLK_b: return KI_B;
-        case SDLK_c: return KI_C;
-        case SDLK_d: return KI_D;
-        case SDLK_e: return KI_E;
-        case SDLK_f: return KI_F;
-        case SDLK_g: return KI_G;
-        case SDLK_h: return KI_H;
-        case SDLK_i: return KI_I;
-        case SDLK_j: return KI_J;
-        case SDLK_k: return KI_K;
-        case SDLK_l: return KI_L;
-        case SDLK_m: return KI_M;
-        case SDLK_n: return KI_N;
-        case SDLK_o: return KI_O;
-        case SDLK_p: return KI_P;
-        case SDLK_q: return KI_Q;
-        case SDLK_r: return KI_R;
-        case SDLK_s: return KI_S;
-        case SDLK_t: return KI_T;
-        case SDLK_u: return KI_U;
-        case SDLK_v: return KI_V;
-        case SDLK_w: return KI_W;
-        case SDLK_x: return KI_X;
-        case SDLK_y: return KI_Y;
-        case SDLK_z: return KI_Z;
-        case SDLK_DELETE: return KI_DELETE;
+    case SDLK_CARET:
+        return KI_6; // ^
+    case SDLK_UNDERSCORE:
+        return KI_OEM_MINUS; // _
+    case SDLK_BACKQUOTE:
+        return KI_OEM_3; // `
+    case SDLK_a:
+        return KI_A;
+    case SDLK_b:
+        return KI_B;
+    case SDLK_c:
+        return KI_C;
+    case SDLK_d:
+        return KI_D;
+    case SDLK_e:
+        return KI_E;
+    case SDLK_f:
+        return KI_F;
+    case SDLK_g:
+        return KI_G;
+    case SDLK_h:
+        return KI_H;
+    case SDLK_i:
+        return KI_I;
+    case SDLK_j:
+        return KI_J;
+    case SDLK_k:
+        return KI_K;
+    case SDLK_l:
+        return KI_L;
+    case SDLK_m:
+        return KI_M;
+    case SDLK_n:
+        return KI_N;
+    case SDLK_o:
+        return KI_O;
+    case SDLK_p:
+        return KI_P;
+    case SDLK_q:
+        return KI_Q;
+    case SDLK_r:
+        return KI_R;
+    case SDLK_s:
+        return KI_S;
+    case SDLK_t:
+        return KI_T;
+    case SDLK_u:
+        return KI_U;
+    case SDLK_v:
+        return KI_V;
+    case SDLK_w:
+        return KI_W;
+    case SDLK_x:
+        return KI_X;
+    case SDLK_y:
+        return KI_Y;
+    case SDLK_z:
+        return KI_Z;
+    case SDLK_DELETE:
+        return KI_DELETE;
 
-        case SDLK_KP_0: return KI_NUMPAD0;
-        case SDLK_KP_1: return KI_NUMPAD1;
-        case SDLK_KP_2: return KI_NUMPAD2;
-        case SDLK_KP_3: return KI_NUMPAD3;
-        case SDLK_KP_4: return KI_NUMPAD4;
-        case SDLK_KP_5: return KI_NUMPAD5;
-        case SDLK_KP_6: return KI_NUMPAD6;
-        case SDLK_KP_7: return KI_NUMPAD7;
-        case SDLK_KP_8: return KI_NUMPAD8;
-        case SDLK_KP_9: return KI_NUMPAD9;
-        case SDLK_KP_PERIOD: return KI_DECIMAL;
-        case SDLK_KP_DIVIDE: return KI_DIVIDE;
-        case SDLK_KP_MULTIPLY: return KI_MULTIPLY;
-        case SDLK_KP_MINUS: return KI_SUBTRACT;
-        case SDLK_KP_PLUS: return KI_ADD;
-        case SDLK_KP_ENTER: return KI_NUMPADENTER;
-        case SDLK_KP_EQUALS: return KI_OEM_PLUS; // Not a direct match, but common for numpad equals
+    case SDLK_KP_0:
+        return KI_NUMPAD0;
+    case SDLK_KP_1:
+        return KI_NUMPAD1;
+    case SDLK_KP_2:
+        return KI_NUMPAD2;
+    case SDLK_KP_3:
+        return KI_NUMPAD3;
+    case SDLK_KP_4:
+        return KI_NUMPAD4;
+    case SDLK_KP_5:
+        return KI_NUMPAD5;
+    case SDLK_KP_6:
+        return KI_NUMPAD6;
+    case SDLK_KP_7:
+        return KI_NUMPAD7;
+    case SDLK_KP_8:
+        return KI_NUMPAD8;
+    case SDLK_KP_9:
+        return KI_NUMPAD9;
+    case SDLK_KP_PERIOD:
+        return KI_DECIMAL;
+    case SDLK_KP_DIVIDE:
+        return KI_DIVIDE;
+    case SDLK_KP_MULTIPLY:
+        return KI_MULTIPLY;
+    case SDLK_KP_MINUS:
+        return KI_SUBTRACT;
+    case SDLK_KP_PLUS:
+        return KI_ADD;
+    case SDLK_KP_ENTER:
+        return KI_NUMPADENTER;
+    case SDLK_KP_EQUALS:
+        return KI_OEM_PLUS; // Not a direct match, but common for numpad equals
 
-        case SDLK_UP: return KI_UP;
-        case SDLK_DOWN: return KI_DOWN;
-        case SDLK_RIGHT: return KI_RIGHT;
-        case SDLK_LEFT: return KI_LEFT;
-        case SDLK_INSERT: return KI_INSERT;
-        case SDLK_HOME: return KI_HOME;
-        case SDLK_END: return KI_END;
-        case SDLK_PAGEUP: return KI_PRIOR;
-        case SDLK_PAGEDOWN: return KI_NEXT;
+    case SDLK_UP:
+        return KI_UP;
+    case SDLK_DOWN:
+        return KI_DOWN;
+    case SDLK_RIGHT:
+        return KI_RIGHT;
+    case SDLK_LEFT:
+        return KI_LEFT;
+    case SDLK_INSERT:
+        return KI_INSERT;
+    case SDLK_HOME:
+        return KI_HOME;
+    case SDLK_END:
+        return KI_END;
+    case SDLK_PAGEUP:
+        return KI_PRIOR;
+    case SDLK_PAGEDOWN:
+        return KI_NEXT;
 
-        case SDLK_F1: return KI_F1;
-        case SDLK_F2: return KI_F2;
-        case SDLK_F3: return KI_F3;
-        case SDLK_F4: return KI_F4;
-        case SDLK_F5: return KI_F5;
-        case SDLK_F6: return KI_F6;
-        case SDLK_F7: return KI_F7;
-        case SDLK_F8: return KI_F8;
-        case SDLK_F9: return KI_F9;
-        case SDLK_F10: return KI_F10;
-        case SDLK_F11: return KI_F11;
-        case SDLK_F12: return KI_F12;
+    case SDLK_F1:
+        return KI_F1;
+    case SDLK_F2:
+        return KI_F2;
+    case SDLK_F3:
+        return KI_F3;
+    case SDLK_F4:
+        return KI_F4;
+    case SDLK_F5:
+        return KI_F5;
+    case SDLK_F6:
+        return KI_F6;
+    case SDLK_F7:
+        return KI_F7;
+    case SDLK_F8:
+        return KI_F8;
+    case SDLK_F9:
+        return KI_F9;
+    case SDLK_F10:
+        return KI_F10;
+    case SDLK_F11:
+        return KI_F11;
+    case SDLK_F12:
+        return KI_F12;
 
-        case SDLK_NUMLOCKCLEAR: return KI_NUMLOCK;
-        case SDLK_CAPSLOCK: return KI_CAPITAL;
-        case SDLK_SCROLLLOCK: return KI_SCROLL;
-        case SDLK_RSHIFT: return KI_RSHIFT;
-        case SDLK_LSHIFT: return KI_LSHIFT;
-        case SDLK_RCTRL: return KI_RCONTROL;
-        case SDLK_LCTRL: return KI_LCONTROL;
-        // case SDLK_RALT: return KI_RALT;
-        // case SDLK_LALT: return KI_LALT;
-        case SDLK_MODE: return KI_MODECHANGE;
-        case SDLK_PRINTSCREEN: return KI_SNAPSHOT;
-        // case SDLK_MENU: return KI_MENU;
-        // case SDLK_SYSREQ: return KI_SYSRQ;
-        // case SDLK_BREAK: return KI_CANCEL; // Or KI_PAUSE, depending on exact meaning
-        case SDLK_CLEARAGAIN: return KI_CLEAR; // Not a direct match, but closest
+    case SDLK_NUMLOCKCLEAR:
+        return KI_NUMLOCK;
+    case SDLK_CAPSLOCK:
+        return KI_CAPITAL;
+    case SDLK_SCROLLLOCK:
+        return KI_SCROLL;
+    case SDLK_RSHIFT:
+        return KI_RSHIFT;
+    case SDLK_LSHIFT:
+        return KI_LSHIFT;
+    case SDLK_RCTRL:
+        return KI_RCONTROL;
+    case SDLK_LCTRL:
+        return KI_LCONTROL;
+    // case SDLK_RALT: return KI_RALT;
+    // case SDLK_LALT: return KI_LALT;
+    case SDLK_MODE:
+        return KI_MODECHANGE;
+    case SDLK_PRINTSCREEN:
+        return KI_SNAPSHOT;
+    // case SDLK_MENU: return KI_MENU;
+    // case SDLK_SYSREQ: return KI_SYSRQ;
+    // case SDLK_BREAK: return KI_CANCEL; // Or KI_PAUSE, depending on exact meaning
+    case SDLK_CLEARAGAIN:
+        return KI_CLEAR; // Not a direct match, but closest
 
-        default: return KI_UNKNOWN;
+    default:
+        return KI_UNKNOWN;
     }
 }
 
 // 辅助函数：获取 RmlUi 键盘修饰符
-int GetRmlUiKeyModifiers() {
+int GetRmlUiKeyModifiers()
+{
     int rml_modifiers = 0;
-    const Uint8* state = SDL_GetKeyboardState(NULL);
-    if (state[SDL_SCANCODE_LSHIFT] || state[SDL_SCANCODE_RSHIFT]) rml_modifiers |= Rml::Input::KM_SHIFT;
-    if (state[SDL_SCANCODE_LCTRL] || state[SDL_SCANCODE_RCTRL]) rml_modifiers |= Rml::Input::KM_CTRL;
-    if (state[SDL_SCANCODE_LALT] || state[SDL_SCANCODE_RALT]) rml_modifiers |= Rml::Input::KM_ALT;
+    const Uint8 *state = SDL_GetKeyboardState(NULL);
+    if (state[SDL_SCANCODE_LSHIFT] || state[SDL_SCANCODE_RSHIFT])
+        rml_modifiers |= Rml::Input::KM_SHIFT;
+    if (state[SDL_SCANCODE_LCTRL] || state[SDL_SCANCODE_RCTRL])
+        rml_modifiers |= Rml::Input::KM_CTRL;
+    if (state[SDL_SCANCODE_LALT] || state[SDL_SCANCODE_RALT])
+        rml_modifiers |= Rml::Input::KM_ALT;
     // SDL does not provide a direct 'super' key (Windows key / Command key) modifier
     // You might need to map specific keys if you need this
     return rml_modifiers;
 }
-
 
 // Window 构造函数
 Window::Window(const char *title, int width, int height)
@@ -249,11 +361,10 @@ Window::Window(const char *title, int width, int height)
     // V-Sync On/Off (0: Off, 1: On)
     SDL_GL_SetSwapInterval(0); // 禁用 V-Sync
 
-
     // init scene first
     scene_ = std::make_shared<Scene>();
     scene_->init();
-    
+
     // ----------------------------------------------------
     // 初始化 ImGui UiSystem
     uiSystem_ = new UiSystem(window_, glContext_);
@@ -317,7 +428,8 @@ Window::Window(const char *title, int width, int height)
     // 初始化 RmlUi
     std::cout << "Initializing RmlUi..." << std::endl;
     rmlUiRenderer_ = new RmlUiOpenGLRenderer();
-    if (!rmlUiRenderer_->Initialize()) {
+    if (!rmlUiRenderer_->Initialize())
+    {
         std::cerr << "Failed to initialize RmlUi renderer!" << std::endl;
         // 处理错误，可能需要退出
         exit(-1);
@@ -325,7 +437,7 @@ Window::Window(const char *title, int width, int height)
 
     // 假设你的 RML/RCSS 文件在项目根目录下的 "assets/rmlui/" 文件夹中
     // 或者你可以根据实际情况调整这个路径
-    rmlUiFileInterface_ = new RmlUiFileInterface(""); 
+    rmlUiFileInterface_ = new RmlUiFileInterface("");
     rmlUiSystemInterface_ = new RmlUiSystemInterface();
 
     // 设置 RmlUi 的接口实例
@@ -334,7 +446,8 @@ Window::Window(const char *title, int width, int height)
     Rml::SetFileInterface(rmlUiFileInterface_);
 
     // 初始化 RmlUi 核心
-    if (!Rml::Initialise()) { // <--- 修正为 Rml::Initialise
+    if (!Rml::Initialise())
+    { // <--- 修正为 Rml::Initialise
         std::cerr << "Failed to initialise RmlUi Core!" << std::endl;
         exit(-1);
     }
@@ -344,12 +457,12 @@ Window::Window(const char *title, int width, int height)
 
     // 创建 RmlUi 上下文
     rmlContext_ = Rml::CreateContext("main", Rml::Vector2i(w, h)); // <--- 修正为 Rml::CreateContext
-    if (!rmlContext_) {
+    if (!rmlContext_)
+    {
         std::cerr << "Failed to create RmlUi context!" << std::endl;
         exit(-1);
     }
     rmlUiRenderer_->SetViewport(w, h); // <--- 新增这一行
-
 
     // 可选：初始化 RmlUi 调试器
     // #ifdef RMLUI_DEBUGGER_ENABLED // 如果你在 CMake 中定义了这个宏
@@ -359,22 +472,25 @@ Window::Window(const char *title, int width, int height)
 
     // 加载并显示 RML 文档
     rmlDocument_ = rmlContext_->LoadDocument("sample.rml");
-    if (rmlDocument_) {
+    if (rmlDocument_)
+    {
         rmlDocument_->Show();
         std::cout << "RmlUi sample.rml loaded and shown." << std::endl;
 
         // 绑定按钮事件 (例如关闭窗口)
-        Rml::Element* closeButton = rmlDocument_->GetElementById("close_button"); // <--- 修正为 Rml::Element
-        if (closeButton) {
+        Rml::Element *closeButton = rmlDocument_->GetElementById("close_button"); // <--- 修正为 Rml::Element
+        if (closeButton)
+        {
             // closeButton->AddEventListener(Rml::EventId::Click, [this](Rml::Event& event) { // <--- 修正为 Rml::EventId, Rml::Event
             //     this->running_ = false; // 点击按钮关闭窗口
             //     std::cout << "Close button clicked! Exiting application." << std::endl;
             // });
         }
-    } else {
+    }
+    else
+    {
         std::cerr << "Failed to load RmlUi document: sample.rml" << std::endl;
     }
-
 
     // ----------------------------------------------------
     // 其他初始化
@@ -412,23 +528,24 @@ Window::~Window()
     // ----------------------------------------------------
     // 清理 RmlUi 资源
     std::cout << "Shutting down RmlUi..." << std::endl;
-    if (rmlDocument_) {
+    if (rmlDocument_)
+    {
         rmlDocument_->Close();
         rmlDocument_ = nullptr;
     }
-    if (rmlContext_) {
+    if (rmlContext_)
+    {
         Rml::RemoveContext(rmlContext_->GetName()); // <--- 修正为 Rml::RemoveContext
         rmlContext_ = nullptr;
     }
     Rml::Shutdown(); // <--- 修正为 Rml::Shutdown
-    
+
     delete rmlUiRenderer_;
     rmlUiRenderer_ = nullptr;
     delete rmlUiSystemInterface_;
     rmlUiSystemInterface_ = nullptr;
     delete rmlUiFileInterface_;
     rmlUiFileInterface_ = nullptr;
-
 
     // 清理 ImGui UiSystem 资源
     delete uiSystem_;
@@ -485,9 +602,11 @@ void Window::updateFPS()
         SDL_SetWindowTitle(window_, title);
 
         // 更新 RmlUi 中的 FPS 显示
-        if (rmlDocument_) {
-            Rml::Element* fpsElement = rmlDocument_->GetElementById("fps_display"); // <--- 修正为 Rml::Element
-            if (fpsElement) {
+        if (rmlDocument_)
+        {
+            Rml::Element *fpsElement = rmlDocument_->GetElementById("fps_display"); // <--- 修正为 Rml::Element
+            if (fpsElement)
+            {
                 fpsElement->SetInnerRML(std::to_string(fps_).c_str());
             }
         }
@@ -504,14 +623,22 @@ void Window::update()
     lastFrameTime_ = currentTime;
 
     // --- 更新命令的 deltaTime (针对需要它的命令) ---
-    if (cmd_moveForward_) cmd_moveForward_->setDeltaTime(deltaTime_);
-    if (cmd_moveBackward_) cmd_moveBackward_->setDeltaTime(deltaTime_);
-    if (cmd_moveLeft_) cmd_moveLeft_->setDeltaTime(deltaTime_);
-    if (cmd_moveRight_) cmd_moveRight_->setDeltaTime(deltaTime_);
-    if (cmd_moveUp_) cmd_moveUp_->setDeltaTime(deltaTime_);
-    if (cmd_moveDown_) cmd_moveDown_->setDeltaTime(deltaTime_);
-    if (cmd_rotateLeft_) cmd_rotateLeft_->setDeltaTime(deltaTime_);
-    if (cmd_rotateRight_) cmd_rotateRight_->setDeltaTime(deltaTime_);
+    if (cmd_moveForward_)
+        cmd_moveForward_->setDeltaTime(deltaTime_);
+    if (cmd_moveBackward_)
+        cmd_moveBackward_->setDeltaTime(deltaTime_);
+    if (cmd_moveLeft_)
+        cmd_moveLeft_->setDeltaTime(deltaTime_);
+    if (cmd_moveRight_)
+        cmd_moveRight_->setDeltaTime(deltaTime_);
+    if (cmd_moveUp_)
+        cmd_moveUp_->setDeltaTime(deltaTime_);
+    if (cmd_moveDown_)
+        cmd_moveDown_->setDeltaTime(deltaTime_);
+    if (cmd_rotateLeft_)
+        cmd_rotateLeft_->setDeltaTime(deltaTime_);
+    if (cmd_rotateRight_)
+        cmd_rotateRight_->setDeltaTime(deltaTime_);
 
     // --- 输入处理 ---
     InputManager::GetInstance().Update();
@@ -521,13 +648,11 @@ void Window::update()
     {
         // 先让 ImGui 处理事件
         uiSystem_->ProcessEvent(&event);
-        
+
         // 再让 RmlUi 处理事件
         // 关键：检查 ImGui 是否捕获了事件，如果捕获了，RmlUi 不应处理
-        // bool ImGuiWantsMouse = ImGui::GetIO().WantCaptureMouse;
-        // bool ImGuiWantsKeyboard = ImGui::GetIO().WantCaptureKeyboard;
-        bool ImGuiWantsMouse = false;
-        bool ImGuiWantsKeyboard = false;
+        bool ImGuiWantsMouse = ImGui::GetIO().WantCaptureMouse;
+        bool ImGuiWantsKeyboard = ImGui::GetIO().WantCaptureKeyboard;
 
         if (event.type == SDL_QUIT)
         {
@@ -544,20 +669,21 @@ void Window::update()
                 scene_->resize(w, h);
                 scene_->getCamera()->setAspectRatio(static_cast<float>(w) / h);
                 // 通知 RmlUi 窗口大小改变
-                if (rmlContext_) {
+                if (rmlContext_)
+                {
                     rmlContext_->SetDimensions(Rml::Vector2i(w, h)); // <--- 修正为 Rml::Vector2i
-                    rmlUiRenderer_->SetViewport(w, h); // 更新 RmlUi 渲染器的投影矩阵
+                    rmlUiRenderer_->SetViewport(w, h);               // 更新 RmlUi 渲染器的投影矩阵
                 }
             }
             // RmlUi 也需要窗口事件，例如焦点改变。
             // RmlUi 6.x 的 SystemInterface 不直接提供 ProcessWindowEvent，
             // 但 ProcessKey 可以用于模拟焦点事件。
-            // if (rmlContext_ && !ImGuiWantsKeyboard) { 
+            // if (rmlContext_ && !ImGuiWantsKeyboard) {
             //     switch (event.window.event) {
-            //         case SDL_WINDOWEVENT_FOCUS_GAINED: 
+            //         case SDL_WINDOWEVENT_FOCUS_GAINED:
             //             rmlContext_->ProcessKey(Rml::Input::KI_HOME, 0, true); // 模拟焦点获得
             //             break;
-            //         case SDL_WINDOWEVENT_FOCUS_LOST: 
+            //         case SDL_WINDOWEVENT_FOCUS_LOST:
             //             rmlContext_->ProcessKey(Rml::Input::KI_END, 0, true); // 模拟焦点丢失
             //             break;
             //         // 可以根据需要添加更多
@@ -566,44 +692,50 @@ void Window::update()
         }
         else if (event.type == SDL_MOUSEBUTTONDOWN || event.type == SDL_MOUSEBUTTONUP)
         {
-            if (rmlContext_ && !ImGuiWantsMouse) {
+            if (rmlContext_ && !ImGuiWantsMouse)
+            {
                 rmlContext_->ProcessMouseButtonDown(event.button.button - 1, event.type == SDL_MOUSEBUTTONDOWN);
             }
         }
         else if (event.type == SDL_MOUSEMOTION)
         {
-            if (rmlContext_ && !ImGuiWantsMouse) {
+            if (rmlContext_ && !ImGuiWantsMouse)
+            {
                 rmlContext_->ProcessMouseMove(event.motion.x, event.motion.y, GetRmlUiKeyModifiers()); // <--- 添加修饰符
             }
         }
         else if (event.type == SDL_MOUSEWHEEL)
         {
-            if (rmlContext_ && !ImGuiWantsMouse) {
+            if (rmlContext_ && !ImGuiWantsMouse)
+            {
                 rmlContext_->ProcessMouseWheel(event.wheel.y, GetRmlUiKeyModifiers()); // <--- 添加修饰符
             }
         }
         else if (event.type == SDL_KEYDOWN || event.type == SDL_KEYUP)
         {
-            if (rmlContext_ && !ImGuiWantsKeyboard) {
+            if (rmlContext_ && !ImGuiWantsKeyboard)
+            {
                 Rml::Input::KeyIdentifier key_id = SDLKeyToRmlKey(event.key.keysym.sym); // 使用辅助函数映射
-                int rml_modifiers = GetRmlUiKeyModifiers(); // 使用辅助函数获取修饰符
+                int rml_modifiers = GetRmlUiKeyModifiers();                              // 使用辅助函数获取修饰符
 
                 // rmlContext_->ProcessKeyDown(key_id, rml_modifiers, event.type == SDL_KEYDOWN);
             }
         }
         else if (event.type == SDL_TEXTINPUT)
         {
-            if (rmlContext_ && !ImGuiWantsKeyboard) {
+            if (rmlContext_ && !ImGuiWantsKeyboard)
+            {
                 rmlContext_->ProcessTextInput(event.text.text);
             }
         }
-        
+
         // 最后让 InputManager 处理事件 (用于游戏逻辑)
         InputManager::GetInstance().ProcessEvent(event);
     }
 
     // --- RmlUi 更新 ---
-    if (rmlContext_) {
+    if (rmlContext_)
+    {
         rmlContext_->Update();
     }
 
@@ -619,15 +751,24 @@ void Window::update()
         running_ = false;
     }
 
-    if (!uiCapturesKeyboard) { // 只有当 UI 没有捕获键盘时，才处理游戏键盘输入
-        if (InputManager::GetInstance().IsKeyDown(SDL_SCANCODE_W)) cmd_moveForward_->Execute();
-        if (InputManager::GetInstance().IsKeyDown(SDL_SCANCODE_S)) cmd_moveBackward_->Execute();
-        if (InputManager::GetInstance().IsKeyDown(SDL_SCANCODE_A)) cmd_moveLeft_->Execute();
-        if (InputManager::GetInstance().IsKeyDown(SDL_SCANCODE_D)) cmd_moveRight_->Execute();
-        if (InputManager::GetInstance().IsKeyDown(SDL_SCANCODE_Q)) cmd_moveUp_->Execute();
-        if (InputManager::GetInstance().IsKeyDown(SDL_SCANCODE_E)) cmd_moveDown_->Execute();
-        if (InputManager::GetInstance().IsKeyDown(SDL_SCANCODE_Z)) cmd_rotateLeft_->Execute();
-        if (InputManager::GetInstance().IsKeyDown(SDL_SCANCODE_C)) cmd_rotateRight_->Execute();
+    if (!uiCapturesKeyboard)
+    { // 只有当 UI 没有捕获键盘时，才处理游戏键盘输入
+        if (InputManager::GetInstance().IsKeyDown(SDL_SCANCODE_W))
+            cmd_moveForward_->Execute();
+        if (InputManager::GetInstance().IsKeyDown(SDL_SCANCODE_S))
+            cmd_moveBackward_->Execute();
+        if (InputManager::GetInstance().IsKeyDown(SDL_SCANCODE_A))
+            cmd_moveLeft_->Execute();
+        if (InputManager::GetInstance().IsKeyDown(SDL_SCANCODE_D))
+            cmd_moveRight_->Execute();
+        if (InputManager::GetInstance().IsKeyDown(SDL_SCANCODE_Q))
+            cmd_moveUp_->Execute();
+        if (InputManager::GetInstance().IsKeyDown(SDL_SCANCODE_E))
+            cmd_moveDown_->Execute();
+        if (InputManager::GetInstance().IsKeyDown(SDL_SCANCODE_Z))
+            cmd_rotateLeft_->Execute();
+        if (InputManager::GetInstance().IsKeyDown(SDL_SCANCODE_C))
+            cmd_rotateRight_->Execute();
 
         if (InputManager::GetInstance().IsKeyPressed(SDL_SCANCODE_F1))
         {
@@ -635,7 +776,8 @@ void Window::update()
         }
     }
 
-    if (!uiCapturesMouse) { // 只有当 UI 没有捕获鼠标时，才处理游戏鼠标输入
+    if (!uiCapturesMouse)
+    { // 只有当 UI 没有捕获鼠标时，才处理游戏鼠标输入
         cmd_mouseLook_->Execute();
         cmd_mouseScroll_->Execute();
 
@@ -644,20 +786,22 @@ void Window::update()
             cmd_pickObject_->setMousePosition(InputManager::GetInstance().GetMouseX(), InputManager::GetInstance().GetMouseY());
             cmd_pickObject_->Execute();
 
-            pickedObject_ = cmd_pickObject_->getPickedObject(); 
+            pickedObject_ = cmd_pickObject_->getPickedObject();
 
             if (pickedObject_)
             {
-                scene_->setSelectedObject(pickedObject_); 
+                scene_->setSelectedObject(pickedObject_);
                 std::cout << "Picked object: " << pickedObject_->getName() << std::endl;
             }
             else
             {
-                scene_->setSelectedObject(nullptr); 
+                scene_->setSelectedObject(nullptr);
                 std::cout << "No object picked." << std::endl;
             }
         }
-    } else {
+    }
+    else
+    {
         // 当 UI 捕获鼠标时，如果需要，仍然可以打印上一个选中对象的信息
         // if (pickedObject_) {
         //     std::cout << "UI capturing mouse. Last picked object: " << pickedObject_->getName() << std::endl;
@@ -665,7 +809,6 @@ void Window::update()
         //     std::cout << "UI capturing mouse. No object picked." << std::endl;
         // }
     }
-
 
     // --- 更新 FPS ---
     updateFPS();
@@ -682,7 +825,8 @@ void Window::render()
 
     scene_->run(deltaTime_);
 
-    if (rmlContext_) {
+    if (rmlContext_)
+    {
         rmlContext_->Render();
     }
 
