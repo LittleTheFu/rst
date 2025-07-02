@@ -381,7 +381,7 @@ Window::Window(const char *title, int width, int height)
 
     // 假设 UiSceneData::create 方法存在，用于从 Scene 初始化 UI 数据
     // 确保 UiSceneData 也能处理 ISceneObject
-    uiSystem_->uiSceneData = UiSceneData::create(scene_);
+    // uiSystem_->uiSceneData = UiSceneData::create(scene_);
 
     // --- 初始化命令对象 ---
     // CameraCommand 的 setDeltaTime 方法会在 update() 中每帧调用
@@ -429,8 +429,8 @@ Window::~Window()
 
 
     // 清理 ImGui UiSystem 资源
-    delete uiSystem_;
-    uiSystem_ = nullptr;
+    // delete uiSystem_;
+    // uiSystem_ = nullptr;
 
     // --- 清理命令对象 ---
     delete cmd_moveForward_;
@@ -518,7 +518,7 @@ void Window::update()
     while (SDL_PollEvent(&event))
     {
         // 先让 ImGui 处理事件
-        uiSystem_->ProcessEvent(&event);
+        // uiSystem_->ProcessEvent(&event);
         
         // 再让 RmlUi 处理事件
         // 关键：检查 ImGui 是否捕获了事件，如果捕获了，RmlUi 不应处理
