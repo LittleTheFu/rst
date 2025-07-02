@@ -1,17 +1,10 @@
-
-// RmlUiOpenGLRenderer.cpp
 #include "RmlUiOpenGLRenderer.h"
 #include <iostream>
 #include <vector>
-#include <shaderManager.h>
 
-// 假设你的 stb_image_wrapper 提供以下函数来加载图像数据
-// extern unsigned char* stbi_load(char const *filename, int *x, int *y, int *channels_in_file, int desired_channels);
-// extern void stbi_image_free(void *retval_from_stbi_load);
-// #include "stb_image_wrapper.h" // 假设你有这个文件，用于加载图像
+#include "stb_image_wrapper.h" // 假设你有这个文件，用于加载图像
 
 // RmlUi 渲染器所需的着色器代码（非常简单）
-// 注意：这些着色器是硬编码的，你可以将它们放在文件中并通过 ShaderManager 加载
 const char* RMLUI_VERTEX_SHADER_SOURCE = R"(
 #version 460 core
 layout (location = 0) in vec2 aPos;
@@ -63,7 +56,6 @@ RmlUiOpenGLRenderer::~RmlUiOpenGLRenderer() {
 
 bool RmlUiOpenGLRenderer::Initialize() {
     // 在这里加载并编译 RmlUi 的着色器
-    // 注意：这里的路径是示例，你需要确保这些着色器文件存在或使用硬编码字符串
     rmlUiShader_ = ShaderManager::getInstance().loadShader(
         "shaders/rmlui_vertex.glsl", // 假设你的着色器文件路径
         "shaders/rmlui_fragment.glsl"
@@ -71,15 +63,10 @@ bool RmlUiOpenGLRenderer::Initialize() {
 
     if (!rmlUiShader_) {
         std::cerr << "Error: Failed to load RmlUi shaders from files. Attempting to compile from hardcoded strings." << std::endl;
-        // 如果文件加载失败，尝试从硬编码字符串编译
         try {
-            // 创建一个临时的 Shader 对象来编译硬编码的着色器
-            // 注意：这种方式不会被 ShaderManager 缓存，每次都会重新编译
-            // 更好的做法是让 ShaderManager 支持从字符串加载
             GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
             glShaderSource(vertexShader, 1, &RMLUI_VERTEX_SHADER_SOURCE, NULL);
             glCompileShader(vertexShader);
-            // 检查编译错误 (你需要 Shader::checkCompileErrors 的逻辑)
             GLint success;
             glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
             if (!success) {
@@ -93,7 +80,6 @@ bool RmlUiOpenGLRenderer::Initialize() {
             GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
             glShaderSource(fragmentShader, 1, &RMLUI_FRAGMENT_SHADER_SOURCE, NULL);
             glCompileShader(fragmentShader);
-            // 检查编译错误
             glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
             if (!success) {
                 char infoLog[512];
@@ -108,7 +94,6 @@ bool RmlUiOpenGLRenderer::Initialize() {
             glAttachShader(programId, vertexShader);
             glAttachShader(programId, fragmentShader);
             glLinkProgram(programId);
-            // 检查链接错误 (你需要 Shader::checkProgramErrors 的逻辑)
             glGetProgramiv(programId, GL_LINK_STATUS, &success);
             if (!success) {
                 char infoLog[512];
@@ -123,15 +108,9 @@ bool RmlUiOpenGLRenderer::Initialize() {
             glDeleteShader(vertexShader);
             glDeleteShader(fragmentShader);
 
-            // 创建一个新的 Shader 对象来封装这个程序ID
-            // 注意：这可能需要修改 Shader 类的构造函数或添加一个工厂方法
-            // 假设 Shader 有一个接受 GLuint ID 的构造函数或者可以设置 ID
-            rmlUiShader_ = std::make_shared<Shader>(); // 使用默认构造函数
-            rmlUiShader_->ID = programId; // 直接设置 ID，这需要 Shader::ID 为 public
-            // RmlUi Shader 不需要 m_id，因为它是内部使用的
-            // rmlUiShader_->m_id = "RmlUiInternalShader"; // 只是一个标识
+            rmlUiShader_ = std::make_shared<Shader>(); 
+            rmlUiShader_->ID = programId; 
             
-            // 检查 Shader::isValid() 是否能正确处理这种情况
             if (!rmlUiShader_->isValid()) {
                  std::cerr << "Error: RmlUi shader compiled from string is invalid." << std::endl;
                  rmlUiShader_ = nullptr;
@@ -154,9 +133,6 @@ bool RmlUiOpenGLRenderer::Initialize() {
 }
 
 void RmlUiOpenGLRenderer::SetViewport(int target_width, int target_height) {
-    // RmlUi 通常直接渲染到屏幕，所以这里不需要改变 OpenGL 视口
-    // 视口设置通常在主渲染循环中完成
-    // 但是，我们需要更新投影矩阵以匹配新的视口尺寸
     projectionMatrix_ = Eigen::Matrix4f::Identity();
     projectionMatrix_(0, 0) = 2.0f / target_width;
     projectionMatrix_(1, 1) = -2.0f / target_height; // Y 轴翻转，RmlUi 坐标系原点在左上角
@@ -164,7 +140,8 @@ void RmlUiOpenGLRenderer::SetViewport(int target_width, int target_height) {
     projectionMatrix_(1, 3) = 1.0f;
 }
 
-void RmlUiOpenGLRenderer::RenderGeometry(Rml::Core::Vertex* vertices, int num_vertices, int* indices, int num_indices, Rml::Core::TextureHandle texture_handle, const Rml::Core::Vector2f& translation) {
+// <--- 修正 Rml::Core:: 到 Rml::
+void RmlUiOpenGLRenderer::RenderGeometry(Rml::Vertex* vertices, int num_vertices, int* indices, int num_indices, Rml::TextureHandle texture_handle, const Rml::Vector2f& translation) {
     if (!rmlUiShader_ || !rmlUiShader_->isValid()) {
         std::cerr << "Error: RmlUi shader is not valid during RenderGeometry." << std::endl;
         return;
@@ -184,9 +161,9 @@ void RmlUiOpenGLRenderer::RenderGeometry(Rml::Core::Vertex* vertices, int num_ve
 
     // 设置 OpenGL 状态以进行 RmlUi 渲染
     glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // 标准 Alpha 混合
-    glDisable(GL_CULL_FACE); // RmlUi 几何体通常不需要背面剔除
-    glDisable(GL_DEPTH_TEST); // RmlUi 渲染在 3D 场景之上，不需要深度测试
+    glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA); // <--- 修正：预乘 Alpha 混合模式
+    glDisable(GL_CULL_FACE); 
+    glDisable(GL_DEPTH_TEST); 
 
     // 绑定 RmlUi 着色器
     rmlUiShader_->use();
@@ -208,15 +185,9 @@ void RmlUiOpenGLRenderer::RenderGeometry(Rml::Core::Vertex* vertices, int num_ve
         }
     }
 
-    // 创建或更新 VBO, IBO, VAO
-    // RmlUi 每次 RenderGeometry 都会提供新的顶点/索引数据，
-    // 所以我们每次都需要更新缓冲区或创建新的。
-    // 为了效率，可以考虑重用缓冲区并使用 glBufferSubData。
-    // 这里为了简化，每次都创建新的缓冲区。
-
     // 顶点数据布局: 位置 (vec2), 颜色 (vec4), 纹理坐标 (vec2)
-    // Rml::Core::Vertex 结构体通常是 { Rml::Core::Vector2f position, Rml::Core::ColourB color, Rml::Core::Vector2f tex_coord }
-    // 需要将 Rml::Core::ColourB 转换为 float 颜色
+    // Rml::Vertex 结构体通常是 { Rml::Vector2f position, Rml::ColourB color, Rml::Vector2f tex_coord }
+    // 需要将 Rml::ColourB 转换为 float 颜色
     std::vector<float> interleaved_data;
     interleaved_data.reserve(num_vertices * (2 + 4 + 2)); // 2 pos, 4 color, 2 texcoord
 
@@ -256,7 +227,7 @@ void RmlUiOpenGLRenderer::RenderGeometry(Rml::Core::Vertex* vertices, int num_ve
     glDrawElements(GL_TRIANGLES, num_indices, ibo.getType(), 0);
 
     // 解绑 VAO
-    vao.unbind(); // 或者 glDisableVertexArrayAttribs(vao.id(), 0, 1, 2) 等
+    vao.unbind(); 
 
     // 恢复之前的 OpenGL 状态
     if (lastProgramId_ != 0) glUseProgram(lastProgramId_);
@@ -280,23 +251,21 @@ void RmlUiOpenGLRenderer::EnableScissorRegion(bool enable) {
 }
 
 void RmlUiOpenGLRenderer::SetScissorRegion(int x, int y, int width, int height) {
-    // RmlUi 的 Y 轴原点在左上角，OpenGL 的 Y 轴原点在左下角
-    // 需要将 Y 坐标翻转
     GLint viewport[4];
     glGetIntegerv(GL_VIEWPORT, viewport);
     glScissor(x, viewport[3] - (y + height), width, height);
 }
 
-bool RmlUiOpenGLRenderer::LoadTexture(Rml::Core::TextureHandle& texture_handle, Rml::Core::Vector2i& texture_dimensions, const Rml::Core::String& source) {
-    // 尝试从你的 TextureManager 加载纹理
-    std::string path = source.CString(); // Rml::Core::String 到 std::string
+// <--- 修正 Rml::Core:: 到 Rml::
+bool RmlUiOpenGLRenderer::LoadTexture(Rml::TextureHandle& texture_handle, Rml::Vector2i& texture_dimensions, const Rml::String& source) {
+    std::string path = source.CString(); 
 
-    std::shared_ptr<Texture2D> texture = TextureManager::getInstance().loadTexture2D(path, false, false, false); // RmlUi 纹理通常不需要翻转Y轴，也不需要sRGB
+    std::shared_ptr<Texture2D> texture = TextureManager::getInstance().loadTexture2D(path, false, false, false); 
 
     if (texture && texture->id() != 0) {
         RmlUiTextureHandle rmlTexture;
         rmlTexture.texture = texture;
-        rmlTexture.dimensions = Eigen::Vector2i(texture->getWidth(), texture->getHeight());
+        rmlTexture.dimensions = Rml::Vector2i(texture->getWidth(), texture->getHeight()); // <--- 修正 Rml::Core:: 到 Rml::
 
         texture_handle = nextTextureHandle_++;
         textureMap_[texture_handle] = rmlTexture;
@@ -311,22 +280,20 @@ bool RmlUiOpenGLRenderer::LoadTexture(Rml::Core::TextureHandle& texture_handle, 
     return false;
 }
 
-bool RmlUiOpenGLRenderer::GenerateTexture(Rml::Core::TextureHandle& texture_handle, const Rml::Core::byte* source, const Rml::Core::Vector2i& source_dimensions) {
-    // RmlUi 内部生成纹理 (例如字体图集)
+// <--- 修正 Rml::Core:: 到 Rml::
+bool RmlUiOpenGLRenderer::GenerateTexture(Rml::TextureHandle& texture_handle, const Rml::byte* source, const Rml::Vector2i& source_dimensions) {
     if (!source || source_dimensions.x <= 0 || source_dimensions.y <= 0) {
         texture_handle = 0;
         return false;
     }
 
-    // 创建新的 Texture2D 对象
-    // assetId 可以是任意唯一字符串，例如 "RmlUiGeneratedTexture_" + nextTextureHandle_
     std::string assetId = "RmlUiGeneratedTexture_" + std::to_string(nextTextureHandle_);
     std::shared_ptr<Texture2D> texture = std::make_shared<Texture2D>(
         assetId,
         source_dimensions.x,
         source_dimensions.y,
-        GL_RGBA8, // RmlUi 通常使用 RGBA 格式
-        1 // 单个 mip 级别
+        GL_RGBA8, 
+        1 
     );
 
     if (!texture || texture->id() == 0) {
@@ -335,12 +302,11 @@ bool RmlUiOpenGLRenderer::GenerateTexture(Rml::Core::TextureHandle& texture_hand
         return false;
     }
 
-    // 上传像素数据
     texture->uploadData(source, GL_RGBA, GL_UNSIGNED_BYTE);
 
     RmlUiTextureHandle rmlTexture;
     rmlTexture.texture = texture;
-    rmlTexture.dimensions = Eigen::Vector2i(source_dimensions.x, source_dimensions.y);
+    rmlTexture.dimensions = Rml::Vector2i(source_dimensions.x, source_dimensions.y); // <--- 修正 Rml::Core:: 到 Rml::
 
     texture_handle = nextTextureHandle_++;
     textureMap_[texture_handle] = rmlTexture;
@@ -348,19 +314,19 @@ bool RmlUiOpenGLRenderer::GenerateTexture(Rml::Core::TextureHandle& texture_hand
     return true;
 }
 
-void RmlUiOpenGLRenderer::ReleaseTexture(Rml::Core::TextureHandle texture_handle) {
+// <--- 修正 Rml::Core:: 到 Rml::
+void RmlUiOpenGLRenderer::ReleaseTexture(Rml::TextureHandle texture_handle) {
     auto it = textureMap_.find(texture_handle);
     if (it != textureMap_.end()) {
-        // shared_ptr 会在引用计数归零时自动释放 OpenGL 资源
-        it->second.texture.reset(); // 显式释放 shared_ptr
+        it->second.texture.reset(); 
         textureMap_.erase(it);
     }
 }
 
 void RmlUiOpenGLRenderer::ReleaseAllTextures() {
     for (auto const& [handle, rmlTexture] : textureMap_) {
-        rmlTexture.texture.reset(); // 释放所有 shared_ptr
+        rmlTexture.texture.reset(); 
     }
     textureMap_.clear();
-    nextTextureHandle_ = 1; // 重置句柄计数器
+    nextTextureHandle_ = 1; 
 }

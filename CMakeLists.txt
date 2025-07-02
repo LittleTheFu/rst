@@ -253,6 +253,8 @@ target_include_directories(rst PRIVATE
     ${CMAKE_SOURCE_DIR}/third/assimp/include
     ${CMAKE_CURRENT_BINARY_DIR}/third/assimp/include
     ${CMAKE_SOURCE_DIR}/third/gli
+    ${CMAKE_SOURCE_DIR}/third/RmlUi/Include
+
 )
 
 target_link_libraries(rst
