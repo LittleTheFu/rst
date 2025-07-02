@@ -41,18 +41,7 @@ void RmlUiOpenGLRenderer::RenderGeometry(Rml::Vertex* vertices, int num_vertices
         return;
     }
 
-    // OpenGLStateSaver stateSaver;
-    // 保存当前的 OpenGL 状态
-    glGetIntegerv(GL_CURRENT_PROGRAM, &lastProgramId_);
-    glGetBooleanv(GL_BLEND, &lastBlendEnabled_);
-    glGetBooleanv(GL_SCISSOR_TEST, &lastScissorEnabled_);
-    glGetIntegerv(GL_SCISSOR_BOX, lastScissorBox_);
-    glGetBooleanv(GL_CULL_FACE, &lastCullFaceEnabled_);
-    glGetBooleanv(GL_DEPTH_TEST, &lastDepthTestEnabled_);
-    glGetIntegerv(GL_ACTIVE_TEXTURE, &lastActiveTexture_);
-    glGetIntegerv(GL_TEXTURE_BINDING_2D, &lastTextureBinding2D_);
-    glGetIntegerv(GL_VERTEX_ARRAY_BINDING, &lastVertexArrayBinding_);
-    glGetIntegerv(GL_VIEWPORT, lastViewport_);
+    renderStateSaver_.Save();
 
     // 设置 OpenGL 状态以进行 RmlUi 渲染
     glEnable(GL_BLEND);
@@ -124,17 +113,7 @@ void RmlUiOpenGLRenderer::RenderGeometry(Rml::Vertex* vertices, int num_vertices
     // 解绑 VAO
     vao.unbind(); 
 
-    // 恢复之前的 OpenGL 状态
-    if (lastProgramId_ != 0) glUseProgram(lastProgramId_);
-    if (lastBlendEnabled_) glEnable(GL_BLEND); else glDisable(GL_BLEND);
-    if (lastScissorEnabled_) glEnable(GL_SCISSOR_TEST); else glDisable(GL_SCISSOR_TEST);
-    glScissor(lastScissorBox_[0], lastScissorBox_[1], lastScissorBox_[2], lastScissorBox_[3]);
-    if (lastCullFaceEnabled_) glEnable(GL_CULL_FACE); else glDisable(GL_CULL_FACE);
-    if (lastDepthTestEnabled_) glEnable(GL_DEPTH_TEST); else glDisable(GL_DEPTH_TEST);
-    glActiveTexture(lastActiveTexture_);
-    glBindTexture(GL_TEXTURE_2D, lastTextureBinding2D_);
-    glBindVertexArray(lastVertexArrayBinding_);
-    glViewport(lastViewport_[0], lastViewport_[1], lastViewport_[2], lastViewport_[3]);
+    renderStateSaver_.Restore();
 }
 
 void RmlUiOpenGLRenderer::EnableScissorRegion(bool enable) {

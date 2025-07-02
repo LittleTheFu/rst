@@ -20,6 +20,7 @@
 #include "IndexBuffer.h"
 #include "Texture2D.h"
 #include "TextureManager.h" // 用于加载纹理
+#include "OpenGLStateSaver.h" // 用于保存和恢复 OpenGL 状态
 
 // 定义 RmlUi 纹理句柄的结构
 struct RmlUiTextureHandle {
@@ -124,16 +125,7 @@ private:
     Eigen::Matrix4f projectionMatrix_;
 
     // 渲染状态
-    GLint lastProgramId_;
-    GLboolean lastBlendEnabled_;
-    GLboolean lastScissorEnabled_;
-    GLint lastScissorBox_[4];
-    GLboolean lastCullFaceEnabled_;
-    GLboolean lastDepthTestEnabled_;
-    GLint lastActiveTexture_;
-    GLint lastTextureBinding2D_;
-    GLint lastVertexArrayBinding_;
-    GLint lastViewport_[4];
+    OpenGLStateSaver renderStateSaver_;
 };
 
 #endif // RMLUI_OPENGL_RENDERER_H
