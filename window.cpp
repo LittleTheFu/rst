@@ -607,8 +607,10 @@ void Window::update()
 
     // --- 命令调度 (Invoke Commands) ---
     // 只有当 RmlUi 和 ImGui 都没有捕获键盘/鼠标时，才执行游戏输入
-    bool uiCapturesMouse = (ImGui::GetIO().WantCaptureMouse || (rmlContext_ && rmlContext_->IsMouseInteracting()));
-    bool uiCapturesKeyboard = (ImGui::GetIO().WantCaptureKeyboard || (rmlContext_ && rmlContext_->GetFocusElement() != nullptr));
+    // bool uiCapturesMouse = (ImGui::GetIO().WantCaptureMouse || (rmlContext_ && rmlContext_->IsMouseInteracting()));
+    // bool uiCapturesKeyboard = (ImGui::GetIO().WantCaptureKeyboard || (rmlContext_ && rmlContext_->GetFocusElement() != nullptr));
+    bool uiCapturesMouse = ((rmlContext_ && rmlContext_->IsMouseInteracting()));
+    bool uiCapturesKeyboard = ((rmlContext_ && rmlContext_->GetFocusElement() != nullptr));
 
     if (InputManager::GetInstance().IsKeyPressed(SDL_SCANCODE_ESCAPE))
     {
