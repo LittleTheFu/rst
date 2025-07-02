@@ -149,7 +149,18 @@ void RmlUiOpenGLRenderer::RenderGeometry(Rml::Vertex* vertices, int num_vertices
         return;
     }
 
-    OpenGLStateSaver stateSaver;
+    // OpenGLStateSaver stateSaver;
+    // 保存当前的 OpenGL 状态
+    glGetIntegerv(GL_CURRENT_PROGRAM, &lastProgramId_);
+    glGetBooleanv(GL_BLEND, &lastBlendEnabled_);
+    glGetBooleanv(GL_SCISSOR_TEST, &lastScissorEnabled_);
+    glGetIntegerv(GL_SCISSOR_BOX, lastScissorBox_);
+    glGetBooleanv(GL_CULL_FACE, &lastCullFaceEnabled_);
+    glGetBooleanv(GL_DEPTH_TEST, &lastDepthTestEnabled_);
+    glGetIntegerv(GL_ACTIVE_TEXTURE, &lastActiveTexture_);
+    glGetIntegerv(GL_TEXTURE_BINDING_2D, &lastTextureBinding2D_);
+    glGetIntegerv(GL_VERTEX_ARRAY_BINDING, &lastVertexArrayBinding_);
+    glGetIntegerv(GL_VIEWPORT, lastViewport_);
 
     // 设置 OpenGL 状态以进行 RmlUi 渲染
     glEnable(GL_BLEND);
