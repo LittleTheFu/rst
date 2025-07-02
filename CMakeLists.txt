@@ -36,8 +36,7 @@ find_package(OpenGL REQUIRED)
 
 set(GAME_UI_DIR "gameUI")
 set(GAME_UI_SOURCE_FILES
-    ${GAME_UI_DIR}/MyFileInterface.cpp
-    ${GAME_UI_DIR}/MySystemInterface.cpp
+    ${GAME_UI_DIR}/RmlUiOpenGLRenderer.cpp
 )
 
 set(BUFFER_DIR "buffer")
