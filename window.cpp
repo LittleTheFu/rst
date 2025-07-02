@@ -254,64 +254,64 @@ Window::Window(const char *title, int width, int height)
     scene_ = std::make_shared<Scene>();
     scene_->init();
     
-    // // ----------------------------------------------------
-    // // 初始化 ImGui UiSystem
-    // uiSystem_ = new UiSystem(window_, glContext_);
+    // ----------------------------------------------------
+    // 初始化 ImGui UiSystem
+    uiSystem_ = new UiSystem(window_, glContext_);
 
-    // // 绑定 UiSystem 的回调函数到 Scene
-    // uiSystem_->onCaptureButtonClicked = [this]()
-    // {
-    //     scene_->saveTextures();
-    // };
+    // 绑定 UiSystem 的回调函数到 Scene
+    uiSystem_->onCaptureButtonClicked = [this]()
+    {
+        scene_->saveTextures();
+    };
 
-    // uiSystem_->onToggleDebugButtonClicked = [this]()
-    // {
-    //     scene_->toggleDebugDraw();
-    // };
+    uiSystem_->onToggleDebugButtonClicked = [this]()
+    {
+        scene_->toggleDebugDraw();
+    };
 
-    // // 绑定各种 UI 滑块的回调函数，以调整场景参数
-    // uiSystem_->onSsrWeightBarChanged = [this](float weight)
-    // {
-    //     scene_->setSsrWeight(weight);
-    // };
-    // uiSystem_->ssrWeight = scene_->ssrWeight_;
+    // 绑定各种 UI 滑块的回调函数，以调整场景参数
+    uiSystem_->onSsrWeightBarChanged = [this](float weight)
+    {
+        scene_->setSsrWeight(weight);
+    };
+    uiSystem_->ssrWeight = scene_->ssrWeight_;
 
-    // uiSystem_->onIblWeightBarChanged = [this](float weight)
-    // {
-    //     scene_->setIblWeight(weight);
-    // };
-    // uiSystem_->iblWeight = scene_->iblWeight_;
+    uiSystem_->onIblWeightBarChanged = [this](float weight)
+    {
+        scene_->setIblWeight(weight);
+    };
+    uiSystem_->iblWeight = scene_->iblWeight_;
 
-    // uiSystem_->onLightWeightBarChanged = [this](float weight)
-    // {
-    //     scene_->setLightWeight(weight);
-    // };
-    // uiSystem_->lightWeight = scene_->lightWeight_;
+    uiSystem_->onLightWeightBarChanged = [this](float weight)
+    {
+        scene_->setLightWeight(weight);
+    };
+    uiSystem_->lightWeight = scene_->lightWeight_;
 
-    // uiSystem_->onOitWeightBarChanged = [this](float weight)
-    // {
-    //     scene_->setOitWeight(weight);
-    // };
-    // uiSystem_->oitWeight = scene_->oitWeight_;
+    uiSystem_->onOitWeightBarChanged = [this](float weight)
+    {
+        scene_->setOitWeight(weight);
+    };
+    uiSystem_->oitWeight = scene_->oitWeight_;
 
-    // uiSystem_->onGodRayWeightBarChanged = [this](float weight)
-    // {
-    //     scene_->setGodRayWeight(weight);
-    // };
-    // uiSystem_->godRayWeight = scene_->godRayWeight_;
+    uiSystem_->onGodRayWeightBarChanged = [this](float weight)
+    {
+        scene_->setGodRayWeight(weight);
+    };
+    uiSystem_->godRayWeight = scene_->godRayWeight_;
 
-    // uiSystem_->onFocusDistanceBarChanged = [this](float distance)
-    // {
-    //     scene_->setFocusDistance(distance);
-    // };
-    // uiSystem_->focusDistance = scene_->focusDistance_;
+    uiSystem_->onFocusDistanceBarChanged = [this](float distance)
+    {
+        scene_->setFocusDistance(distance);
+    };
+    uiSystem_->focusDistance = scene_->focusDistance_;
 
-    // // !!! 关键改动 !!!
-    // // onGetSelectedMesh 更改为 onGetSelectedObject，并返回 ISceneObject*
-    // uiSystem_->onGetSelectedObject = [this]()
-    // {
-    //     return scene_->getSelectedObject();
-    // };
+    // !!! 关键改动 !!!
+    // onGetSelectedMesh 更改为 onGetSelectedObject，并返回 ISceneObject*
+    uiSystem_->onGetSelectedObject = [this]()
+    {
+        return scene_->getSelectedObject();
+    };
 
     // ----------------------------------------------------
     // 初始化 RmlUi
@@ -383,7 +383,7 @@ Window::Window(const char *title, int width, int height)
 
     // 假设 UiSceneData::create 方法存在，用于从 Scene 初始化 UI 数据
     // 确保 UiSceneData 也能处理 ISceneObject
-    // uiSystem_->uiSceneData = UiSceneData::create(scene_);
+    uiSystem_->uiSceneData = UiSceneData::create(scene_);
 
     // --- 初始化命令对象 ---
     // CameraCommand 的 setDeltaTime 方法会在 update() 中每帧调用
@@ -431,8 +431,8 @@ Window::~Window()
 
 
     // 清理 ImGui UiSystem 资源
-    // delete uiSystem_;
-    // uiSystem_ = nullptr;
+    delete uiSystem_;
+    uiSystem_ = nullptr;
 
     // --- 清理命令对象 ---
     delete cmd_moveForward_;
@@ -520,7 +520,7 @@ void Window::update()
     while (SDL_PollEvent(&event))
     {
         // 先让 ImGui 处理事件
-        // uiSystem_->ProcessEvent(&event);
+        uiSystem_->ProcessEvent(&event);
         
         // 再让 RmlUi 处理事件
         // 关键：检查 ImGui 是否捕获了事件，如果捕获了，RmlUi 不应处理
@@ -674,15 +674,15 @@ void Window::update()
 // 渲染场景和 UI
 void Window::render()
 {
-    // // 1. 开始 ImGui 新帧的绘制
-    // uiSystem_->NewFrame();
+    // 1. 开始 ImGui 新帧的绘制
+    uiSystem_->NewFrame();
 
-    // // 2. 绘制自定义 ImGui UI 界面
-    // uiSystem_->DrawUI(fps_);
+    // 2. 绘制自定义 ImGui UI 界面
+    uiSystem_->DrawUI(fps_);
 
-    // // 3. 清除颜色缓冲区和深度缓冲区
-    // glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-    // glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    // 3. 清除颜色缓冲区和深度缓冲区
+    glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // 4. 执行场景的渲染逻辑
     scene_->run(deltaTime_);
@@ -694,7 +694,7 @@ void Window::render()
     }
 
     // 6. 渲染 ImGui 界面到 OpenGL
-    // uiSystem_->Render();
+    uiSystem_->Render();
 
     // 7. 交换窗口缓冲
     SDL_GL_SwapWindow(window_);
