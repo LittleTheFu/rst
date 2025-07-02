@@ -162,6 +162,10 @@ set(COMMAND_CORE_SOURCE_FILES
     ${COMMAND_DIR}/pickObjectCommand.cpp
 )
 
+set(OGL_DIR "ogl")
+set(OGL_SOURCE_FILES
+)
+
 set(CAMERA_COMMAND_DIR "${COMMAND_DIR}/cameraCommand")
 set(CAMERA_COMMAND_SOURCE_FILES
     ${CAMERA_COMMAND_DIR}/cameraCommand.cpp
@@ -187,6 +191,8 @@ set(COMMAND_SOURCE_FILES
     ${CAMERA_COMMAND_SOURCE_FILES}
     ${DEBUG_COMMAND_SOURCE_FILES}
 )
+
+
 
 add_executable(rst
     main.cpp
@@ -216,6 +222,7 @@ add_executable(rst
     ${INTERFACE_SOURCE_FILES}
     ${RST_DEBUG_SOURCE_FILES}
     ${GAME_UI_SOURCE_FILES}
+    ${OGL_SOURCE_FILES}
 )
 
 target_compile_options(rst PRIVATE /wd4819)
@@ -244,6 +251,7 @@ target_include_directories(rst PRIVATE
     ${CMAKE_SOURCE_DIR}/${INTERFACE_DIR}
     ${CMAKE_SOURCE_DIR}/${RST_DEBUG_DIR}
     ${CMAKE_SOURCE_DIR}/${GAME_UI_DIR}
+    ${CMAKE_SOURCE_DIR}/${OGL_DIR}
 
     ${CMAKE_SOURCE_DIR}/third/glad/include
     ${CMAKE_SOURCE_DIR}/third/sdl/include

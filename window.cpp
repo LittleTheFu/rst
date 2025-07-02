@@ -674,26 +674,18 @@ void Window::update()
 // 渲染场景和 UI
 void Window::render()
 {
-    // 1. 开始 ImGui 新帧的绘制
     uiSystem_->NewFrame();
-
-    // 2. 绘制自定义 ImGui UI 界面
     uiSystem_->DrawUI(fps_);
 
-    // 3. 清除颜色缓冲区和深度缓冲区
     glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    // 4. 执行场景的渲染逻辑
     scene_->run(deltaTime_);
 
-    // 5. 渲染 RmlUi 界面
     if (rmlContext_) {
-        // RmlUi 渲染器会自己设置 OpenGL 状态，并在渲染后恢复
         rmlContext_->Render();
     }
 
-    // 6. 渲染 ImGui 界面到 OpenGL
     uiSystem_->Render();
 
     // 7. 交换窗口缓冲
