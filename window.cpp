@@ -348,6 +348,8 @@ Window::Window(const char *title, int width, int height)
         std::cerr << "Failed to create RmlUi context!" << std::endl;
         exit(-1);
     }
+    rmlUiRenderer_->SetViewport(w, h); // <--- 新增这一行
+
 
     // 可选：初始化 RmlUi 调试器
     // #ifdef RMLUI_DEBUGGER_ENABLED // 如果你在 CMake 中定义了这个宏

@@ -1,30 +1,24 @@
 <rml>
     <head>
         <title>RmlUi Integration Test</title>
-        <!-- 移除对 sample.rcss 的引用，因为所有样式都在这里定义了 -->
-        <!-- <link type="text/css" href="rmlui/sample.rcss"/> --> 
         <style>
             body {
-                font-family: "Roboto"; /* <--- 修正这里：从 "Noto Sans SC" 改为 "Roboto" */
-                font-size: 30px; /* 大一点，更容易看到 */
+                font-family: "Roboto"; /* <--- 确保这里是 "Roboto" */
+                font-size: 30px;
                 color: #00FF00; /* 亮绿色，更容易辨认 */
-                background-color: rgba(0, 0, 0, 0.7); /* 半透明黑色背景 */
+                background-color: red; /* 不透明的红色背景 */
                 width: 400px;
                 height: 100px;
-                margin: auto; /* 居中显示 */
-                top: 50px; /* 距离顶部偏移 */
+                margin: auto;
+                top: 50px;
                 position: absolute;
-                /* 暂时移除或注释掉 border 属性，因为它可能导致语法警告 */
-                /* border-width: 2px; */
-                /* border-style: solid; */
-                /* border-color: #00FFFF; */
                 padding: 10px;
-                text-align: center; /* 文本居中 */
-                line-height: 80px; /* 垂直居中，根据 height 调整 */
+                text-align: center;
+                line-height: 80px;
             }
         </style>
     </head>
     <body>
-        <h1>UI 集成成功!</h1>
+        <h1>this is a test message!</h1>
     </body>
 </rml>
