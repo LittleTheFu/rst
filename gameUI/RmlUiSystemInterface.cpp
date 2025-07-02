@@ -32,11 +32,11 @@ double RmlUiSystemInterface::GetElapsedTime() {
     return (double)(currentTicks - initialTicks_) / performanceFrequency_;
 }
 
-void RmlUiSystemInterface::SetClipboardText(const Rml::Core::String& text) {
-    SDL_SetClipboardText(text.CString());
+void RmlUiSystemInterface::SetClipboardText(const Rml::String& text) {
+    SDL_SetClipboardText(text.c_str());
 }
 
-void RmlUiSystemInterface::GetClipboardText(Rml::Core::String& text) {
+void RmlUiSystemInterface::GetClipboardText(Rml::String& text) {
     char* clipboard_text = SDL_GetClipboardText();
     if (clipboard_text) {
         text = clipboard_text;
@@ -46,28 +46,31 @@ void RmlUiSystemInterface::GetClipboardText(Rml::Core::String& text) {
     }
 }
 
-void RmlUiSystemInterface::LogMessage(Rml::Core::Log::Type type, const Rml::Core::String& message) {
+bool RmlUiSystemInterface::LogMessage(Rml::Log::Type type, const Rml::String& message) {
     switch (type) {
-        case Rml::Core::Log::Type::LT_ALWAYS:
-        case Rml::Core::Log::Type::LT_INFO:
-            std::cout << "[RmlUi INFO] " << message.CString() << std::endl;
+        case Rml::Log::Type::LT_ALWAYS:
+        case Rml::Log::Type::LT_INFO:
+            std::cout << "[RmlUi INFO] " << message << std::endl;
             break;
-        case Rml::Core::Log::Type::LT_WARNING:
-            std::cout << "[RmlUi WARNING] " << message.CString() << std::endl;
+        case Rml::Log::Type::LT_WARNING:
+            std::cout << "[RmlUi WARNING] " << message << std::endl;
             break;
-        case Rml::Core::Log::Type::LT_ERROR:
-            std::cerr << "[RmlUi ERROR] " << message.CString() << std::endl;
+        case Rml::Log::Type::LT_ERROR:
+            std::cerr << "[RmlUi ERROR] " << message << std::endl;
             break;
-        case Rml::Core::Log::Type::LT_ASSERT:
-            std::cerr << "[RmlUi ASSERT] " << message.CString() << std::endl;
+        case Rml::Log::Type::LT_ASSERT:
+            std::cerr << "[RmlUi ASSERT] " << message << std::endl;
             break;
         default:
-            std::cout << "[RmlUi LOG] " << message.CString() << std::endl;
+            std::cout << "[RmlUi LOG] " << message << std::endl;
             break;
     }
+
+    //quick and dirty
+    return true;
 }
 
-bool RmlUiSystemInterface::SetMouseCursor(const Rml::Core::String& cursor_name) {
+void RmlUiSystemInterface::SetMouseCursor(const Rml::String& cursor_name) {
     SDL_Cursor* cursor_to_set = nullptr;
 
     if (cursor_name == "arrow") {
@@ -83,14 +86,14 @@ bool RmlUiSystemInterface::SetMouseCursor(const Rml::Core::String& cursor_name) 
 
     if (cursor_to_set) {
         SDL_SetCursor(cursor_to_set);
-        return true;
+        // return true;
     }
-    return false;
+    // return false;
 }
 
-void RmlUiSystemInterface::SetNativeWindow(void* native_window_handle) {
-    // 在 SDL 中，native_window_handle 通常是 SDL_Window*
-    // RmlUi 内部可能需要这个来做一些平台特定的事情，但对于基本渲染通常不是必需的。
-    // 如果需要，可以在这里存储或使用它。
-    (void)native_window_handle; // 避免未使用参数警告
-}
+// void RmlUiSystemInterface::SetNativeWindow(void* native_window_handle) {
+//     // 在 SDL 中，native_window_handle 通常是 SDL_Window*
+//     // RmlUi 内部可能需要这个来做一些平台特定的事情，但对于基本渲染通常不是必需的。
+//     // 如果需要，可以在这里存储或使用它。
+//     (void)native_window_handle; // 避免未使用参数警告
+// }

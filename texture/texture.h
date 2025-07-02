@@ -48,13 +48,6 @@ public:
     int height() const { return height_; }
     int depth() const { return depth_; }
 
-protected:
-    // GLObject 的资源释放 (已经继承自 GLResource)
-    // 确保 GLResource::release() 是纯虚函数，并在 Texture 中提供实现
-    // 但你已经把 deleteTextures 放在 Texture 的析构函数中，所以这里的 release() 应该是空的
-    // 或者 GLResource 的 release() 应该负责 glDeleteTextures。
-    // 鉴于你 GLResource::release() 是虚函数但其cpp是空的，而 Texture::~Texture() 是 default，
-    // 且 Texture::release() 又被定义。我将假设 Texture::release() 是实际清理 OpenGL ID 的地方。
     void release() override; // 覆盖 GLResource 的纯虚函数
 };
 

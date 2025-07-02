@@ -61,7 +61,7 @@ public:
      * @param texture 纹理句柄，如果为 0 则表示无纹理。
      * @param translation 几何体的平移矩阵。
      */
-    void RenderGeometry(Rml::Vertex* vertices, int num_vertices, int* indices, int num_indices, Rml::TextureHandle texture, const Rml::Vector2f& translation); // <--- 移除 override 关键字，修正 Rml::Core:: 到 Rml::
+    void RenderGeometry(Rml::Vertex* vertices, int num_vertices, int* indices, int num_indices, Rml::TextureHandle texture, const Rml::Vector2f& translation); // <--- 移除 override 关键字，修正 Rml:: 到 Rml::
 
     /**
      * @brief 启用或禁用裁剪。
@@ -85,7 +85,7 @@ public:
      * @param source_dimensions 纹理的尺寸。
      * @return 如果生成成功返回 true，否则返回 false。
      */
-    bool LoadTexture(Rml::TextureHandle& texture_handle, Rml::Vector2i& texture_dimensions, const Rml::String& source); // <--- 移除 override 关键字，修正 Rml::Core:: 到 Rml::
+    bool LoadTexture(Rml::TextureHandle& texture_handle, Rml::Vector2i& texture_dimensions, const Rml::String& source); // <--- 移除 override 关键字，修正 Rml:: 到 Rml::
 
     /**
      * @brief 生成一个纹理。
@@ -94,13 +94,13 @@ public:
      * @param source_dimensions 纹理的尺寸。
      * @return 如果生成成功返回 true，否则返回 false。
      */
-    bool GenerateTexture(Rml::TextureHandle& texture_handle, const Rml::byte* source, const Rml::Vector2i& source_dimensions); // <--- 移除 override 关键字，修正 Rml::Core:: 到 Rml::
+    bool GenerateTexture(Rml::TextureHandle& texture_handle, const Rml::byte* source, const Rml::Vector2i& source_dimensions); // <--- 移除 override 关键字，修正 Rml:: 到 Rml::
 
     /**
      * @brief 释放一个纹理。
      * @param texture 纹理句柄。
      */
-    void ReleaseTexture(Rml::TextureHandle texture); // <--- 移除 override 关键字，修正 Rml::Core:: 到 Rml::
+    void ReleaseTexture(Rml::TextureHandle texture); // <--- 移除 override 关键字，修正 Rml:: 到 Rml::
 
     /**
      * @brief 释放所有纹理。
@@ -112,8 +112,8 @@ private:
     std::shared_ptr<Shader> rmlUiShader_;
 
     // 纹理句柄到实际纹理对象的映射
-    std::map<Rml::TextureHandle, RmlUiTextureHandle> textureMap_; // <--- 修正 Rml::Core:: 到 Rml::
-    Rml::TextureHandle nextTextureHandle_ = 1; // 用于生成唯一的纹理句柄 (修正 Rml::Core:: 到 Rml::)
+    std::map<Rml::TextureHandle, RmlUiTextureHandle> textureMap_; // <--- 修正 Rml:: 到 Rml::
+    Rml::TextureHandle nextTextureHandle_ = 1; // 用于生成唯一的纹理句柄 (修正 Rml:: 到 Rml::)
 
     // 投影矩阵
     Eigen::Matrix4f projectionMatrix_;

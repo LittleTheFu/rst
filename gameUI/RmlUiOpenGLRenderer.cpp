@@ -1,8 +1,9 @@
 #include "RmlUiOpenGLRenderer.h"
 #include <iostream>
 #include <vector>
+#include <shaderManager.h>
 
-#include "stb_image_wrapper.h" // 假设你有这个文件，用于加载图像
+// #include "stb_image_wrapper.h" // 假设你有这个文件，用于加载图像
 
 // RmlUi 渲染器所需的着色器代码（非常简单）
 const char* RMLUI_VERTEX_SHADER_SOURCE = R"(
@@ -57,8 +58,8 @@ RmlUiOpenGLRenderer::~RmlUiOpenGLRenderer() {
 bool RmlUiOpenGLRenderer::Initialize() {
     // 在这里加载并编译 RmlUi 的着色器
     rmlUiShader_ = ShaderManager::getInstance().loadShader(
-        "shaders/rmlui_vertex.glsl", // 假设你的着色器文件路径
-        "shaders/rmlui_fragment.glsl"
+        "shader/rmlui.vert", // 假设你的着色器文件路径
+        "shader/rmlui.frag"
     );
 
     if (!rmlUiShader_) {
@@ -140,7 +141,7 @@ void RmlUiOpenGLRenderer::SetViewport(int target_width, int target_height) {
     projectionMatrix_(1, 3) = 1.0f;
 }
 
-// <--- 修正 Rml::Core:: 到 Rml::
+// <--- 修正 Rml:: 到 Rml::
 void RmlUiOpenGLRenderer::RenderGeometry(Rml::Vertex* vertices, int num_vertices, int* indices, int num_indices, Rml::TextureHandle texture_handle, const Rml::Vector2f& translation) {
     if (!rmlUiShader_ || !rmlUiShader_->isValid()) {
         std::cerr << "Error: RmlUi shader is not valid during RenderGeometry." << std::endl;
@@ -176,8 +177,8 @@ void RmlUiOpenGLRenderer::RenderGeometry(Rml::Vertex* vertices, int num_vertices
     if (hasTexture) {
         RmlUiTextureHandle rmlTexture = textureMap_[texture_handle];
         if (rmlTexture.texture && rmlTexture.texture->id() != 0) {
-            glActiveTexture(GL_TEXTURE0);
-            rmlTexture.texture->bind();
+            // glActiveTexture(GL_TEXTURE0);
+            rmlTexture.texture->activate(0);
             rmlUiShader_->setInt("uTexture", 0);
         } else {
             // 纹理无效，禁用纹理
@@ -256,22 +257,22 @@ void RmlUiOpenGLRenderer::SetScissorRegion(int x, int y, int width, int height) 
     glScissor(x, viewport[3] - (y + height), width, height);
 }
 
-// <--- 修正 Rml::Core:: 到 Rml::
+// <--- 修正 Rml:: 到 Rml::
 bool RmlUiOpenGLRenderer::LoadTexture(Rml::TextureHandle& texture_handle, Rml::Vector2i& texture_dimensions, const Rml::String& source) {
-    std::string path = source.CString(); 
+    std::string path = source; // 直接使用 Rml::String 类型的 source
 
     std::shared_ptr<Texture2D> texture = TextureManager::getInstance().loadTexture2D(path, false, false, false); 
 
     if (texture && texture->id() != 0) {
         RmlUiTextureHandle rmlTexture;
         rmlTexture.texture = texture;
-        rmlTexture.dimensions = Rml::Vector2i(texture->getWidth(), texture->getHeight()); // <--- 修正 Rml::Core:: 到 Rml::
+        rmlTexture.dimensions = Rml::Vector2i(texture->width(), texture->height()); // <--- 修正 Rml:: 到 Rml::
 
         texture_handle = nextTextureHandle_++;
         textureMap_[texture_handle] = rmlTexture;
 
-        texture_dimensions.x = rmlTexture.dimensions.x();
-        texture_dimensions.y = rmlTexture.dimensions.y();
+        texture_dimensions.x = rmlTexture.dimensions.x;
+        texture_dimensions.y = rmlTexture.dimensions.y;
         return true;
     }
 
@@ -280,7 +281,7 @@ bool RmlUiOpenGLRenderer::LoadTexture(Rml::TextureHandle& texture_handle, Rml::V
     return false;
 }
 
-// <--- 修正 Rml::Core:: 到 Rml::
+// <--- 修正 Rml:: 到 Rml::
 bool RmlUiOpenGLRenderer::GenerateTexture(Rml::TextureHandle& texture_handle, const Rml::byte* source, const Rml::Vector2i& source_dimensions) {
     if (!source || source_dimensions.x <= 0 || source_dimensions.y <= 0) {
         texture_handle = 0;
@@ -306,7 +307,7 @@ bool RmlUiOpenGLRenderer::GenerateTexture(Rml::TextureHandle& texture_handle, co
 
     RmlUiTextureHandle rmlTexture;
     rmlTexture.texture = texture;
-    rmlTexture.dimensions = Rml::Vector2i(source_dimensions.x, source_dimensions.y); // <--- 修正 Rml::Core:: 到 Rml::
+    rmlTexture.dimensions = Rml::Vector2i(source_dimensions.x, source_dimensions.y); // <--- 修正 Rml:: 到 Rml::
 
     texture_handle = nextTextureHandle_++;
     textureMap_[texture_handle] = rmlTexture;
@@ -314,7 +315,7 @@ bool RmlUiOpenGLRenderer::GenerateTexture(Rml::TextureHandle& texture_handle, co
     return true;
 }
 
-// <--- 修正 Rml::Core:: 到 Rml::
+// <--- 修正 Rml:: 到 Rml::
 void RmlUiOpenGLRenderer::ReleaseTexture(Rml::TextureHandle texture_handle) {
     auto it = textureMap_.find(texture_handle);
     if (it != textureMap_.end()) {
@@ -325,7 +326,7 @@ void RmlUiOpenGLRenderer::ReleaseTexture(Rml::TextureHandle texture_handle) {
 
 void RmlUiOpenGLRenderer::ReleaseAllTextures() {
     for (auto const& [handle, rmlTexture] : textureMap_) {
-        rmlTexture.texture.reset(); 
+        rmlTexture.texture->release(); 
     }
     textureMap_.clear();
     nextTextureHandle_ = 1; 

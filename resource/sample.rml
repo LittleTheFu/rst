@@ -1,50 +1,30 @@
 <rml>
     <head>
-        <title>RmlUi Sample</title>
-        <link type="text/css" href="sample.rcss"/>
+        <title>RmlUi Integration Test</title>
+        <!-- 移除对 sample.rcss 的引用，因为所有样式都在这里定义了 -->
+        <!-- <link type="text/css" href="rmlui/sample.rcss"/> --> 
         <style>
             body {
-                font-family: "Noto Sans CJK SC"; /* 使用你加载的字体名称 */
-                font-size: 16px;
-                color: white;
-                background-color: rgba(0, 0, 0, 0.5);
-                width: 300px;
-                height: 200px;
+                font-family: "Roboto"; /* <--- 修正这里：从 "Noto Sans SC" 改为 "Roboto" */
+                font-size: 30px; /* 大一点，更容易看到 */
+                color: #00FF00; /* 亮绿色，更容易辨认 */
+                background-color: rgba(0, 0, 0, 0.7); /* 半透明黑色背景 */
+                width: 400px;
+                height: 100px;
                 margin: auto; /* 居中显示 */
-                top: 50px; /* 从顶部偏移 */
-                left: 50px;
-                position: absolute; /* 使用绝对定位 */
-                border: 1px solid #444;
+                top: 50px; /* 距离顶部偏移 */
+                position: absolute;
+                /* 暂时移除或注释掉 border 属性，因为它可能导致语法警告 */
+                /* border-width: 2px; */
+                /* border-style: solid; */
+                /* border-color: #00FFFF; */
                 padding: 10px;
-            }
-            h1 {
-                text-align: center;
-                color: #00FFFF; /* 青色 */
-            }
-            p {
-                margin-top: 10px;
-                text-align: center;
-            }
-            button {
-                display: block;
-                width: 100%;
-                padding: 8px;
-                margin-top: 15px;
-                background-color: #007BFF;
-                color: white;
-                border: none;
-                border-radius: 5px;
-                cursor: pointer;
-            }
-            button:hover {
-                background-color: #0056b3;
+                text-align: center; /* 文本居中 */
+                line-height: 80px; /* 垂直居中，根据 height 调整 */
             }
         </style>
     </head>
     <body>
-        <h1>Hello RmlUi!</h1>
-        <p>This is a test UI rendered by RmlUi.</p>
-        <p>FPS: <span id="fps_display">N/A</span></p>
-        <button id="close_button">Close Window</button>
+        <h1>UI 集成成功!</h1>
     </body>
 </rml>

@@ -9,7 +9,7 @@
  * @brief RmlUiSystemInterface 实现了 RmlUi 的 SystemInterface，
  * 处理系统级功能，如时间、剪贴板和鼠标光标。
  */
-class RmlUiSystemInterface : public Rml::Core::SystemInterface {
+class RmlUiSystemInterface : public Rml::SystemInterface {
 public:
     RmlUiSystemInterface();
     virtual ~RmlUiSystemInterface();
@@ -24,33 +24,30 @@ public:
      * @brief 设置剪贴板文本。
      * @param text 要设置到剪贴板的文本。
      */
-    void SetClipboardText(const Rml::Core::String& text) override;
+    void SetClipboardText(const Rml::String& text) override;
 
     /**
      * @brief 获取剪贴板文本。
      * @return 剪贴板中的文本。
      */
-    void GetClipboardText(Rml::Core::String& text) override;
+    void GetClipboardText(Rml::String& text) override;
 
     /**
      * @brief 打印日志消息。
      * @param type 消息类型（信息、警告、错误）。
      * @param message 消息内容。
      */
-    void LogMessage(Rml::Core::Log::Type type, const Rml::Core::String& message) override;
 
-    /**
-     * @brief 设置鼠标光标。
-     * @param cursor_name 要设置的光标名称。
-     * @return 如果光标设置成功返回 true，否则返回 false。
-     */
-    bool SetMouseCursor(const Rml::Core::String& cursor_name) override;
+    bool LogMessage(Rml::Log::Type type, const Rml::String& message) override;
+
+
+    void SetMouseCursor(const Rml::String& cursor_name) override;
 
     /**
      * @brief 设置原生窗口句柄。
      * @param native_window_handle 窗口句柄。
      */
-    void SetNativeWindow(void* native_window_handle) override;
+    // void SetNativeWindow(void* native_window_handle) override;
 
 private:
     Uint64 performanceFrequency_; // SDL 性能计数器频率

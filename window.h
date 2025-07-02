@@ -1,3 +1,4 @@
+// Window.h (修改后)
 #ifndef WINDOW_H
 #define WINDOW_H
 
@@ -8,7 +9,7 @@
 
 // 包含项目中的其他核心组件
 #include "scene.h"// 你的场景类
-#include "uiSystem.h" // 你的 UI 系统
+#include "uiSystem.h" // 你的 UI 系统 (ImGui)
 #include "camera.h" // Camera 类
 #include "InputManager.h" // InputManager
 #include "sceneObject.h" // 引入 ISceneObject 接口
@@ -27,6 +28,17 @@
 #include "pickObjectCommand.h" // 此命令需要改造以返回 ISceneObject*
 #include "rotateCameraLeftCommand.h"
 #include "rotateCameraRightCommand.h"
+
+// RmlUi 相关头文件 (注意命名空间，根据你的 RmlUi 版本调整)
+#include <RmlUi/Core.h> // 包含 Rml::Initialise, Rml::Shutdown, Rml::CreateContext 等
+#include <RmlUi/Core/Context.h> // Rml::Context
+#include <RmlUi/Core/ElementDocument.h> // Rml::ElementDocument
+#include <RmlUi/Debugger.h> // 可选：用于 RmlUi 调试器 (Rml::Debugger)
+
+// 你自定义的接口实现
+#include "RmlUiOpenGLRenderer.h"
+#include "RmlUiSystemInterface.h"
+#include "RmlUiFileInterface.h"
 
 
 class Window {
@@ -62,7 +74,7 @@ private:
     float deltaTime_ = 0.0f; // 存储当前帧的 deltaTime (秒)
 
     std::shared_ptr<Scene> scene_; 
-    UiSystem* uiSystem_ = nullptr; 
+    UiSystem* uiSystem_ = nullptr; // 你的 ImGui UI 系统
 
     bool running_ = true; 
 
@@ -82,6 +94,13 @@ private:
 
     // 修改 pickedMesh_ 为 pickedObject_
     ISceneObject* pickedObject_ = nullptr; 
+
+    // --- RmlUi 相关成员变量 ---
+    RmlUiOpenGLRenderer* rmlUiRenderer_ = nullptr;
+    RmlUiSystemInterface* rmlUiSystemInterface_ = nullptr;
+    RmlUiFileInterface* rmlUiFileInterface_ = nullptr;
+    Rml::Context* rmlContext_ = nullptr; // <--- 修正为 Rml::Context
+    Rml::ElementDocument* rmlDocument_ = nullptr; // <--- 修正为 Rml::ElementDocument
 };
 
 #endif // WINDOW_H

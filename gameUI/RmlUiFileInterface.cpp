@@ -1,32 +1,30 @@
-// RmlUiFileInterface.cpp
 #include "RmlUiFileInterface.h"
 #include <iostream>
+#include <cstdio> // 用于 SEEK_SET, SEEK_CUR, SEEK_END
 
 RmlUiFileInterface::RmlUiFileInterface(const std::string& root_path) : rootPath_(root_path) {
-    // 确保 root_path 以斜杠结尾
     if (!rootPath_.empty() && rootPath_.back() != '/' && rootPath_.back() != '\\') {
         rootPath_ += '/';
     }
 }
 
 RmlUiFileInterface::~RmlUiFileInterface() {
-    // 文件流由 RmlUi 负责关闭，或者在 Close 方法中处理
 }
 
-Rml::Core::FileHandle RmlUiFileInterface::Open(const Rml::Core::String& path) {
-    std::string full_path = rootPath_ + path.CString();
+Rml::FileHandle RmlUiFileInterface::Open(const Rml::String& path) {
+    std::string full_path = rootPath_ + path;
     std::fstream* file = new std::fstream(full_path, std::ios::in | std::ios::binary);
 
     if (file->is_open()) {
-        return (Rml::Core::FileHandle)file;
+        return (Rml::FileHandle)file;
     } else {
         std::cerr << "Error: Failed to open RmlUi file: " << full_path << std::endl;
-        delete file; // 释放内存
-        return nullptr;
+        delete file;
+        return (Rml::FileHandle)0; // 使用 0 作为无效句柄
     }
 }
 
-void RmlUiFileInterface::Close(Rml::Core::FileHandle handle) {
+void RmlUiFileInterface::Close(Rml::FileHandle handle) {
     std::fstream* file = (std::fstream*)handle;
     if (file) {
         file->close();
@@ -34,30 +32,33 @@ void RmlUiFileInterface::Close(Rml::Core::FileHandle handle) {
     }
 }
 
-size_t RmlUiFileInterface::Read(void* data, size_t size, Rml::Core::FileHandle handle) {
+size_t RmlUiFileInterface::Read(void* data, size_t size, Rml::FileHandle handle) {
     std::fstream* file = (std::fstream*)handle;
     if (file && file->is_open()) {
         file->read((char*)data, size);
-        return (size_t)file->gcount(); // 返回实际读取的字节数
+        return (size_t)file->gcount();
     }
     return 0;
 }
 
-void RmlUiFileInterface::Seek(Rml::Core::FileHandle handle, long offset, Rml::Core::File::SeekOrigin origin) {
+// <--- 修正 Seek 函数实现：返回 bool，origin 类型为 int
+bool RmlUiFileInterface::Seek(Rml::FileHandle handle, long offset, int origin) {
     std::fstream* file = (std::fstream*)handle;
     if (file && file->is_open()) {
         std::ios_base::seekdir seek_dir;
         switch (origin) {
-            case Rml::Core::File::SeekOrigin::SEEK_SET: seek_dir = std::ios_base::beg; break;
-            case Rml::Core::File::SeekOrigin::SEEK_CUR: seek_dir = std::ios_base::cur; break;
-            case Rml::Core::File::SeekOrigin::SEEK_END: seek_dir = std::ios_base::end; break;
-            default: return; // 无效的 origin
+            case SEEK_SET: seek_dir = std::ios_base::beg; break; // <--- 使用 C 标准库的宏
+            case SEEK_CUR: seek_dir = std::ios_base::cur; break; // <--- 使用 C 标准库的宏
+            case SEEK_END: seek_dir = std::ios_base::end; break; // <--- 使用 C 标准库的宏
+            default: return false; // 无效的 origin，返回 false
         }
         file->seekg(offset, seek_dir);
+        return !file->fail(); // 如果 seekg 失败，则返回 false
     }
+    return false; // 文件句柄无效或文件未打开，返回 false
 }
 
-size_t RmlUiFileInterface::Tell(Rml::Core::FileHandle handle) {
+size_t RmlUiFileInterface::Tell(Rml::FileHandle handle) {
     std::fstream* file = (std::fstream*)handle;
     if (file && file->is_open()) {
         return (size_t)file->tellg();
@@ -65,13 +66,13 @@ size_t RmlUiFileInterface::Tell(Rml::Core::FileHandle handle) {
     return 0;
 }
 
-size_t RmlUiFileInterface::Length(Rml::Core::FileHandle handle) {
+size_t RmlUiFileInterface::Length(Rml::FileHandle handle) {
     std::fstream* file = (std::fstream*)handle;
     if (file && file->is_open()) {
         size_t current_pos = file->tellg();
         file->seekg(0, std::ios::end);
         size_t length = file->tellg();
-        file->seekg(current_pos, std::ios::beg); // 恢复到原来的位置
+        file->seekg(current_pos, std::ios::beg);
         return length;
     }
     return 0;
