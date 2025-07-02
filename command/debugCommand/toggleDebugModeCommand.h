@@ -4,7 +4,7 @@
 #include "command.h"
 #include "scene.h"
 
-class ToggleDebugModeCommand : public Command
+class ToggleDebugModeCommand : public ICommand
 {
     // Scene* scene_; // 假设有一个场景指针
 public:

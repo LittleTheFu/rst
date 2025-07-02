@@ -6,7 +6,7 @@
 #include "sceneObject.h"  // 引入 ISceneObject 接口
 #include <iostream>        // For demo output
 
-class PickObjectCommand : public Command {
+class PickObjectCommand : public ICommand {
 public:
     PickObjectCommand(ObjectPicker* picker);
     void Execute() override;

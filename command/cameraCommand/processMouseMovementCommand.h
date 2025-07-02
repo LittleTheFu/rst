@@ -5,7 +5,7 @@
 #include "camera.h"
 #include "inputManager.h"
 
-class ProcessMouseMovementCommand : public Command {
+class ProcessMouseMovementCommand : public ICommand {
 private:
     std::shared_ptr<Camera> camera_;
 

@@ -4,7 +4,7 @@
 #include "command.h"
 #include "camera.h"
 
-class CameraCommand : public Command 
+class CameraCommand : public ICommand 
 {
 public:
     void setDeltaTime(float deltaTime);
