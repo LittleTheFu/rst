@@ -522,8 +522,10 @@ void Window::update()
         
         // 再让 RmlUi 处理事件
         // 关键：检查 ImGui 是否捕获了事件，如果捕获了，RmlUi 不应处理
-        bool ImGuiWantsMouse = ImGui::GetIO().WantCaptureMouse;
-        bool ImGuiWantsKeyboard = ImGui::GetIO().WantCaptureKeyboard;
+        // bool ImGuiWantsMouse = ImGui::GetIO().WantCaptureMouse;
+        // bool ImGuiWantsKeyboard = ImGui::GetIO().WantCaptureKeyboard;
+        bool ImGuiWantsMouse = false;
+        bool ImGuiWantsKeyboard = false;
 
         if (event.type == SDL_QUIT)
         {
