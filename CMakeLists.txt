@@ -22,6 +22,10 @@ add_subdirectory(third/gli)
 add_subdirectory(third/imgui)
 add_subdirectory(third/JoltPhysics/Build)
 
+add_subdirectory(third/freetype)
+add_library(Freetype::Freetype ALIAS freetype)
+
+add_subdirectory(third/RmlUi)
 
 
 set(BUILD_TESTING OFF CACHE BOOL "Disable Eigen tests")
@@ -29,6 +33,12 @@ set(BUILD_TESTING OFF CACHE BOOL "Disable Eigen tests")
 add_subdirectory(third/eigen)
 
 find_package(OpenGL REQUIRED)
+
+set(GAME_UI_DIR "gameUI")
+set(GAME_UI_SOURCE_FILES
+    ${GAME_UI_DIR}/MyFileInterface.cpp
+    ${GAME_UI_DIR}/MySystemInterface.cpp
+)
 
 set(BUFFER_DIR "buffer")
 set(BUFFER_SOURCE_FILES
@@ -204,6 +214,7 @@ add_executable(rst
     ${MESH_SOURCE_FILES}
     ${INTERFACE_SOURCE_FILES}
     ${RST_DEBUG_SOURCE_FILES}
+    ${GAME_UI_SOURCE_FILES}
 )
 
 target_compile_options(rst PRIVATE /wd4819)
@@ -231,6 +242,7 @@ target_include_directories(rst PRIVATE
     ${CMAKE_SOURCE_DIR}/${MESH_DIR}
     ${CMAKE_SOURCE_DIR}/${INTERFACE_DIR}
     ${CMAKE_SOURCE_DIR}/${RST_DEBUG_DIR}
+    ${CMAKE_SOURCE_DIR}/${GAME_UI_DIR}
 
     ${CMAKE_SOURCE_DIR}/third/glad/include
     ${CMAKE_SOURCE_DIR}/third/sdl/include
@@ -248,7 +260,8 @@ target_link_libraries(rst
     assimp
     gli
     imgui
-    Jolt 
+    Jolt
+    RmlUi::RmlUi
 )
 
 add_custom_command(

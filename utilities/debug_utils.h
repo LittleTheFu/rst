@@ -37,13 +37,3 @@ inline std::string GlErrorToString(GLenum error) {
 #else
 #define GL_CHECK_ERROR() do {} while (0) // 在发布模式下，宏为空操作
 #endif // _DEBUG
-
-// 示例：在你的 UniformBuffer::create() 中使用
-// void UniformBuffer::create(size_t size, GLenum usage) {
-//     glGenBuffers(1, &id_);
-//     GL_CHECK_ERROR(); // 在这里检查错误
-//     // ...
-//     glBufferData(GL_UNIFORM_BUFFER, size, nullptr, usage);
-//     GL_CHECK_ERROR(); // 在这里检查错误
-//     // ...
-// }
