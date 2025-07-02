@@ -74,7 +74,7 @@ private:
     float deltaTime_ = 0.0f; // 存储当前帧的 deltaTime (秒)
 
     std::shared_ptr<Scene> scene_; 
-    UiSystem* uiSystem_ = nullptr; // 你的 ImGui UI 系统
+    // UiSystem* uiSystem_ = nullptr; // 你的 ImGui UI 系统
 
     bool running_ = true; 
 
