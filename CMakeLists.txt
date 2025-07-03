@@ -115,6 +115,8 @@ set(LIGHT_SOURCE_FILES
 set(INPUT_DIR "input")
 set(INPUT_SOURCE_FILES
     ${INPUT_DIR}/inputManager.cpp
+    ${INPUT_DIR}/gameInputProcessor.cpp
+    ${INPUT_DIR}/RmlUiInputProcessor.cpp
 )
 
 set(COLLISION_DIR "collision")

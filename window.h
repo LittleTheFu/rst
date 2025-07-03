@@ -40,6 +40,10 @@
 #include "RmlUiSystemInterface.h"
 #include "RmlUiFileInterface.h"
 
+#include "GameInputProcessor.h"
+#include "RmlUiInputProcessor.h"
+#include "ImGuiInputProcessor.h"
+
 
 class Window {
 public:
@@ -101,6 +105,14 @@ private:
     RmlUiFileInterface* rmlUiFileInterface_ = nullptr;
     Rml::Context* rmlContext_ = nullptr; // <--- 修正为 Rml::Context
     Rml::ElementDocument* rmlDocument_ = nullptr; // <--- 修正为 Rml::ElementDocument
+
+    // --- NEW INPUT SYSTEM COMPONENTS ---
+    std::unique_ptr<CommandQueue> commandQueue_; // 命令队列
+    std::vector<std::unique_ptr<AbstractInputProcessor>> inputProcessors_; // 输入处理器链
+
+    ImGuiInputProcessor* imGuiProcessor_; // Raw pointer to avoid unique_ptr issues with vector ownership
+    RmlUiInputProcessor* rmlUiProcessor_;
+    GameInputProcessor* gameInputProcessor_;
 };
 
 #endif // WINDOW_H

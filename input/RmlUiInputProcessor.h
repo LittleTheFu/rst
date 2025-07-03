@@ -7,9 +7,9 @@
 
 // 辅助函数：将 SDL_Keycode 映射到 Rml::Input::KeyIdentifier
 // 这个函数应该从 Window.cpp 中移动到这里或者一个独立的工具文件
-Rml::Input::KeyIdentifier SDLKeyToRmlKey(SDL_Keycode sdl_key);
+extern Rml::Input::KeyIdentifier SDLKeyToRmlKey(SDL_Keycode sdl_key);
 // 辅助函数：获取 RmlUi 键盘修饰符
-int GetRmlUiKeyModifiers();
+extern int GetRmlUiKeyModifiers();
 
 // RmlUi 输入处理器
 class RmlUiInputProcessor : public AbstractInputProcessor {
@@ -57,9 +57,9 @@ public:
             case SDL_WINDOWEVENT:
                 // 处理窗口焦点事件，RmlUi可能通过ProcessKey来模拟
                 if (event.window.event == SDL_WINDOWEVENT_FOCUS_GAINED) {
-                    context_->ProcessKey(Rml::Input::KI_HOME, 0, true);
+                    context_->ProcessKeyDown(Rml::Input::KI_HOME, 0);
                 } else if (event.window.event == SDL_WINDOWEVENT_FOCUS_LOST) {
-                    context_->ProcessKey(Rml::Input::KI_END, 0, true);
+                    context_->ProcessKeyDown(Rml::Input::KI_END, 0);
                 }
                 break;
             default:

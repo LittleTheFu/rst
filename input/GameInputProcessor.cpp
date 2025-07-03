@@ -122,7 +122,7 @@ void GameInputProcessor::GenerateCommands(CommandQueue& commandQueue, float delt
         float mouseDeltaX = InputManager::GetInstance().GetMouseDeltaX();
         float mouseDeltaY = InputManager::GetInstance().GetMouseDeltaY();
         if (mouseDeltaX != 0.0f || mouseDeltaY != 0.0f) {
-            cmd_mouseLook_->setMouseDelta(mouseDeltaX, mouseDeltaY);
+            // cmd_mouseLook_->setMouseDelta(mouseDeltaX, mouseDeltaY);
             commandQueue.AddCommand(std::move(cmd_mouseLook_));
             cmd_mouseLook_ = std::make_unique<ProcessMouseMovementCommand>(camera_); // 重新创建
         }
@@ -130,7 +130,7 @@ void GameInputProcessor::GenerateCommands(CommandQueue& commandQueue, float delt
         // 鼠标滚轮命令
         float mouseScrollY = InputManager::GetInstance().GetMouseScrollY();
         if (mouseScrollY != 0.0f) {
-            cmd_mouseScroll_->setScrollDelta(mouseScrollY);
+            // cmd_mouseScroll_->setScrollDelta(mouseScrollY);
             commandQueue.AddCommand(std::move(cmd_mouseScroll_));
             cmd_mouseScroll_ = std::make_unique<ProcessMouseScrollCommand>(camera_); // 重新创建
         }

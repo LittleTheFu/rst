@@ -3,7 +3,7 @@
 
 #include "AbstractInputProcessor.h"
 #include "InputManager.h" // 需要 InputManager 来查询输入状态
-#include "ICommand.h"     // 需要 ICommand
+#include "command.h"     // 需要 ICommand
 #include "camera.h"       // 需要 Camera 来创建相机相关的命令
 #include "scene.h"        // 需要 Scene 来创建场景相关的命令
 #include <memory>         // 用于智能指针

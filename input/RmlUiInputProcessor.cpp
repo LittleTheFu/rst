@@ -23,8 +23,8 @@ Rml::Input::KeyIdentifier SDLKeyToRmlKey(SDL_Keycode sdl_key)
     case SDLK_RSHIFT: return KI_RSHIFT;
     case SDLK_LCTRL: return KI_LCONTROL;
     case SDLK_RCTRL: return KI_RCONTROL;
-    case SDLK_LALT: return KI_LALT;
-    case SDLK_RALT: return KI_RALT; // 注意SDL的ALT可能和RmlUi的KI_MENU冲突，需谨慎
+    // case SDLK_LALT: return KI_LALT;
+    // case SDLK_RALT: return KI_RALT; // 注意SDL的ALT可能和RmlUi的KI_MENU冲突，需谨慎
     case SDLK_DELETE: return KI_DELETE;
     case SDLK_INSERT: return KI_INSERT;
     case SDLK_HOME: return KI_HOME;
@@ -52,7 +52,7 @@ int GetRmlUiKeyModifiers()
         rml_modifiers |= Rml::Input::KM_ALT;
     // 对于 super key (Windows key / Command key)，SDL 没有直接的修饰符标志。
     // 如果需要，可能需要检查 SDLK_LGUI 和 SDLK_RGUI
-    if (state[SDL_SCANCODE_LGUI] || state[SDL_SCANCODE_RGUI])
-        rml_modifiers |= Rml::Input::KM_SUPER; // RmlUi 提供了 KM_SUPER
+    // if (state[SDL_SCANCODE_LGUI] || state[SDL_SCANCODE_RGUI])
+    //     rml_modifiers |= Rml::Input::KM_SUPER; // RmlUi 提供了 KM_SUPER
     return rml_modifiers;
 }
