@@ -9,6 +9,8 @@
 #include <Jolt/Physics/PhysicsSystem.h> // Required for JPH::DebugRenderer::sInstance
 // Make sure this is "joltDebugRenderer.h" as you renamed it
 #include "joltDebugRenderer.h" // Your custom Jolt debug renderer
+#include <EventBus.h>
+#include <events.h>
 
 // (Assuming your Scene.h has been updated as per the previous response
 // to change debugRenderer_ type to std::unique_ptr<JoltDebugRenderer>)
@@ -60,6 +62,15 @@ void Scene::init()
     std::cout << "JoltDebugRenderer registered with Jolt's global instance." << std::endl;
 
     objectPicker_ = std::make_unique<ObjectPicker>(sceneData_.get(), sceneData_->camera.get());
+    EventBus::GetInstance().Subscribe<GameEvents::ObjectPickedEvent>(
+        [this](const GameEvents::ObjectPickedEvent &event)
+        {
+            if (event.pickedObject)
+            {
+                setSelectedObject(event.pickedObject);
+                std::cout << "Picked object's name: " << event.pickedObject->getName() << std::endl;
+            }
+        });
 
     physicsSystem_ = std::make_unique<PhysicsSystem>();
     physicsSystem_->Init();
@@ -96,9 +107,9 @@ void Scene::updateScene(float delta)
     {
         if (objPtr)
         {
-            if(dynamic_cast<Model*>(objPtr.get()))
+            if (dynamic_cast<Model *>(objPtr.get()))
             {
-                Model* model = dynamic_cast<Model*>(objPtr.get());
+                Model *model = dynamic_cast<Model *>(objPtr.get());
                 model->update(delta);
             }
         }
@@ -355,20 +366,34 @@ void Scene::resize(int width, int height)
     sceneData_->screenWidth = width;
     sceneData_->screenHeight = height;
 
-    if (gBufferPass_) gBufferPass_->Resize(width, height);
-    if (lightPass_) lightPass_->Resize(width, height);
-    if (skyPass_) skyPass_->Resize(width, height);
-    if (combinedPass_) combinedPass_->Resize(width, height);
-    if (blurHorizontalPass_) blurHorizontalPass_->Resize(width, height);
-    if (blurVerticalPass_) blurVerticalPass_->Resize(width, height);
-    if (depthOfFieldPass_) depthOfFieldPass_->Resize(width, height);
-    if (iblPass_) iblPass_->Resize(width, height);
-    if (postPass_) postPass_->Resize(width, height);
-    if (screenPass_) screenPass_->Resize(width, height);
-    if (ssrPass_) ssrPass_->Resize(width, height);
-    if (brightnessMaskPass_) brightnessMaskPass_->Resize(width, height);
-    if (godRayPass_) godRayPass_->Resize(width, height);
-    if (oitPass_) oitPass_->Resize(width, height);
+    if (gBufferPass_)
+        gBufferPass_->Resize(width, height);
+    if (lightPass_)
+        lightPass_->Resize(width, height);
+    if (skyPass_)
+        skyPass_->Resize(width, height);
+    if (combinedPass_)
+        combinedPass_->Resize(width, height);
+    if (blurHorizontalPass_)
+        blurHorizontalPass_->Resize(width, height);
+    if (blurVerticalPass_)
+        blurVerticalPass_->Resize(width, height);
+    if (depthOfFieldPass_)
+        depthOfFieldPass_->Resize(width, height);
+    if (iblPass_)
+        iblPass_->Resize(width, height);
+    if (postPass_)
+        postPass_->Resize(width, height);
+    if (screenPass_)
+        screenPass_->Resize(width, height);
+    if (ssrPass_)
+        ssrPass_->Resize(width, height);
+    if (brightnessMaskPass_)
+        brightnessMaskPass_->Resize(width, height);
+    if (godRayPass_)
+        godRayPass_->Resize(width, height);
+    if (oitPass_)
+        oitPass_->Resize(width, height);
 
     sceneData_->camera->setAspectRatio(static_cast<float>(width) / height);
     // JoltDebugRenderer usually doesn't need a resize call as it uses the camera's matrices directly.

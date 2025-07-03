@@ -168,6 +168,12 @@ set(OGL_DIR "ogl")
 set(OGL_SOURCE_FILES
 )
 
+set(EVENT_DIR "event")
+set(EVENT_SOURCE_FILES
+    # ${EVENT_DIR}/events.cpp
+    ${EVENT_DIR}/EventBus.cpp
+)
+
 set(CAMERA_COMMAND_DIR "${COMMAND_DIR}/cameraCommand")
 set(CAMERA_COMMAND_SOURCE_FILES
     ${CAMERA_COMMAND_DIR}/moveCameraBackwardCommand.cpp
@@ -224,6 +230,7 @@ add_executable(rst
     ${RST_DEBUG_SOURCE_FILES}
     ${GAME_UI_SOURCE_FILES}
     ${OGL_SOURCE_FILES}
+    ${EVENT_SOURCE_FILES}
 )
 
 target_compile_options(rst PRIVATE /wd4819)
@@ -253,6 +260,7 @@ target_include_directories(rst PRIVATE
     ${CMAKE_SOURCE_DIR}/${RST_DEBUG_DIR}
     ${CMAKE_SOURCE_DIR}/${GAME_UI_DIR}
     ${CMAKE_SOURCE_DIR}/${OGL_DIR}
+    ${CMAKE_SOURCE_DIR}/${EVENT_DIR}
 
     ${CMAKE_SOURCE_DIR}/third/glad/include
     ${CMAKE_SOURCE_DIR}/third/sdl/include

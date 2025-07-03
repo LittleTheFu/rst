@@ -9,6 +9,7 @@
                 "${workspaceFolder}/camera",
                 "${workspaceFolder}/mesh",
                 "${workspaceFolder}/ogl",
+                "${workspaceFolder}/event",
                 "${workspaceFolder}/command",
                 "${workspaceFolder}/command/cameraCommand",
                 "${workspaceFolder}/utilities",

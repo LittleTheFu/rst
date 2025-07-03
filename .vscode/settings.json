@@ -146,6 +146,7 @@
         "tensorsymmetry": "cpp",
         "threadpool": "cpp",
         "sparseextra": "cpp",
-        "*.expression": "cpp"
+        "*.expression": "cpp",
+        "typeindex": "cpp"
     }
 }

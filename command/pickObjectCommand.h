@@ -20,7 +20,7 @@ private:
     
     // !!! 关键改动 !!!
     // 存储拾取结果现在是 ISceneObject*
-    ISceneObject* pickedObject_; 
+    // ISceneObject* pickedObject_; 
 };
 
 #endif // PICK_OBJECT_COMMAND_H
