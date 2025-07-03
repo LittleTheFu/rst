@@ -361,6 +361,10 @@ Window::Window(const char *title, int width, int height)
     // V-Sync On/Off (0: Off, 1: On)
     SDL_GL_SetSwapInterval(0); // 禁用 V-Sync
 
+    
+
+
+
     // init scene first
     scene_ = std::make_shared<Scene>();
     scene_->init();
@@ -520,6 +524,25 @@ Window::Window(const char *title, int width, int height)
 
     // 传递 ObjectPicker* 给 PickObjectCommand
     cmd_pickObject_ = new PickObjectCommand(scene_->objectPicker_.get());
+
+    //----------------------------------
+    commandQueue_ = std::make_unique<CommandQueue>();
+
+    // 1. Create Input Processors and add to the chain (order matters for priority!)
+    // High priority first (UI layers)
+    auto imguiProc = std::make_unique<ImGuiInputProcessor>();
+    imGuiProcessor_ = imguiProc.get(); // Store raw pointer for direct access
+    inputProcessors_.push_back(std::move(imguiProc));
+
+    auto rmluiProc = std::make_unique<RmlUiInputProcessor>(rmlContext_); // Pass RmlUi Context
+    rmlUiProcessor_ = rmluiProc.get(); // Store raw pointer for direct access
+    inputProcessors_.push_back(std::move(rmluiProc));
+
+    // Low priority last (Game layer)
+    // Pass necessary dependencies for GameInputProcessor to create commands
+    auto gameProc = std::make_unique<GameInputProcessor>(scene_->getCamera(), scene_); // Pass Camera and Scene
+    gameInputProcessor_ = gameProc.get(); // Store raw pointer for direct access
+    inputProcessors_.push_back(std::move(gameProc));
 }
 
 // Window 析构函数
@@ -641,97 +664,80 @@ void Window::update()
         cmd_rotateRight_->setDeltaTime(deltaTime_);
 
     // --- 输入处理 ---
+     // 1. Prepare InputManager for the new frame (clear deltas, update previous states)
     InputManager::GetInstance().Update();
 
-    SDL_Event event;
-    while (SDL_PollEvent(&event))
-    {
-        // 先让 ImGui 处理事件
-        uiSystem_->ProcessEvent(&event);
-
-        // 再让 RmlUi 处理事件
-        // 关键：检查 ImGui 是否捕获了事件，如果捕获了，RmlUi 不应处理
-        bool ImGuiWantsMouse = ImGui::GetIO().WantCaptureMouse;
-        bool ImGuiWantsKeyboard = ImGui::GetIO().WantCaptureKeyboard;
-
-        if (event.type == SDL_QUIT)
-        {
-            running_ = false;
-        }
-        else if (event.type == SDL_WINDOWEVENT)
-        {
-            if (event.window.event == SDL_WINDOWEVENT_RESIZED ||
-                event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED)
-            {
-                int w, h;
-                SDL_GL_GetDrawableSize(window_, &w, &h);
-                glViewport(0, 0, w, h);
-                scene_->resize(w, h);
-                scene_->getCamera()->setAspectRatio(static_cast<float>(w) / h);
-                // 通知 RmlUi 窗口大小改变
-                if (rmlContext_)
-                {
-                    rmlContext_->SetDimensions(Rml::Vector2i(w, h)); // <--- 修正为 Rml::Vector2i
-                    rmlUiRenderer_->SetViewport(w, h);               // 更新 RmlUi 渲染器的投影矩阵
-                }
-            }
-            // RmlUi 也需要窗口事件，例如焦点改变。
-            // RmlUi 6.x 的 SystemInterface 不直接提供 ProcessWindowEvent，
-            // 但 ProcessKey 可以用于模拟焦点事件。
-            // if (rmlContext_ && !ImGuiWantsKeyboard) {
-            //     switch (event.window.event) {
-            //         case SDL_WINDOWEVENT_FOCUS_GAINED:
-            //             rmlContext_->ProcessKey(Rml::Input::KI_HOME, 0, true); // 模拟焦点获得
-            //             break;
-            //         case SDL_WINDOWEVENT_FOCUS_LOST:
-            //             rmlContext_->ProcessKey(Rml::Input::KI_END, 0, true); // 模拟焦点丢失
-            //             break;
-            //         // 可以根据需要添加更多
-            //     }
-            // }
-        }
-        else if (event.type == SDL_MOUSEBUTTONDOWN || event.type == SDL_MOUSEBUTTONUP)
-        {
-            if (rmlContext_ && !ImGuiWantsMouse)
-            {
-                rmlContext_->ProcessMouseButtonDown(event.button.button - 1, event.type == SDL_MOUSEBUTTONDOWN);
-            }
-        }
-        else if (event.type == SDL_MOUSEMOTION)
-        {
-            if (rmlContext_ && !ImGuiWantsMouse)
-            {
-                rmlContext_->ProcessMouseMove(event.motion.x, event.motion.y, GetRmlUiKeyModifiers()); // <--- 添加修饰符
-            }
-        }
-        else if (event.type == SDL_MOUSEWHEEL)
-        {
-            if (rmlContext_ && !ImGuiWantsMouse)
-            {
-                rmlContext_->ProcessMouseWheel(event.wheel.y, GetRmlUiKeyModifiers()); // <--- 添加修饰符
-            }
-        }
-        else if (event.type == SDL_KEYDOWN || event.type == SDL_KEYUP)
-        {
-            if (rmlContext_ && !ImGuiWantsKeyboard)
-            {
-                Rml::Input::KeyIdentifier key_id = SDLKeyToRmlKey(event.key.keysym.sym); // 使用辅助函数映射
-                int rml_modifiers = GetRmlUiKeyModifiers();                              // 使用辅助函数获取修饰符
-
-                // rmlContext_->ProcessKeyDown(key_id, rml_modifiers, event.type == SDL_KEYDOWN);
-            }
-        }
-        else if (event.type == SDL_TEXTINPUT)
-        {
-            if (rmlContext_ && !ImGuiWantsKeyboard)
-            {
-                rmlContext_->ProcessTextInput(event.text.text);
-            }
-        }
-
-        // 最后让 InputManager 处理事件 (用于游戏逻辑)
-        InputManager::GetInstance().ProcessEvent(event);
+    // 2. Prepare each InputProcessor for the new frame (e.g., ImGui::NewFrame())
+    for (const auto& processor : inputProcessors_) {
+        processor->BeginFrame();
     }
+
+    SDL_Event event;
+    bool uiCapturesKeyboard = false;
+    bool uiCapturesMouse = false;
+        while (SDL_PollEvent(&event)) {
+        // Handle global system events first (like quit request or window resize)
+        if (event.type == SDL_QUIT) {
+            running_ = false; // Set global flag to stop the main loop
+            // No need to pass SDL_QUIT to InputManager::ProcessEvent
+            // because InputManager::IsQuitRequested() will handle it via the event directly.
+            continue; // Don't pass QUIT to other processors unless they explicitly need it
+        }
+
+        // Example: Window resize event (can be handled globally or passed through processors)
+        if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_RESIZED) {
+            // Your window resize logic
+            int newWidth = event.window.data1;
+            int newHeight = event.window.data2;
+            std::cout << "Window resized to: " << newWidth << "x" << newHeight << std::endl;
+            // Potentially update RmlUi context size, ImGui display size etc.
+            rmlUiRenderer_->SetViewport(newWidth, newHeight); // Assuming RmlUiSystem has this
+            // You might also need to update OpenGL viewport, projection matrix etc.
+        }
+
+        // Dispatch the event through the chain
+        // We iterate in reverse to allow high-priority UI processors to set their capture flags
+        // However, a simpler forward iteration is often sufficient if capture checks happen AFTER the loop.
+        // Let's stick with forward iteration for ProcessEvent, and gather capture flags later.
+        for (const auto& processor : inputProcessors_) {
+            // ProcessEvent might add commands to commandQueue_
+            if (processor->ProcessEvent(event, *commandQueue_)) {
+                // If a processor returns true, it means it "consumed" the event.
+                // We typically stop processing for this event down the chain.
+                // However, for ImGui/RmlUi, they often return false but set internal WantCapture flags.
+                // It depends on how strict you want the "consumption" to be.
+                // For now, let's let all processors see all events, but let the GenerateCommands decide based on capture flags.
+                // The "return true" is more useful if you have mutually exclusive event handlers.
+                // For UI vs Game, the WantsToCapture* flags are the primary mechanism.
+            }
+        }
+    }
+
+    // 4. Gather UI capture states AFTER all events have been processed by UIs
+    // This is crucial: ImGui and RmlUi update their WantCapture* flags *during* ProcessEvent.
+    // So, we query their final state after the event loop.
+    if (imGuiProcessor_) {
+        uiCapturesKeyboard = imGuiProcessor_->WantsToCaptureKeyboard();
+        uiCapturesMouse = imGuiProcessor_->WantsToCaptureMouse();
+    }
+    // RmlUi takes priority over ImGui if both capture (you can adjust this logic)
+    // Here, if RmlUi wants capture, it overrides ImGui.
+    if (rmlUiProcessor_) {
+        if (rmlUiProcessor_->WantsToCaptureKeyboard()) {
+            uiCapturesKeyboard = true;
+        }
+        if (rmlUiProcessor_->WantsToCaptureMouse()) {
+            uiCapturesMouse = true;
+        }
+    }
+
+    // 5. Generate Game-specific Commands (only if UI doesn't capture input)
+    if (gameInputProcessor_) {
+        gameInputProcessor_->GenerateCommands(*commandQueue_, deltaTime_, uiCapturesKeyboard, uiCapturesMouse);
+    }
+
+    // 6. Process all commands accumulated in the queue
+    commandQueue_->ProcessCommands();
 
     // --- RmlUi 更新 ---
     if (rmlContext_)
@@ -739,78 +745,6 @@ void Window::update()
         rmlContext_->Update();
     }
 
-    // --- 命令调度 (Invoke Commands) ---
-    // 只有当 RmlUi 和 ImGui 都没有捕获键盘/鼠标时，才执行游戏输入
-    bool uiCapturesMouse = (ImGui::GetIO().WantCaptureMouse || (rmlContext_ && rmlContext_->IsMouseInteracting()));
-    bool uiCapturesKeyboard = (ImGui::GetIO().WantCaptureKeyboard || (rmlContext_ && rmlContext_->GetFocusElement() != nullptr));
-    // bool uiCapturesMouse = ((rmlContext_ && rmlContext_->IsMouseInteracting()));
-    // bool uiCapturesKeyboard = ((rmlContext_ && rmlContext_->GetFocusElement() != nullptr));
-
-    if (InputManager::GetInstance().IsKeyPressed(SDL_SCANCODE_ESCAPE))
-    {
-        running_ = false;
-    }
-
-    if (!uiCapturesKeyboard)
-    { // 只有当 UI 没有捕获键盘时，才处理游戏键盘输入
-        if (InputManager::GetInstance().IsKeyDown(SDL_SCANCODE_W))
-            cmd_moveForward_->Execute();
-        if (InputManager::GetInstance().IsKeyDown(SDL_SCANCODE_S))
-            cmd_moveBackward_->Execute();
-        if (InputManager::GetInstance().IsKeyDown(SDL_SCANCODE_A))
-            cmd_moveLeft_->Execute();
-        if (InputManager::GetInstance().IsKeyDown(SDL_SCANCODE_D))
-            cmd_moveRight_->Execute();
-        if (InputManager::GetInstance().IsKeyDown(SDL_SCANCODE_Q))
-            cmd_moveUp_->Execute();
-        if (InputManager::GetInstance().IsKeyDown(SDL_SCANCODE_E))
-            cmd_moveDown_->Execute();
-        if (InputManager::GetInstance().IsKeyDown(SDL_SCANCODE_Z))
-            cmd_rotateLeft_->Execute();
-        if (InputManager::GetInstance().IsKeyDown(SDL_SCANCODE_C))
-            cmd_rotateRight_->Execute();
-
-        if (InputManager::GetInstance().IsKeyPressed(SDL_SCANCODE_F1))
-        {
-            cmd_toggleDebug_->Execute();
-        }
-    }
-
-    if (!uiCapturesMouse)
-    { // 只有当 UI 没有捕获鼠标时，才处理游戏鼠标输入
-        cmd_mouseLook_->Execute();
-        cmd_mouseScroll_->Execute();
-
-        if (InputManager::GetInstance().IsMouseButtonPressed(SDL_BUTTON_LEFT))
-        {
-            cmd_pickObject_->setMousePosition(InputManager::GetInstance().GetMouseX(), InputManager::GetInstance().GetMouseY());
-            cmd_pickObject_->Execute();
-
-            pickedObject_ = cmd_pickObject_->getPickedObject();
-
-            if (pickedObject_)
-            {
-                scene_->setSelectedObject(pickedObject_);
-                std::cout << "Picked object: " << pickedObject_->getName() << std::endl;
-            }
-            else
-            {
-                scene_->setSelectedObject(nullptr);
-                std::cout << "No object picked." << std::endl;
-            }
-        }
-    }
-    else
-    {
-        // 当 UI 捕获鼠标时，如果需要，仍然可以打印上一个选中对象的信息
-        // if (pickedObject_) {
-        //     std::cout << "UI capturing mouse. Last picked object: " << pickedObject_->getName() << std::endl;
-        // } else {
-        //     std::cout << "UI capturing mouse. No object picked." << std::endl;
-        // }
-    }
-
-    // --- 更新 FPS ---
     updateFPS();
 }
 
