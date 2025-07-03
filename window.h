@@ -82,23 +82,6 @@ private:
 
     bool running_ = true; 
 
-    // --- 命令对象指针 ---
-    MoveCameraForwardCommand* cmd_moveForward_ = nullptr;
-    MoveCameraBackwardCommand* cmd_moveBackward_ = nullptr;
-    MoveCameraLeftCommand* cmd_moveLeft_ = nullptr;
-    MoveCameraRightCommand* cmd_moveRight_ = nullptr;
-    MoveCameraUpCommand* cmd_moveUp_ = nullptr;
-    MoveCameraDownCommand* cmd_moveDown_ = nullptr;
-    RotateCameraLeftCommand* cmd_rotateLeft_ = nullptr;
-    RotateCameraRightCommand* cmd_rotateRight_ = nullptr;
-    ProcessMouseMovementCommand* cmd_mouseLook_ = nullptr;
-    ProcessMouseScrollCommand* cmd_mouseScroll_ = nullptr;
-    ToggleDebugModeCommand* cmd_toggleDebug_ = nullptr; 
-    PickObjectCommand* cmd_pickObject_ = nullptr;
-
-    // 修改 pickedMesh_ 为 pickedObject_
-    ISceneObject* pickedObject_ = nullptr; 
-
     // --- RmlUi 相关成员变量 ---
     RmlUiOpenGLRenderer* rmlUiRenderer_ = nullptr;
     RmlUiSystemInterface* rmlUiSystemInterface_ = nullptr;
