@@ -1,7 +1,7 @@
 #include "processMouseScrollCommand.h"
 
-ProcessMouseScrollCommand::ProcessMouseScrollCommand(std::shared_ptr<Camera> camera)
-    : camera_(camera)
+ProcessMouseScrollCommand::ProcessMouseScrollCommand(std::shared_ptr<Camera> camera, float scrollY)
+    : camera_(camera), scrollY_(scrollY)
 {
 }
 
@@ -9,10 +9,6 @@ void ProcessMouseScrollCommand::Execute()
 {
     if (camera_)
     {
-        InputManager &input = InputManager::GetInstance();
-        if (input.GetMouseScrollY() != 0)
-        { // 只有滚轮滚动时才调用
-            camera_->ProcessMouseScroll(input.GetMouseScrollY());
-        }
+        camera_->ProcessMouseScroll(scrollY_);
     }
 }

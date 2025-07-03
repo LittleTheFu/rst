@@ -1,7 +1,7 @@
 #include "rotateCameraLeftCommand.h"
 
-RotateCameraLeftCommand::RotateCameraLeftCommand(std::shared_ptr<Camera> camera)
-    : CameraCommand(camera)
+RotateCameraLeftCommand::RotateCameraLeftCommand(std::shared_ptr<Camera> camera, float deltaTime)
+    : camera_(camera), deltaTime_(deltaTime)
 {
 }
 

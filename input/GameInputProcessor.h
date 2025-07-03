@@ -52,22 +52,7 @@ private:
     std::shared_ptr<Camera> camera_;
     std::shared_ptr<Scene> scene_; // 需要 Scene 来获取 ObjectPicker 或其他 Scene 相关的状态/操作
 
-    // 你当前在 Window 中创建的命令对象可以移动到这里，
-    // 或者更灵活地，直接在这里创建 unique_ptr<Command> 并添加到队列。
-    // 为了简化，我们假设一些常用的命令在构造函数中被初始化，
-    // 但更高级的命令可能在 GenerateCommands 中动态创建。
-    std::unique_ptr<MoveCameraForwardCommand> cmd_moveForward_;
-    std::unique_ptr<MoveCameraBackwardCommand> cmd_moveBackward_;
-    std::unique_ptr<MoveCameraLeftCommand> cmd_moveLeft_;
-    std::unique_ptr<MoveCameraRightCommand> cmd_moveRight_;
-    std::unique_ptr<MoveCameraUpCommand> cmd_moveUp_;
-    std::unique_ptr<MoveCameraDownCommand> cmd_moveDown_;
-    std::unique_ptr<RotateCameraLeftCommand> cmd_rotateLeft_;
-    std::unique_ptr<RotateCameraRightCommand> cmd_rotateRight_;
-    std::unique_ptr<ProcessMouseMovementCommand> cmd_mouseLook_;
-    std::unique_ptr<ProcessMouseScrollCommand> cmd_mouseScroll_;
-    std::unique_ptr<ToggleDebugModeCommand> cmd_toggleDebug_;
-    std::unique_ptr<PickObjectCommand> cmd_pickObject_;
+    // std::unique_ptr<PickObjectCommand> cmd_pickObject_;
 };
 
 #endif // GAME_INPUT_PROCESSOR_H

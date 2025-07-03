@@ -19,6 +19,8 @@ public:
 
     // 处理 SDL 事件，转发给 RmlUi 上下文
     bool ProcessEvent(const SDL_Event& event, CommandQueue& commandQueue) override {
+        return false;
+        
         if (!context_) return false; // 如果 context 无效，则不处理
 
         bool event_consumed = false; // RmlUi 是否消费了事件

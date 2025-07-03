@@ -5,12 +5,15 @@
 #include "camera.h"
 #include "inputManager.h"
 
-class ProcessMouseMovementCommand : public ICommand {
+class ProcessMouseMovementCommand : public ICommand
+{
+public:
+    ProcessMouseMovementCommand(std::shared_ptr<Camera> camera, float deltaX, float deltaY);
+    void Execute() override;
+
 private:
     std::shared_ptr<Camera> camera_;
-
-public:
-    ProcessMouseMovementCommand(std::shared_ptr<Camera> camera);
-    void Execute() override;
+    float deltaX_;
+    float deltaY_;
 };
 #endif

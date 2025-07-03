@@ -8,14 +8,10 @@
 
 class PickObjectCommand : public ICommand {
 public:
-    PickObjectCommand(ObjectPicker* picker);
+    PickObjectCommand(ObjectPicker* picker, int mouseX, int mouseY);
     void Execute() override;
-
-    void setMousePosition(int mouseX, int mouseY);
     
-    // !!! 关键改动 !!!
-    // 返回 ISceneObject* 而不是 Mesh*
-    ISceneObject* getPickedObject() const { return pickedObject_; } 
+    // ISceneObject* getPickedObject() const { return pickedObject_; } 
 
 private:
     ObjectPicker* picker_;

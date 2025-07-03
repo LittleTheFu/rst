@@ -3,15 +3,15 @@
 
 #include "command.h"
 #include "camera.h"
-#include "inputManager.h"
 
 class ProcessMouseScrollCommand : public ICommand
 {
+public:
+    ProcessMouseScrollCommand(std::shared_ptr<Camera> camera, float scrollY);
+    void Execute() override;
+
 private:
     std::shared_ptr<Camera> camera_;
-
-public:
-    ProcessMouseScrollCommand(std::shared_ptr<Camera> camera);
-    void Execute() override;
+    float scrollY_;
 };
 #endif

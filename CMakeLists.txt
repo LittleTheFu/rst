@@ -170,7 +170,6 @@ set(OGL_SOURCE_FILES
 
 set(CAMERA_COMMAND_DIR "${COMMAND_DIR}/cameraCommand")
 set(CAMERA_COMMAND_SOURCE_FILES
-    ${CAMERA_COMMAND_DIR}/cameraCommand.cpp
     ${CAMERA_COMMAND_DIR}/moveCameraBackwardCommand.cpp
     ${CAMERA_COMMAND_DIR}/moveCameraDownCommand.cpp
     ${CAMERA_COMMAND_DIR}/moveCameraForwardCommand.cpp

@@ -86,10 +86,6 @@ Window::Window(const char *title, int width, int height)
     // V-Sync On/Off (0: Off, 1: On)
     SDL_GL_SetSwapInterval(0); // 禁用 V-Sync
 
-    
-
-
-
     // init scene first
     scene_ = std::make_shared<Scene>();
     scene_->init();
@@ -238,13 +234,13 @@ Window::Window(const char *title, int width, int height)
     inputProcessors_.push_back(std::move(imguiProc));
 
     auto rmluiProc = std::make_unique<RmlUiInputProcessor>(rmlContext_); // Pass RmlUi Context
-    rmlUiProcessor_ = rmluiProc.get(); // Store raw pointer for direct access
+    rmlUiProcessor_ = rmluiProc.get();                                   // Store raw pointer for direct access
     inputProcessors_.push_back(std::move(rmluiProc));
 
     // Low priority last (Game layer)
     // Pass necessary dependencies for GameInputProcessor to create commands
     auto gameProc = std::make_unique<GameInputProcessor>(scene_->getCamera(), scene_); // Pass Camera and Scene
-    gameInputProcessor_ = gameProc.get(); // Store raw pointer for direct access
+    gameInputProcessor_ = gameProc.get();                                              // Store raw pointer for direct access
     inputProcessors_.push_back(std::move(gameProc));
 }
 
@@ -322,20 +318,23 @@ void Window::update()
     lastFrameTime_ = currentTime;
 
     // --- 输入处理 ---
-     // 1. Prepare InputManager for the new frame (clear deltas, update previous states)
+    // 1. Prepare InputManager for the new frame (clear deltas, update previous states)
     InputManager::GetInstance().Update();
 
     // 2. Prepare each InputProcessor for the new frame (e.g., ImGui::NewFrame())
-    for (const auto& processor : inputProcessors_) {
+    for (const auto &processor : inputProcessors_)
+    {
         processor->BeginFrame();
     }
 
     SDL_Event event;
     bool uiCapturesKeyboard = false;
     bool uiCapturesMouse = false;
-        while (SDL_PollEvent(&event)) {
+    while (SDL_PollEvent(&event))
+    {
         // Handle global system events first (like quit request or window resize)
-        if (event.type == SDL_QUIT) {
+        if (event.type == SDL_QUIT)
+        {
             running_ = false; // Set global flag to stop the main loop
             // No need to pass SDL_QUIT to InputManager::ProcessEvent
             // because InputManager::IsQuitRequested() will handle it via the event directly.
@@ -343,7 +342,8 @@ void Window::update()
         }
 
         // Example: Window resize event (can be handled globally or passed through processors)
-        if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_RESIZED) {
+        if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_RESIZED)
+        {
             // Your window resize logic
             int newWidth = event.window.data1;
             int newHeight = event.window.data2;
@@ -357,9 +357,11 @@ void Window::update()
         // We iterate in reverse to allow high-priority UI processors to set their capture flags
         // However, a simpler forward iteration is often sufficient if capture checks happen AFTER the loop.
         // Let's stick with forward iteration for ProcessEvent, and gather capture flags later.
-        for (const auto& processor : inputProcessors_) {
+        for (const auto &processor : inputProcessors_)
+        {
             // ProcessEvent might add commands to commandQueue_
-            if (processor->ProcessEvent(event, *commandQueue_)) {
+            if (processor->ProcessEvent(event, *commandQueue_))
+            {
                 // If a processor returns true, it means it "consumed" the event.
                 // We typically stop processing for this event down the chain.
                 // However, for ImGui/RmlUi, they often return false but set internal WantCapture flags.
@@ -374,23 +376,28 @@ void Window::update()
     // 4. Gather UI capture states AFTER all events have been processed by UIs
     // This is crucial: ImGui and RmlUi update their WantCapture* flags *during* ProcessEvent.
     // So, we query their final state after the event loop.
-    if (imGuiProcessor_) {
+    if (imGuiProcessor_)
+    {
         uiCapturesKeyboard = imGuiProcessor_->WantsToCaptureKeyboard();
         uiCapturesMouse = imGuiProcessor_->WantsToCaptureMouse();
     }
     // RmlUi takes priority over ImGui if both capture (you can adjust this logic)
     // Here, if RmlUi wants capture, it overrides ImGui.
-    if (rmlUiProcessor_) {
-        if (rmlUiProcessor_->WantsToCaptureKeyboard()) {
-            uiCapturesKeyboard = true;
-        }
-        if (rmlUiProcessor_->WantsToCaptureMouse()) {
-            uiCapturesMouse = true;
-        }
-    }
+    // if (rmlUiProcessor_)
+    // {
+    //     if (rmlUiProcessor_->WantsToCaptureKeyboard())
+    //     {
+    //         uiCapturesKeyboard = true;
+    //     }
+    //     if (rmlUiProcessor_->WantsToCaptureMouse())
+    //     {
+    //         uiCapturesMouse = true;
+    //     }
+    // }
 
     // 5. Generate Game-specific Commands (only if UI doesn't capture input)
-    if (gameInputProcessor_) {
+    if (gameInputProcessor_)
+    {
         gameInputProcessor_->GenerateCommands(*commandQueue_, deltaTime_, uiCapturesKeyboard, uiCapturesMouse);
     }
 
