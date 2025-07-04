@@ -8,6 +8,7 @@
                 "${workspaceFolder}/physics",
                 "${workspaceFolder}/camera",
                 "${workspaceFolder}/mesh",
+                "${workspaceFolder}/ecs",
                 "${workspaceFolder}/ogl",
                 "${workspaceFolder}/event",
                 "${workspaceFolder}/command",
