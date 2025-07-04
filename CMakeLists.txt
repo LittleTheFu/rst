@@ -119,6 +119,12 @@ set(INPUT_SOURCE_FILES
     ${INPUT_DIR}/RmlUiInputProcessor.cpp
 )
 
+set(ECS_DIR "ecs")
+set(ECS_SOURCE_FILES
+
+)
+
+
 set(COLLISION_DIR "collision")
 set(COLLISION_SOURCE_FILES
     ${COLLISION_DIR}/boundingVolume.cpp
@@ -134,6 +140,7 @@ set(MESH_SOURCE_FILES
     ${MESH_DIR}/animation.cpp
     ${MESH_DIR}/animator.cpp
     ${MESH_DIR}/bone.cpp
+    ${MESH_DIR}/MeshGLData.cpp
 )
 
 set(CAMERA_DIR "camera")
@@ -146,6 +153,7 @@ set(MANAGER_SOURCE_FILES
     ${MANAGER_DIR}/textureManager.cpp
     ${MANAGER_DIR}/materialManager.cpp
     ${MANAGER_DIR}/shaderManager.cpp
+    ${MANAGER_DIR}/meshManager.cpp
 )
 
 set(INTERFACE_DIR "interface")
@@ -231,6 +239,7 @@ add_executable(rst
     ${GAME_UI_SOURCE_FILES}
     ${OGL_SOURCE_FILES}
     ${EVENT_SOURCE_FILES}
+    ${ECS_SOURCE_FILES}
 )
 
 target_compile_options(rst PRIVATE /wd4819)
@@ -261,6 +270,7 @@ target_include_directories(rst PRIVATE
     ${CMAKE_SOURCE_DIR}/${GAME_UI_DIR}
     ${CMAKE_SOURCE_DIR}/${OGL_DIR}
     ${CMAKE_SOURCE_DIR}/${EVENT_DIR}
+    ${CMAKE_SOURCE_DIR}/${ECS_DIR}
 
     ${CMAKE_SOURCE_DIR}/third/glad/include
     ${CMAKE_SOURCE_DIR}/third/sdl/include
