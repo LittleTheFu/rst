@@ -1,10 +1,14 @@
 #ifndef MATERIAL_MANAGER_H
 #define MATERIAL_MANAGER_H
 
-#include "asset.h"        // 引入 IAsset 接口 (因为 Material 继承 IAsset)
-#include "material.h"     // 引入 Material 类
+#include "asset.h"          // 引入 IAsset 接口 (因为 Material 继承 IAsset)
+#include "material.h"       // 引入 Material 类
 #include "textureManager.h" // MaterialManager 会依赖 TextureManager 来加载纹理
-#include "MaterialFactory.h" // MaterialManager 会依赖 MaterialFactory 来创建材质
+
+// Assimp includes for aiMaterial
+#include <assimp/scene.h>
+#include <assimp/material.h>
+#include <assimp/pbrmaterial.h> // for PBR material keys like AI_MATKEY_BASE_COLOR, AI_MATKEY_ROUGHNESS_FACTOR, etc.
 
 #include <string>
 #include <map>
@@ -15,7 +19,7 @@
  * @brief MaterialManager 是一个单例类，负责材质资源的加载、缓存和管理。
  *
  * 它确保每个材质在内存中只加载一次，并能被应用程序中的多个部分共享。
- * MaterialManager 依赖于 MaterialFactory 来执行实际的材质创建和纹理加载。
+ * MaterialManager 依赖于 TextureManager 来执行实际的纹理加载。
  */
 class MaterialManager {
 public:
@@ -28,9 +32,9 @@ public:
     // --- 公共加载/获取接口 ---
 
     /**
-     * @brief 加载或获取一个材质。
+     * @brief 加载或获取一个材质，基于文件约定。
      *
-     * 如果材质已在缓存中，则直接返回其共享指针；否则，通过 MaterialFactory 加载并缓存。
+     * 如果材质已在缓存中，则直接返回其共享指针；否则，通过内部辅助函数加载并缓存。
      * 此函数封装了通过目录加载材质的常用模式。
      *
      * @param materialID 材质的唯一标识符（通常是其名称或一个指向材质文件的路径）。
@@ -47,6 +51,17 @@ public:
         const std::string& extension = ".png",
         bool flipY = true
     );
+
+    /**
+     * @brief 加载或获取一个材质，从 Assimp aiMaterial 数据构造。
+     *
+     * 该方法会尝试从 aiMaterial 中提取名称作为缓存ID。如果无名称，则生成临时ID。
+     *
+     * @param aiMat Assimp 的 aiMaterial 结构体指针。
+     * @param modelDirectory 模型文件所在的目录，用于解析相对纹理路径。
+     * @return 材质的 std::shared_ptr，如果加载失败则返回 nullptr。
+     */
+    std::shared_ptr<Material> loadMaterial(aiMaterial* aiMat, const std::string& modelDirectory);
 
     /**
      * @brief 尝试从缓存中获取一个已加载的材质。
@@ -76,9 +91,9 @@ public:
 
 private:
     // --- 单例模式的私有成员 ---
-    MaterialManager();                                     // 私有构造函数
-    ~MaterialManager();                                    // 私有析构函数
-    MaterialManager(const MaterialManager&) = delete;             // 禁用拷贝构造函数
+    MaterialManager();                                   // 私有构造函数
+    ~MaterialManager();                                  // 私有析构函数
+    MaterialManager(const MaterialManager&) = delete;            // 禁用拷贝构造函数
     MaterialManager& operator=(const MaterialManager&) = delete;  // 禁用赋值运算符
 
     // --- 内部材质缓存 ---
@@ -86,13 +101,23 @@ private:
     std::map<std::string, std::shared_ptr<Material>> m_loadedMaterials;
 
     // --- 内部加载辅助函数 ---
+
     // 这个函数封装了调用 MaterialFactory 来创建材质的逻辑，并处理可能的异常
+    // 用于基于文件约定的材质加载
     std::shared_ptr<Material> internalLoadMaterial(
         const std::string& materialID,
         const std::string& directory,
         const std::string& extension,
         bool flipY
     );
+
+    // 用于 Assimp aiMaterial 的加载
+    std::shared_ptr<Material> internalLoadMaterialFromAssimp(aiMaterial* aiMat, const std::string& modelDirectory);
+
+    // 辅助函数：从 aiMaterial 提取纹理
+    // Returns nullptr if texture not found or fails to load.
+    // textureType is an Assimp enum (e.g., aiTextureType_DIFFUSE, aiTextureType_NORMALS)
+    std::shared_ptr<Texture2D> loadTextureAssimp(aiMaterial* mat, aiTextureType type, const std::string& directory);
 };
 
 #endif // MATERIAL_MANAGER_H

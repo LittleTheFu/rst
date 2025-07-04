@@ -1,12 +1,13 @@
+// Material.h (只显示修改的部分)
 #ifndef MATERIAL_H
 #define MATERIAL_H
 
 #include <string>
 #include <memory>
-#include <Eigen/Dense>
-#include "Texture.h"
-#include "shader.h"
-#include "asset.h"
+#include <Eigen/Dense> // 确保 Eigen/Dense 路径正确
+#include "Texture.h" // 确保 Texture.h 路径正确
+#include "shader.h" // 确保 shader.h 路径正确
+#include "asset.h" // 确保 asset.h 路径正确
 
 class Material : public IAsset
 {
@@ -14,13 +15,13 @@ public:
     Material(const std::string &name = "default_material");
     ~Material() = default;
 
-//hotfix,I will be back here later...
 public:
     // IAsset 接口实现
-    const std::string& getID() const override { return assetId_; } // 将 name_ 用作 ID
+    // 将 name_ 用作 ID
+    const std::string& getID() const override { return name_; } // <--- 修改这里
     AssetType getType() const override { return AssetType::Material; } // 返回材质类型
-private:
-    std::string assetId_;
+// private:
+//     std::string assetId_; // <--- 移除这一行
 
 public:
     std::string getName() const { return name_; }
