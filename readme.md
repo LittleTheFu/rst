@@ -144,3 +144,7 @@ The executable will be located in the `build/Debug` or `build/Release` directory
 *   **Q, E:** 上下移动相机 / Move camera up and down.
 *   **鼠标移动 / Mouse Movement:** 旋转相机视角 / Rotate the camera view.
 *   **鼠标滚轮 / Mouse Wheel:** 调整相机移动速度 / Adjust camera movement speed.
+
+**重要提示:** 运行程序后，请确保将您的输入法切换到英文模式，否则可能导致相机无法正常移动。
+
+**Important:** After running the application, please ensure your input method is switched to English mode. Otherwise, camera movement may not function correctly.
