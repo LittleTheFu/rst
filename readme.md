@@ -1,288 +1,146 @@
-项目简介：基于 OpenGL 的延迟渲染引擎
-本项目是一个基于 OpenGL 开发的延迟渲染引擎，致力于呈现高质量的图形渲染。值得一提的是，其大部分核心代码是在与 ChatGPT 和 Gemini 等 AI 工具的对话协作下完成的，这充分展现了人机协作在现代软件开发中的高效与潜力。项目目前仍在积极的迭代与完善中。
+# RST 渲染引擎 / RST Rendering Engine
 
-核心特性与技术栈
+RST 是一个功能丰富的延迟渲染引擎，使用 C++ 和 OpenGL 构建。项目旨在探索和实现现代渲染技术，其大部分核心代码是在与 AI 工具（ChatGPT 和 Gemini）的协作下完成的，充分展示了人机协作在现代软件开发中的高效与潜力。
 
-延迟渲染 (Deferred Shading)：项目采用了延迟渲染架构，巧妙地将几何信息的渲染与光照计算分离。这种设计尤其适合处理包含大量光源的复杂场景，能够显著提升渲染效率。
+RST is a feature-rich deferred rendering engine built with C++ and OpenGL. The project aims to explore and implement modern rendering techniques. A significant portion of its core code was developed in collaboration with AI tools (ChatGPT and Gemini), showcasing the efficiency and potential of human-AI collaboration in modern software development.
 
-模块化渲染管线：整个渲染流程被精心划分为一系列独立的“Pass”（通道），每个Pass专注于完成特定的渲染任务，这种模块化设计极大地提高了项目的可管理性和可扩展性。
+---
 
-丰富的高级视觉效果：引擎实现了多种先进的图形效果，包括模拟相机镜头的景深（Depth of Field）、光线穿透介质的体积光（God Ray）、基于屏幕信息的屏幕空间反射（Screen Space Reflection, SSR）、模拟环境光遮蔽的AO（Ambient Occlusion），以及**基于图像的光照（Image-Based Lighting, IBL）**等，致力于提供更具真实感的视觉体验。
+## ✨ 核心特性 / Core Features
 
-AI 辅助开发实践：本项目是利用 AI 进行代码生成、问题排查和架构设计的成功案例，展示了 AI 在辅助软件开发方面的强大能力。
+*   **图形 API / Graphics API:** **OpenGL 4.5**
 
-----------------------------------------------
+*   **渲染架构 / Rendering Architecture:**
+    *   **延迟渲染 (Deferred Shading):** 高效处理多光源场景，将几何渲染与光照计算分离。 / Efficiently handles scenes with multiple light sources by separating geometry rendering from lighting calculations.
+    *   **基于物理的渲染 (PBR):** 支持金属度 (Metallic)、粗糙度 (Roughness) 和环境光遮蔽 (AO) 工作流。 / Supports the Metallic, Roughness, and Ambient Occlusion (AO) workflow.
+    *   **模块化渲染管线 (Modular Render Pipeline):** 渲染流程被划分为一系列独立的渲染通道 (Pass)，易于管理和扩展。 / The rendering process is divided into a series of independent passes, making it easy to manage and extend.
 
-渲染流程详解与Pass概览
-项目的渲染核心在于 Scene::run() 方法，它像一个精密的指挥家，按序调度各个渲染Pass，逐步构建最终的图像。
+*   **高级视觉效果 / Advanced Visual Effects:**
+    *   **阴影 (Shadows):** 基于 Shadow Map 的动态阴影。 / Dynamic shadows based on Shadow Mapping.
+    *   **光照 (Lighting):**
+        *   **基于图像的照明 (Image-Based Lighting, IBL):** 用于实现真实的环境光照和反射。 / For realistic environment lighting and reflections.
+        *   **体积光 (God Rays):** 模拟光线穿过介质的效果。 / Simulates the effect of light scattering through a medium.
+    *   **后期处理 / Post-Processing:**
+        *   **屏幕空间反射 (Screen Space Reflection, SSR):** 实现光滑表面的实时反射。 / Achieves real-time reflections on smooth surfaces.
+        *   **屏幕空间环境光遮蔽 (Screen Space Ambient Occlusion, SSAO):** 增强场景的深度感。 / Enhances the depth and detail of the scene.
+        *   **景深 (Depth of Field):** 模拟相机对焦效果。 / Simulates camera focus effects.
+        *   **泛光 (Bloom):** 增强高光区域的视觉效果。 / Enhances the visual effect of bright areas.
+    *   **透明物体 (Transparency):** 支持顺序无关的透明度渲染 (OIT)。 / Supports Order-Independent Transparency (OIT).
 
-场景数据更新 (updateScene())
-每帧开始时，此函数会更新场景中的动态元素，例如演示中光源位置的动画变化，以及调试用的物体同步移动。
+*   **核心架构 / Core Architecture:**
+    *   **实体组件系统 (Entity-Component-System, ECS):** 灵活的、数据驱动的架构。 / A flexible, data-driven architecture.
+    *   **命令模式 (Command Pattern):** 解耦输入处理和游戏逻辑。 / Decouples input handling from game logic.
+    *   **资源管理 (Resource Management):** 集中的管理器负责纹理、模型、着色器和材质的生命周期。 / Centralized managers handle the lifecycle of textures, models, shaders, and materials.
 
-----------------------------------------------
+*   **物理 / Physics:** 集成 **Jolt Physics** 引擎，支持刚体动力学。 / Integrated with the **Jolt Physics** engine to support rigid body dynamics.
 
-Sky Pass (天空通道)
+*   **用户界面 / User Interface:**
+    *   **ImGui:** 用于强大的调试UI。 / For powerful debugging UIs.
+    *   **RmlUi:** 用于创建高性能、数据驱动的游戏内UI。 / For creating high-performance, data-driven in-game UIs.
 
-职责：渲染场景的背景天空盒，为后续光照提供环境基础。
+*   **模型与动画 / Models and Animation:**
+    *   通过 **Assimp** 库支持多种模型格式导入。 / Supports various model formats via the **Assimp** library.
+    *   支持骨骼动画。 / Supports skeletal animation.
 
-结果：仅包含天空和环境的图像。
+---
 
-----------------------------------------------
+## 📸 效果展示 / Showcase
 
-Shadow Pass (阴影通道)
+| G-Buffer Albedo | G-Buffer Normals | G-Buffer Position |
+| :---: | :---: | :---: |
+| ![Albedo](doc/albedo.png) | ![Normal](doc/normal.png) | ![Position](doc/position.png) |
+| **Shadow Map** | **Light Pass** | **IBL Pass** |
+| ![Depth](doc/depth.png) | ![Light](doc/light.png) | ![IBL](doc/iblPass.png) |
+| **SSR** | **God Rays** | **Final Composite** |
+| ![SSR](doc/ssr.png) | ![God Ray](doc/god_ray.png) | ![Combined](doc/combined.png) |
 
-职责：从光源视角渲染场景深度，生成一张阴影贴图，用于标记哪些区域被遮挡而处于阴影中
-。
-结果：记录阴影信息的“阴影贴图”。
+---
 
-----------------------------------------------
+## 🏗️ 架构设计 / Architecture
 
-G-Buffer Pass (几何缓冲区通道)
+### 实体组件系统 (ECS) / Entity-Component-System (ECS)
+引擎采用 **实体-组件-系统 (ECS)** 架构。这种模式将数据（组件）与逻辑（系统）分离，通过实体进行关联，提供了高度的灵活性和可扩展性。
 
-职责：延迟渲染的核心阶段。将所有不透明物体的几何信息（如世界空间位置、法线、反照率、粗糙度、金属度、AO 和深度）渲染并存储到多张纹理中，统称为 G-Buffer。
+The engine uses an **Entity-Component-System (ECS)** architecture. This pattern separates data (Components) from logic (Systems) and links them via Entities, providing high flexibility and scalability.
 
-结果：包含物体位置、法线、反照率、粗糙度、金属度、环境光遮蔽 (AO) 和深度信息的 G-Buffer 纹理集。
+### 渲染管线 / Render Pipeline
+渲染流程被精心划分为一系列独立的 **Pass**（通道）。`Scene::run()` 方法负责按顺序调度各个渲染Pass，逐步构建出最终的图像。这种设计使得添加、移除或重排渲染效果变得非常简单。
 
-----------------------------------------------
-OIT Pass (顺序无关透明度通道)
+The rendering process is carefully divided into a series of independent **Passes**. The `Scene::run()` method orchestrates these passes in sequence to progressively build the final image. This design makes it very simple to add, remove, or reorder rendering effects.
 
-职责：高效处理透明物体的渲染，确保即便渲染顺序不定，透明度也能正确混合叠加。
+#### 渲染流程详解 / Render Pipeline Details
 
-结果：处理后的透明物体视觉效果。
+1.  **天空盒 (Sky Pass):** 渲染天空盒，为场景提供环境背景和IBL基础。 / Renders the skybox, providing an environmental background and the basis for IBL.
+2.  **阴影 (Shadow Pass):** 从光源视角渲染场景，生成阴影贴图。 / Renders the scene from the light's perspective to generate a shadow map.
+3.  **G-Buffer Pass:** 延迟渲染的核心步骤。将不透明物体的几何信息（位置、法线、反照率、PBR属性等）渲染到G-Buffer中。 / The core step of deferred rendering. Renders the geometric information of opaque objects (position, normals, albedo, PBR properties, etc.) into the G-Buffer.
+4.  **SSAO Pass:** 利用G-Buffer中的信息计算环境光遮蔽，增强细节。/ Uses information from the G-Buffer to calculate ambient occlusion, enhancing details.
+5.  **光照 (Light Pass):** 利用G-Buffer的数据，计算直接光照，并结合阴影贴图。 / Calculates direct lighting using data from the G-Buffer and the shadow map.
+6.  **透明 (OIT Pass):** 使用顺序无关的透明度技术渲染透明物体。 / Renders transparent objects using Order-Independent Transparency techniques.
+7.  **IBL Pass:** 基于环境贴图计算间接光照和反射。 / Calculates indirect lighting and reflections based on environment maps.
+8.  **SSR Pass:** 在屏幕空间中计算局部反射。 / Computes local reflections in screen space.
+9.  **组合 (Combined Pass):** 将直接光照、IBL、SSR、体积光、透明物体、天空盒等所有结果混合，生成最终场景图像。 / Blends all results (direct light, IBL, SSR, god rays, transparency, skybox, etc.) to generate the final scene image.
+10. **后期处理 (Post-processing):**
+    *   **亮度提取 (Brightness Mask):** 为Bloom效果提取高亮区域。 / Extracts bright areas for the bloom effect.
+    *   **模糊 (Blur Passes):** 高斯模糊，用于Bloom和景深。 / Applies Gaussian blur for bloom and depth of field.
+    *   **景深 (Depth of Field):** 模拟相机景深。 / Simulates the camera's depth of field effect.
+    *   **最终合成 (Post Pass):** 应用色调映射、Gamma校正等最终调整。 / Applies final adjustments like tone mapping and gamma correction.
+11. **屏幕输出 (Screen Pass):** 将最终渲染结果绘制到屏幕上。 / Draws the final rendered image to the screen.
 
-----------------------------------------------
+---
 
-Light Pass (光照通道)
+## 🛠️ 依赖库 / Dependencies
 
-职责：利用 G-Buffer 中的几何数据，对每个像素执行直接光照计算，并结合阴影贴图确定光照贡献。
+本项目依赖于以下优秀的第三方库：
 
-结果：只包含直接光照效果的图像。
+This project relies on the following excellent third-party libraries:
 
-----------------------------------------------
+*   **SDL2:** 跨平台窗口和输入管理。 / Cross-platform window and input management.
+*   **Glad:** OpenGL 函数加载器。 / OpenGL function loader.
+*   **Assimp:** 模型加载库。 / Model loading library.
+*   **GLI:** 纹理加载和处理。 / Texture loading and processing.
+*   **ImGui:** 调试UI库。 / Debug UI library.
+*   **RmlUi:** 高性能游戏UI库。 / High-performance game UI library.
+*   **Jolt Physics:** 物理引擎。 / Physics engine.
+*   **Eigen:** C++ 模板数学库。 / C++ template library for linear algebra.
+*   **LodePNG:** PNG 图像读写。 / PNG image reading and writing.
+*   **FreeType:** 字体渲染。 / Font rendering.
 
-Brightness Mask Pass (亮度遮罩通道)
+---
 
-职责：从光照结果中提取亮度超过阈值的区域，生成一个亮度遮罩，这是实现泛光（Bloom）效果的基础。
+## 🚀 快速开始 / Quick Start
 
-结果：突出显示最亮区域的“遮罩图像”。
+### 构建环境 / Prerequisites
 
-----------------------------------------------
+*   C++17 编译器 (MSVC, GCC, Clang) / C++17 Compiler (MSVC, GCC, Clang).
+*   CMake 3.10+
 
-God Ray Pass (体积光通道)
+### 构建步骤 / Build Steps
 
-职责：模拟光线穿透介质形成的可见光束效果，如丁达尔效应。
+```bash
+# 1. 克隆仓库 / Clone the repository
+git clone <your-repo-url>
+cd <repo-name>
 
-结果：仅包含体积光效果的图像。
-
-----------------------------------------------
-
-IBL Pass (基于图像的光照通道)
-
-职责：利用环境贴图（辐照度图、预过滤图）和 BRDF 查找表，为场景物体添加环境光照和反射效果。
-
-结果：包含环境光照和反射效果的图像。
-
-----------------------------------------------
-
-SSR Pass (屏幕空间反射通道)
-
-职责：在屏幕空间内高效计算反射效果，常用于光滑表面的局部反射。
-
-结果：只包含屏幕空间反射效果的图像。
-
-----------------------------------------------
-
-Combined Pass (组合通道)
-
-职责：将上述所有独立的渲染结果（直接光照、IBL、SSR、体积光、透明物体、天空盒等）进行最终混合与叠加，生成一张完整的场景图像。
-
-结果：整合了所有光照和特殊效果的完整图像。
-
-----------------------------------------------
-
-Blur Horizontal Pass & Blur Vertical Pass (水平/垂直模糊通道)
-
-职责：对图像进行水平和垂直方向的模糊处理，常作为景深、泛光等后期效果的中间步骤。
-
-结果：模糊处理后的图像。
-
-----------------------------------------------
-
-Depth of Field Pass (景深通道)
-
-职责：模拟真实相机镜头的景深效果，使焦点区域清晰，而焦点前后区域模糊，增强图像的艺术感。
-
-结果：应用景深效果的图像。
-
-----------------------------------------------
-
-Post Pass (后期处理通道)
-
-职责：对最终图像进行一系列后期处理，如色彩校正、锐化等，进一步提升视觉质量。
-
-结果：最终增强处理后的图像。
-
-----------------------------------------------
-
-Screen Pass (屏幕输出通道)
-
-职责：将最终的渲染图像绘制到全屏四边形上，呈现在用户的显示器上。
-
-结果：用户在显示器上看到的最终图像。
-
--------------------------------------------------
-
-依赖与可扩展性
-本项目集成了 SDL、Assimp、lodepng、GLI、ImGui 和 Eigen 等知名的第三方库，这些库为窗口管理、模型导入、图像处理、UI 调试和数学运算提供了坚实的基础。模块化的设计和清晰的 Pass 结构使得项目具有良好的可扩展性，未来可以方便地添加更多高级渲染技术和效果。
-
------------------------------------------------------
-
-----------------------------------------------
-暂时的简介：这个是用opengl写的一个延迟渲染引擎，大部分是通过和ai对话完成的，用的是免费版的chatgpt和gemini。还在进行中
-
-QUICK START GUIDE:
-
+# 2. 创建构建目录 / Create a build directory
 mkdir build
-
 cd build
 
+# 3. 运行 CMake 生成构建系统 / Run CMake to generate the build system
 cmake ..
 
+# 4. 编译项目 / Build the project
 cmake --build .
+```
 
+可执行文件将生成在 `build/Debug` 或 `build/Release` 目录下。
 
-you'll find the executable in the build directory.
+The executable will be located in the `build/Debug` or `build/Release` directory.
 
-------------------------------------------------------
-# My Project Readme
+---
 
-## Images
+## ⌨️ 操作控制 / Controls
 
-Here are some visual assets from my project:
-
-### Albedo Map
-![Albedo](doc/albedo.png)
-
-### Ambient Occlusion (AO)
-![AO](doc/ao.png)
-
-### Horizontal Blur
-![Blur Horizontal](doc/blur_horizontal.png)
-
-### Vertical Blur
-![Blur Vertical](doc/blur_vertical.png)
-
-### Brightness Mask
-![Brightness Mask](doc/brightness_mask.png)
-
-### Combined Image
-![Combined](doc/combined.png)
-
-### Depth Map
-![Depth](doc/depth.png)
-
-### Depth of Field
-![Depth of Field](doc/depth_of_field.png)
-
-### God Ray Effect
-![God Ray](doc/god_ray.png)
-
-### Light Map
-![Light](doc/light.png)
-
-### Metallic Map
-![Metallic](doc/metallic.png)
-
-### Normal Map
-![Normal](doc/normal.png)
-
-### Position Map
-![Position](doc/position.png)
-
-### Post-processing
-![Post](doc/post.png)
-
-### Roughness Map
-![Roughness](doc/roughness.png)
-
-### Skybox
-![Skybox](doc/skybox.png)
-
-### Screen Space Reflections (SSR)
-![SSR](doc/ssr.png)
-
-----------------------------------------------------
-
-## Rendering Process
-1. Sky Pass
-
-    Result: A picture showing only the sky and environment.
-
-2. Shadow Pass
-
-    Result: A "shadow map" that records where shadows fall.
-
-3. G-Buffer Pass (Geometry Buffer Pass)
-
-    Result: A collection of "X-ray plates" containing all the necessary information to render objects, but without their final color.
-
-    Position Plate: Records the exact 3D spatial position of each point.
-
-    Normal Plate: Records the surface orientation of each point (how light reflects differently based on direction).
-
-    Albedo Plate: Records the object's base color.
-
-    Roughness Plate: Records how smooth or rough the object's surface is.
-
-    Metallic Plate: Records whether the object is a metallic material.
-
-    Ambient Occlusion Plate (AO): Records how dark certain areas (like cracks or corners) appear due to being obstructed from ambient light.
-
-    Depth Plate: Records how far each point is from the camera.
-
-4. OIT Pass (Order-Independent Transparency)
-
-    Result: Processed transparent object visuals, ready to be combined with other parts of the scene later.
-
-5. Light Pass
-
-    Result: A picture showing only the direct lighting effects.
-
-6. Brightness Mask Pass
-
-    Result: A "mask image" that highlights only the brightest areas.
-
-7. God Ray Pass
-
-    Result: A picture showing only the volumetric light effect.
-
-8. IBL Pass (Image-Based Lighting)
-
-    Result: A picture including environmental lighting and reflection effects.
-
-9. SSR Pass (Screen Space Reflection)
-
-    Result: A picture showing only the screen-space reflection effects.
-
-10. Combined Pass
-
-    Result: A complete image incorporating all lighting and special effects.
-
-11. Blur Horizontal Pass & Blur Vertical Pass
-
-    Result: A blurred image.
-
-12. Depth of Field Pass
-
-    Result: An image with a depth-of-field effect.
-
-13. Post Pass
-
-    Result: The final, enhanced image.
-
-14. Screen Pass
-
-    Result: The image you see on your display.
-
-## How It Works
-The entire process operates like an assembly line, with each step focusing on a specific task. Ultimately, all these effects are layered together to create the realistic and detailed computer graphics you see.
+*   **W, A, S, D:** 向前、左、后、右移动相机 / Move camera forward, left, backward, right.
+*   **Q, E:** 上下移动相机 / Move camera up and down.
+*   **鼠标移动 / Mouse Movement:** 旋转相机视角 / Rotate the camera view.
+*   **鼠标滚轮 / Mouse Wheel:** 调整相机移动速度 / Adjust camera movement speed.
