@@ -46,13 +46,26 @@ RST is a feature-rich deferred rendering engine built with C++ and OpenGL. The p
 
 ## 📸 效果展示 / Showcase
 
-| G-Buffer Albedo | G-Buffer Normals | G-Buffer Position |
+### G-Buffer
+| Albedo (反照率) | Normal (法线) | Position (位置) |
 | :---: | :---: | :---: |
 | ![Albedo](doc/albedo.png) | ![Normal](doc/normal.png) | ![Position](doc/position.png) |
-| **Shadow Map** | **Light Pass** | **IBL Pass** |
-| ![Depth](doc/depth.png) | ![Light](doc/light.png) | ![IBL](doc/iblPass.png) |
-| **SSR** | **God Rays** | **Final Composite** |
-| ![SSR](doc/ssr.png) | ![God Ray](doc/god_ray.png) | ![Combined](doc/combined.png) |
+| **Metallic (金属度)** | **Roughness (粗糙度)** | **AO (环境光遮蔽)** |
+| ![Metallic](doc/metallic.png) | ![Roughness](doc/roughness.png) | ![AO](doc/ao.png) |
+
+### Lighting & Reflections (光照与反射)
+| Shadow Map (阴影图) | Light Pass (光照通道) | SSR (屏幕空间反射) |
+| :---: | :---: | :---: |
+| ![Depth](doc/depth.png) | ![Light](doc/light.png) | ![SSR](doc/ssr.png) |
+| **Skybox (天空盒)** | **God Ray (体积光)** | |
+| ![Skybox](doc/skybox.png) | ![God Ray](doc/god_ray.png) | |
+
+### Post-Processing & Final Image (后期处理与最终图像)
+| Brightness Mask (亮度蒙版) | Horizontal Blur (水平模糊) | Vertical Blur (垂直模糊) |
+| :---: | :---: | :---: |
+| ![Brightness Mask](doc/brightness_mask.png) | ![Blur Horizontal](doc/blur_horizontal.png) | ![Blur Vertical](doc/blur_vertical.png) |
+| **Depth of Field (景深)** | **Post-processed (后期处理后)** | **Final Combined (最终合成)** |
+| ![Depth of Field](doc/depth_of_field.png) | ![Post](doc/post.png) | ![Combined](doc/combined.png) |
 
 ---
 
